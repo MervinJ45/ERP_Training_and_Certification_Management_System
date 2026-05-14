@@ -17,30 +17,18 @@ import java.util.UUID;
 public class EmployeeDTO {
 
     private UUID employeeId;
-
     private String firstName;
-
     private String lastName;
-
     private String email;
-
     private String phone;
-
     private String designation;
-
     private LocalDate dateOfJoining;
-
     private Boolean isActive;
-
     private DepartmentDTO department;
-
     private EmployeeDTO manager;
-
     private RoleDTO role;
-
     private UserDTO user;
-
     private String username;
-
     private String password;
+
 }

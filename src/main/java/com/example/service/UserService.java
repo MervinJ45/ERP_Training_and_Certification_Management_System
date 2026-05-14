@@ -88,4 +88,10 @@ public class UserService {
     public User findByEmployeeId(UUID employeeId) {
         return userRepo.findByEmployeeEmployeeId(employeeId).orElse(null);
     }
+
+    public List<UserDTO> searchUserDTOs(String value) {
+        return userRepo.findAll().stream().filter(user -> user.getUsername().toLowerCase().contains(value.toLowerCase()))
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
 }

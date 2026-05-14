@@ -92,28 +92,23 @@ public class TrainingCourseService {
     }
 
     public void deleteCourse(UUID id) {
-
         trainingCourseRepo.deleteById(id);
     }
 
     public TrainingCourse getCourseById(UUID id) {
-
         return trainingCourseRepo.findById(id).orElse(null);
     }
 
     public List<TrainingCourseDTO> searchCourseDTOs(String value) {
-
         return trainingCourseRepo.findAll().stream().filter(course -> course.getCourseName().toLowerCase().contains(value.toLowerCase())).map(this::convertToDTO).collect(Collectors.toList());
     }
 
     public List<TrainingCourseDTO> findAllCourses(String value) {
-
         if (value == null || value.isEmpty()) {
             return getAllCourseDTOs();
         } else {
             return searchCourseDTOs(value);
         }
-
     }
 
     public TrainingCourseDTO convertToDTO(TrainingCourse course) {

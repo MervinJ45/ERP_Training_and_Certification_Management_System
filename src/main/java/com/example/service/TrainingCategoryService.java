@@ -22,40 +22,15 @@ public class TrainingCategoryService {
         return trainingCategoryRepo.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
-    public void saveCategory(TrainingCategoryDTO dto) {
-
-        TrainingCategory category = new TrainingCategory();
-
-        category.setCategoryName(dto.getCategoryName());
-
-        category.setIsActive(dto.getIsActive());
-
-        trainingCategoryRepo.save(category);
-    }
-
-    public void updateCategory(TrainingCategoryDTO dto) {
-
-        TrainingCategory category = trainingCategoryRepo.findById(dto.getCategoryId()).orElseThrow(() -> new RuntimeException("Category Not Found"));
-
-        category.setCategoryName(dto.getCategoryName());
-
-        category.setIsActive(dto.getIsActive());
-
-        trainingCategoryRepo.save(category);
-    }
-
     public void deleteCategory(UUID id) {
-
         trainingCategoryRepo.deleteById(id);
     }
 
     public TrainingCategory getCategoryById(UUID id) {
-
         return trainingCategoryRepo.findById(id).orElse(null);
     }
 
     public TrainingCategoryDTO convertToDTO(TrainingCategory category) {
-
         if (category == null) {
             return null;
         }

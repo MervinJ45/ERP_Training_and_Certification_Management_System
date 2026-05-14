@@ -12,9 +12,7 @@ public class ApprovalStatusService {
 
     private final ApprovalStatusRepo approvalStatusRepo;
 
-    public ApprovalStatusService(
-            ApprovalStatusRepo approvalStatusRepo
-    ) {
+    public ApprovalStatusService(ApprovalStatusRepo approvalStatusRepo) {
         this.approvalStatusRepo = approvalStatusRepo;
     }
 
@@ -22,9 +20,7 @@ public class ApprovalStatusService {
         return approvalStatusRepo.findAll();
     }
 
-    public ApprovalStatus saveApprovalStatus(
-            ApprovalStatus approvalStatus
-    ) {
+    public ApprovalStatus saveApprovalStatus(ApprovalStatus approvalStatus) {
         return approvalStatusRepo.save(approvalStatus);
     }
 
@@ -33,7 +29,6 @@ public class ApprovalStatusService {
     }
 
     public ApprovalStatus getApprovalStatusById(UUID id) {
-        return approvalStatusRepo.findById(id)
-                .orElse(null);
+        return approvalStatusRepo.findById(id).orElse(null);
     }
 }

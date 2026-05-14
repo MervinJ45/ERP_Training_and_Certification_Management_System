@@ -19,35 +19,27 @@ public class DepartmentService {
     }
 
     public List<DepartmentDTO> getAllDepartmentDTOs() {
-
         return departmentRepo.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     public Department saveDepartment(Department department) {
-
         return departmentRepo.save(department);
     }
 
     public void deleteDepartment(UUID id) {
-
         departmentRepo.deleteById(id);
     }
 
     public Department getDepartmentById(UUID id) {
-
         return departmentRepo.findById(id).orElse(null);
     }
 
     public DepartmentDTO convertToDTO(Department department) {
 
         DepartmentDTO dto = new DepartmentDTO();
-
         dto.setDepartmentId(department.getDepartmentId());
-
         dto.setDepartmentName(department.getDepartmentName());
-
         dto.setAnnualBudget(department.getAnnualBudget());
-
         dto.setIsActive(department.getIsActive());
 
         return dto;

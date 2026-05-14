@@ -14,8 +14,6 @@ import java.util.UUID;
 public class TrainingTypeDTO {
 
     private UUID trainingTypeId;
-
     private String trainingType;
-
     private Boolean isActive;
 }

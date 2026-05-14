@@ -12,9 +12,7 @@ public class SkillMatrixService {
 
     private final SkillMatrixRepo skillMatrixRepo;
 
-    public SkillMatrixService(
-            SkillMatrixRepo skillMatrixRepo
-    ) {
+    public SkillMatrixService(SkillMatrixRepo skillMatrixRepo) {
         this.skillMatrixRepo = skillMatrixRepo;
     }
 
@@ -22,9 +20,7 @@ public class SkillMatrixService {
         return skillMatrixRepo.findAll();
     }
 
-    public SkillMatrix saveSkill(
-            SkillMatrix skill
-    ) {
+    public SkillMatrix saveSkill(SkillMatrix skill) {
         return skillMatrixRepo.save(skill);
     }
 

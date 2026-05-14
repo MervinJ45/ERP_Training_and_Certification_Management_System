@@ -15,16 +15,10 @@ import java.util.UUID;
 public class UserDTO {
 
     private UUID userId;
-
     private String username;
-
     private String email;
-    
     private EmployeeDTO employee;
-
     private RoleDTO role;
-
     private String employeeName;
-
     private String roleName;
 }

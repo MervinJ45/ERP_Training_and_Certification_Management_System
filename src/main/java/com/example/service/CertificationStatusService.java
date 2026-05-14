@@ -10,23 +10,17 @@ import java.util.UUID;
 @Service
 public class CertificationStatusService {
 
-    private final CertificationStatusRepo
-            certificationStatusRepo;
+    private final CertificationStatusRepo certificationStatusRepo;
 
-    public CertificationStatusService(
-            CertificationStatusRepo certificationStatusRepo
-    ) {
-        this.certificationStatusRepo =
-                certificationStatusRepo;
+    public CertificationStatusService(CertificationStatusRepo certificationStatusRepo) {
+        this.certificationStatusRepo = certificationStatusRepo;
     }
 
     public List<CertificationStatus> getAllStatuses() {
         return certificationStatusRepo.findAll();
     }
 
-    public CertificationStatus saveStatus(
-            CertificationStatus status
-    ) {
+    public CertificationStatus saveStatus(CertificationStatus status) {
         return certificationStatusRepo.save(status);
     }
 
@@ -35,7 +29,6 @@ public class CertificationStatusService {
     }
 
     public CertificationStatus getStatusById(UUID id) {
-        return certificationStatusRepo.findById(id)
-                .orElse(null);
+        return certificationStatusRepo.findById(id).orElse(null);
     }
 }

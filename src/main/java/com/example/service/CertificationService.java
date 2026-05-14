@@ -12,9 +12,7 @@ public class CertificationService {
 
     private final CertificationRepo certificationRepo;
 
-    public CertificationService(
-            CertificationRepo certificationRepo
-    ) {
+    public CertificationService(CertificationRepo certificationRepo) {
         this.certificationRepo = certificationRepo;
     }
 
@@ -22,9 +20,7 @@ public class CertificationService {
         return certificationRepo.findAll();
     }
 
-    public Certification saveCertification(
-            Certification certification
-    ) {
+    public Certification saveCertification(Certification certification) {
         return certificationRepo.save(certification);
     }
 

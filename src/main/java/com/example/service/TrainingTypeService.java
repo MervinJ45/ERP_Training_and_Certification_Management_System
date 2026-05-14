@@ -26,9 +26,7 @@ public class TrainingTypeService {
     public void saveTrainingType(TrainingTypeDTO dto) {
 
         TrainingType trainingType = new TrainingType();
-
         trainingType.setTrainingType(dto.getTrainingType());
-
         trainingType.setIsActive(dto.getIsActive());
 
         trainingTypeRepo.save(trainingType);
@@ -37,26 +35,21 @@ public class TrainingTypeService {
     public void updateTrainingType(TrainingTypeDTO dto) {
 
         TrainingType trainingType = trainingTypeRepo.findById(dto.getTrainingTypeId()).orElseThrow(() -> new RuntimeException("Training Type Not Found"));
-
         trainingType.setTrainingType(dto.getTrainingType());
-
         trainingType.setIsActive(dto.getIsActive());
 
         trainingTypeRepo.save(trainingType);
     }
 
     public void deleteTrainingType(UUID id) {
-
         trainingTypeRepo.deleteById(id);
     }
 
     public TrainingType getTrainingTypeById(UUID id) {
-
         return trainingTypeRepo.findById(id).orElse(null);
     }
 
     public TrainingTypeDTO convertToDTO(TrainingType trainingType) {
-
         if (trainingType == null) {
             return null;
         }
@@ -64,9 +57,7 @@ public class TrainingTypeService {
         TrainingTypeDTO dto = new TrainingTypeDTO();
 
         dto.setTrainingTypeId(trainingType.getTrainingTypeId());
-
         dto.setTrainingType(trainingType.getTrainingType());
-
         dto.setIsActive(trainingType.getIsActive());
 
         return dto;

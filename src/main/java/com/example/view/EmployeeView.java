@@ -3,11 +3,9 @@ package com.example.view;
 import com.example.dto.EmployeeDTO;
 import com.example.dto.DepartmentDTO;
 import com.example.dto.RoleDTO;
-import com.example.entity.TrainingCourse;
 import com.example.service.DepartmentService;
 import com.example.service.EmployeeService;
 import com.example.service.RoleService;
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -27,9 +25,6 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
-
-import java.util.Set;
-import java.util.UUID;
 
 @Route(value = "employee", layout = MainLayout.class)
 @PageTitle("Employees")
@@ -63,7 +58,6 @@ public class EmployeeView extends VerticalLayout {
 
         toolbar.setWidthFull();
         toolbar.expand(filterField);
-
 
         configureGrid();
 
@@ -121,7 +115,6 @@ public class EmployeeView extends VerticalLayout {
     }
 
     private void updateGrid() {
-
         grid.setItems(employeeService.getAllEmployeeDTOs());
     }
 

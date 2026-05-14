@@ -266,9 +266,7 @@ public class ManageCourseView extends VerticalLayout {
                                     .ifPresent(user -> dto.setCreatedBy(userService.convertToDTO(user)));
                         });
                 trainingCourseService.saveCourse(dto);
-            }
-
-            else trainingCourseService.updateCourse(dto);
+            } else trainingCourseService.updateCourse(dto);
 
             Notification.show(isEditMode ? "Course Updated Successfully" : "Course Created Successfully");
             dialog.close();

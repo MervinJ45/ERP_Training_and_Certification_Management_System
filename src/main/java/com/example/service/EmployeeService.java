@@ -38,7 +38,7 @@ public class EmployeeService {
     }
 
     public List<EmployeeDTO> searchEmployeeDTOs(String value) {
-        return employeeRepo.findAll().stream().filter(employee -> employee.getFirstName().toLowerCase().contains(value.toLowerCase()) || employee.getLastName().toLowerCase().contains(value.toLowerCase()) || employee.getEmail().toLowerCase().contains(value.toLowerCase())).map(this::convertToDTO).collect(Collectors.toList());
+        return employeeRepo.findAll().stream().filter(employee -> employee.getFirstName().toLowerCase().contains(value.toLowerCase())).map(this::convertToDTO).collect(Collectors.toList());
     }
 
     public void registerEmployee(EmployeeDTO dto) {
@@ -77,7 +77,6 @@ public class EmployeeService {
     }
 
 
-    //TO DO : update employee
     public void updateEmployee(EmployeeDTO dto) {
 
         Employee employee = employeeRepo.findById(dto.getEmployeeId()).orElseThrow(() -> new RuntimeException("Employee Not Found"));
@@ -96,11 +95,9 @@ public class EmployeeService {
         if (dto.getManager() != null) {
 
             Employee managerEmployee = employeeRepo.findById(dto.getManager().getEmployeeId()).orElse(null);
-
             employee.setManager(managerEmployee);
 
         } else {
-
             employee.setManager(null);
         }
 
@@ -109,14 +106,10 @@ public class EmployeeService {
         User user = updatedEmployee.getUser();
 
         if (user != null) {
-
             user.setEmail(dto.getEmail());
-
             if (dto.getRole() != null) {
-
                 user.setRole(roleService.getRoleById(dto.getRole().getRoleId()));
             }
-
             userService.saveUser(user);
         }
     }

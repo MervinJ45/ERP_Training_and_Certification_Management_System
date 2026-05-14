@@ -10,23 +10,17 @@ import java.util.UUID;
 @Service
 public class CertificationRenewalService {
 
-    private final CertificationRenewalRepo
-            certificationRenewalRepo;
+    private final CertificationRenewalRepo certificationRenewalRepo;
 
-    public CertificationRenewalService(
-            CertificationRenewalRepo certificationRenewalRepo
-    ) {
-        this.certificationRenewalRepo =
-                certificationRenewalRepo;
+    public CertificationRenewalService(CertificationRenewalRepo certificationRenewalRepo) {
+        this.certificationRenewalRepo = certificationRenewalRepo;
     }
 
     public List<CertificationRenewal> getAllRenewals() {
         return certificationRenewalRepo.findAll();
     }
 
-    public CertificationRenewal saveRenewal(
-            CertificationRenewal renewal
-    ) {
+    public CertificationRenewal saveRenewal(CertificationRenewal renewal) {
         return certificationRenewalRepo.save(renewal);
     }
 
@@ -35,7 +29,6 @@ public class CertificationRenewalService {
     }
 
     public CertificationRenewal getRenewalById(UUID id) {
-        return certificationRenewalRepo.findById(id)
-                .orElse(null);
+        return certificationRenewalRepo.findById(id).orElse(null);
     }
 }

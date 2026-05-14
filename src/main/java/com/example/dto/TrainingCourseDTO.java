@@ -16,40 +16,22 @@ import java.util.UUID;
 public class TrainingCourseDTO {
 
     private UUID courseId;
-
     private String courseName;
-
     private String courseDescription;
-
     private TrainingCategoryDTO category;
-
     private EmployeeDTO trainer;
-
     private TrainingTypeDTO trainingType;
-
     private UserDTO createdBy;
-
     private String categoryName;
-
     private String trainerName;
-
     private String trainingTypeName;
-
     private String createdByName;
-
     private String description;
-
     private Integer durationDays;
-
     private BigDecimal trainingCost;
-
     private Boolean certificationProvided;
-
     private Integer certificationValidityMonths;
-
     private Integer maxParticipants;
-
     private boolean isActive;
-
     private LocalDateTime createdAt;
 }

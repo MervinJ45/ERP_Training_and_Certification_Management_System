@@ -35,7 +35,7 @@ public class UserView extends VerticalLayout {
 
         H2 title = new H2("User Accounts");
 
-        filterField.setPlaceholder("Filter by username or email...");
+        filterField.setPlaceholder("Filter by username");
         filterField.setPrefixComponent(VaadinIcon.SEARCH.create());
         filterField.setValueChangeMode(ValueChangeMode.EAGER);
         filterField.setWidth("350px");
@@ -76,6 +76,8 @@ public class UserView extends VerticalLayout {
         if (value == null || value.isEmpty()) {
             grid.setItems(userService.getAllUserDTOs());
         }
-        //TO DO : filter
+        else {
+            grid.setItems(userService.searchUserDTOs(value));
+        }
     }
 }

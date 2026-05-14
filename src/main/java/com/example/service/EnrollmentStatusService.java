@@ -10,23 +10,17 @@ import java.util.UUID;
 @Service
 public class EnrollmentStatusService {
 
-    private final EnrollmentStatusRepo
-            enrollmentStatusRepo;
+    private final EnrollmentStatusRepo enrollmentStatusRepo;
 
-    public EnrollmentStatusService(
-            EnrollmentStatusRepo enrollmentStatusRepo
-    ) {
-        this.enrollmentStatusRepo =
-                enrollmentStatusRepo;
+    public EnrollmentStatusService(EnrollmentStatusRepo enrollmentStatusRepo) {
+        this.enrollmentStatusRepo = enrollmentStatusRepo;
     }
 
     public List<EnrollmentStatus> getAllStatuses() {
         return enrollmentStatusRepo.findAll();
     }
 
-    public EnrollmentStatus saveStatus(
-            EnrollmentStatus status
-    ) {
+    public EnrollmentStatus saveStatus(EnrollmentStatus status) {
         return enrollmentStatusRepo.save(status);
     }
 
@@ -35,7 +29,6 @@ public class EnrollmentStatusService {
     }
 
     public EnrollmentStatus getStatusById(UUID id) {
-        return enrollmentStatusRepo.findById(id)
-                .orElse(null);
+        return enrollmentStatusRepo.findById(id).orElse(null);
     }
 }

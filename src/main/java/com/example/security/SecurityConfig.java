@@ -20,9 +20,7 @@ public class SecurityConfig extends VaadinWebSecurity {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-
         super.configure(http);
-
         setLoginView(http, LoginView.class);
     }
 

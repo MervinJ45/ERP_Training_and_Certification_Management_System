@@ -10,23 +10,17 @@ import java.util.UUID;
 @Service
 public class TrainingApprovalService {
 
-    private final TrainingApprovalRepo
-            trainingApprovalRepo;
+    private final TrainingApprovalRepo trainingApprovalRepo;
 
-    public TrainingApprovalService(
-            TrainingApprovalRepo trainingApprovalRepo
-    ) {
-        this.trainingApprovalRepo =
-                trainingApprovalRepo;
+    public TrainingApprovalService(TrainingApprovalRepo trainingApprovalRepo) {
+        this.trainingApprovalRepo = trainingApprovalRepo;
     }
 
     public List<TrainingApproval> getAllApprovals() {
         return trainingApprovalRepo.findAll();
     }
 
-    public TrainingApproval saveApproval(
-            TrainingApproval approval
-    ) {
+    public TrainingApproval saveApproval(TrainingApproval approval) {
         return trainingApprovalRepo.save(approval);
     }
 
@@ -35,7 +29,6 @@ public class TrainingApprovalService {
     }
 
     public TrainingApproval getApprovalById(UUID id) {
-        return trainingApprovalRepo.findById(id)
-                .orElse(null);
+        return trainingApprovalRepo.findById(id).orElse(null);
     }
 }
