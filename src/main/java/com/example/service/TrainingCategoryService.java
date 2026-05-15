@@ -22,11 +22,11 @@ public class TrainingCategoryService {
         return trainingCategoryRepo.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
-    public void deleteCategory(UUID id) {
+    public void deleteCategory(Long id) {
         trainingCategoryRepo.deleteById(id);
     }
 
-    public TrainingCategory getCategoryById(UUID id) {
+    public TrainingCategory getCategoryById(Long id) {
         return trainingCategoryRepo.findById(id).orElse(null);
     }
 

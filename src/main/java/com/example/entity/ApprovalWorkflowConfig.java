@@ -4,24 +4,19 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "approval_workflow_config")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class ApprovalWorkflowConfig {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID configId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long configId;
 
-    private BigDecimal minCost;
-
-    private BigDecimal maxCost;
-
+    private java.math.BigDecimal minCost;
+    private java.math.BigDecimal maxCost;
     private Integer requiredLevel;
 
     @ManyToOne
@@ -29,6 +24,10 @@ public class ApprovalWorkflowConfig {
     private Role approverRole;
 
     private String description;
+    private Boolean isActive = true;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
-    private Boolean isActive;
+    @PrePersist protected void onCreate() { this.createdAt = LocalDateTime.now(); this.updatedAt = LocalDateTime.now(); }
+    @PreUpdate protected void onUpdate() { this.updatedAt = LocalDateTime.now(); }
 }

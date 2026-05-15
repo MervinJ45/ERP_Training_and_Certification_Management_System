@@ -24,11 +24,11 @@ public class CertificationStatusService {
         return certificationStatusRepo.save(status);
     }
 
-    public void deleteStatus(UUID id) {
+    public void deleteStatus(Long id) {
         certificationStatusRepo.deleteById(id);
     }
 
-    public CertificationStatus getStatusById(UUID id) {
+    public CertificationStatus getStatusById(Long id) {
         return certificationStatusRepo.findById(id).orElse(null);
     }
 }

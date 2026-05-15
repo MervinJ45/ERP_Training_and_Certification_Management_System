@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface TrainingCourseRepo extends JpaRepository<TrainingCourse, UUID> {
+public interface TrainingCourseRepo extends JpaRepository<TrainingCourse, Long> {
 
     Optional<TrainingCourse> findByCourseName(String trainingCourseName);
 

@@ -12,7 +12,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RoleDTO {
-    private UUID roleId;
+    private Long roleId;
     private String roleName;
     private Boolean isActive;
 }

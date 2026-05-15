@@ -13,7 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class TrainingTypeDTO {
 
-    private UUID trainingTypeId;
+    private Long trainingTypeId;
     private String trainingType;
     private Boolean isActive;
 }

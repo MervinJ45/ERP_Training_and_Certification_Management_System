@@ -13,7 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DepartmentDTO {
-    private UUID departmentId;
+    private Long departmentId;
     private String departmentName;
     private BigDecimal annualBudget;
     private Boolean isActive;

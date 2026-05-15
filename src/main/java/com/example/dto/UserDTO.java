@@ -14,7 +14,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class UserDTO {
 
-    private UUID userId;
+    private Long userId;
     private String username;
     private String email;
     private EmployeeDTO employee;

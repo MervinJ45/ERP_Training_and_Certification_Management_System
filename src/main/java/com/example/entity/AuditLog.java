@@ -4,19 +4,16 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "audit_logs")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class AuditLog {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID auditId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long auditId;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -26,14 +23,21 @@ public class AuditLog {
     @JoinColumn(name = "role_id")
     private Role role;
 
-    private UUID recordId;
-
+    private Long recordId;
     private String action;
-
     private String tableAffected;
 
     @Column(columnDefinition = "TEXT")
     private String changeDetails;
 
     private LocalDateTime actionTime;
+    private Boolean isActive = true;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    @PrePersist protected void onCreate() {
+        this.actionTime = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
 }

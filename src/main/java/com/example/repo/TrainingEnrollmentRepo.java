@@ -7,15 +7,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface TrainingEnrollmentRepo extends JpaRepository<TrainingEnrollment, UUID> {
+public interface TrainingEnrollmentRepo extends JpaRepository<TrainingEnrollment, Long> {
 
-    boolean existsByEmployeeEmployeeIdAndCourseCourseId(UUID employeeId, UUID courseId);
+    boolean existsByEmployeeEmployeeIdAndCourseCourseId(Long employeeId, Long courseId);
 
-    List<TrainingEnrollment> findByEmployeeEmployeeId(UUID employeeId);
+    List<TrainingEnrollment> findByEmployeeEmployeeId(Long employeeId);
 
-    Optional<TrainingEnrollment> findByEmployeeManagerEmployeeId(UUID managerId);
+    Optional<TrainingEnrollment> findByEmployeeManagerEmployeeId(Long managerId);
 
-    List<TrainingEnrollment> findByEmployeeManagerEmployeeIdAndCurrentApprovalLevelLessThanAndEnrollmentStatusEnrollmentStatus( UUID managerId, Integer level, String status);
+    List<TrainingEnrollment> findByEmployeeManagerEmployeeIdAndCurrentApprovalLevelLessThanAndEnrollmentStatusEnrollmentStatus( Long managerId, Integer level, String status);
 
-    List<TrainingEnrollment> findByEmployeeManagerEmployeeIdAndCurrentApprovalLevelGreaterThan(UUID managerId, int i);
+    List<TrainingEnrollment> findByEmployeeManagerEmployeeIdAndCurrentApprovalLevelGreaterThan(Long managerId, int i);
 }

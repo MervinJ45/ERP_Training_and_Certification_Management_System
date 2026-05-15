@@ -26,11 +26,11 @@ public class DepartmentService {
         return departmentRepo.save(department);
     }
 
-    public void deleteDepartment(UUID id) {
+    public void deleteDepartment(Long id) {
         departmentRepo.deleteById(id);
     }
 
-    public Department getDepartmentById(UUID id) {
+    public Department getDepartmentById(Long id) {
         return departmentRepo.findById(id).orElse(null);
     }
 

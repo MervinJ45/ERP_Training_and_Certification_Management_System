@@ -4,28 +4,19 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Table(name = "users")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class User {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID userId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long userId;
 
     private String username;
-
     private String email;
-
     private String password;
-
-    @OneToOne
-    @JoinColumn(name = "employee_id")
+    private Boolean isActive;
     private Employee employee;
 
     @ManyToOne
@@ -33,6 +24,8 @@ public class User {
     private Role role;
 
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
-    private Boolean isActive;
+    @PrePersist protected void onCreate() { this.createdAt = LocalDateTime.now(); this.updatedAt = LocalDateTime.now(); }
+    @PreUpdate protected void onUpdate() { this.updatedAt = LocalDateTime.now(); }
 }

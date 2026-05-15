@@ -4,19 +4,16 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "training_approvals")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class TrainingApproval {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID approvalId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long approvalId;
 
     @ManyToOne
     @JoinColumn(name = "enrollment_id")
@@ -32,8 +29,12 @@ public class TrainingApproval {
     @JoinColumn(name = "approval_status_id")
     private ApprovalStatus approvalStatus;
 
-    @Column(columnDefinition = "TEXT")
     private String comments;
-
     private LocalDateTime actionDate;
+    private Boolean isActive = true;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    @PrePersist protected void onCreate() { this.createdAt = LocalDateTime.now(); this.updatedAt = LocalDateTime.now(); }
+    @PreUpdate protected void onUpdate() { this.updatedAt = LocalDateTime.now(); }
 }

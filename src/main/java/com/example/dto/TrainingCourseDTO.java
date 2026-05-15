@@ -15,7 +15,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class TrainingCourseDTO {
 
-    private UUID courseId;
+    private Long courseId;
     private String courseName;
     private String courseDescription;
     private TrainingCategoryDTO category;

@@ -24,11 +24,11 @@ public class EnrollmentStatusService {
         return enrollmentStatusRepo.save(status);
     }
 
-    public void deleteStatus(UUID id) {
+    public void deleteStatus(Long id) {
         enrollmentStatusRepo.deleteById(id);
     }
 
-    public EnrollmentStatus getStatusById(UUID id) {
+    public EnrollmentStatus getStatusById(Long id) {
         return enrollmentStatusRepo.findById(id).orElse(null);
     }
 }

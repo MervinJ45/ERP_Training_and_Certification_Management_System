@@ -14,18 +14,18 @@ import java.util.UUID;
 @Builder
 public class TrainingEnrollmentDTO {
 
-    private UUID enrollmentId;
+    private Long enrollmentId;
 
-    private UUID employeeId;
+    private Long employeeId;
     private String employeeFullName;
 
-    private UUID courseId;
+    private Long courseId;
     private String courseName;
 
-    private UUID enrollmentStatusId;
+    private Long enrollmentStatusId;
     private String enrollmentStatusName;
 
-    private LocalDate enrollmentDate;
+    private LocalDateTime enrollmentDate;
     private String remarks;
     private BigDecimal requestedCost;
     private BigDecimal approvedCost;

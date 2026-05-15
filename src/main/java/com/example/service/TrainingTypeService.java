@@ -4,48 +4,79 @@ import com.example.dto.TrainingTypeDTO;
 import com.example.entity.TrainingType;
 import com.example.repo.TrainingTypeRepo;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 public class TrainingTypeService {
 
     private final TrainingTypeRepo trainingTypeRepo;
+    private final AuditLogService auditLogService; // Added
 
-    public TrainingTypeService(TrainingTypeRepo trainingTypeRepo) {
+    public TrainingTypeService(TrainingTypeRepo trainingTypeRepo, AuditLogService auditLogService) {
         this.trainingTypeRepo = trainingTypeRepo;
+        this.auditLogService = auditLogService;
     }
 
     public List<TrainingTypeDTO> getAllTrainingTypeDTOs() {
-
-        return trainingTypeRepo.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
+        return trainingTypeRepo.findAll().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
+    @Transactional
     public void saveTrainingType(TrainingTypeDTO dto) {
-
         TrainingType trainingType = new TrainingType();
         trainingType.setTrainingType(dto.getTrainingType());
         trainingType.setIsActive(dto.getIsActive());
 
-        trainingTypeRepo.save(trainingType);
+        TrainingType savedType = trainingTypeRepo.save(trainingType);
+
+        // Logic to enter audit log
+        auditLogService.logAudit(
+                savedType.getTrainingTypeId(),
+                "CREATE_TRAINING_TYPE",
+                "TRAINING_TYPES",
+                "Created type: " + savedType.getTrainingType()
+        );
     }
 
+    @Transactional
     public void updateTrainingType(TrainingTypeDTO dto) {
+        TrainingType trainingType = trainingTypeRepo.findById(dto.getTrainingTypeId())
+                .orElseThrow(() -> new RuntimeException("Training Type Not Found"));
 
-        TrainingType trainingType = trainingTypeRepo.findById(dto.getTrainingTypeId()).orElseThrow(() -> new RuntimeException("Training Type Not Found"));
         trainingType.setTrainingType(dto.getTrainingType());
         trainingType.setIsActive(dto.getIsActive());
 
-        trainingTypeRepo.save(trainingType);
+        TrainingType updatedType = trainingTypeRepo.save(trainingType);
+
+        // Logic to enter audit log
+        auditLogService.logAudit(
+                updatedType.getTrainingTypeId(),
+                "UPDATE_TRAINING_TYPE",
+                "TRAINING_TYPES",
+                "Updated type to: " + updatedType.getTrainingType() + " (Active: " + updatedType.getIsActive() + ")"
+        );
     }
 
-    public void deleteTrainingType(UUID id) {
+    @Transactional
+    public void deleteTrainingType(Long id) {
+        trainingTypeRepo.findById(id).ifPresent(type -> {
+            // Log before deletion
+            auditLogService.logAudit(
+                    id,
+                    "DELETE_TRAINING_TYPE",
+                    "TRAINING_TYPES",
+                    "Deleted type: " + type.getTrainingType()
+            );
+        });
         trainingTypeRepo.deleteById(id);
     }
 
-    public TrainingType getTrainingTypeById(UUID id) {
+    public TrainingType getTrainingTypeById(Long id) {
         return trainingTypeRepo.findById(id).orElse(null);
     }
 
@@ -55,7 +86,6 @@ public class TrainingTypeService {
         }
 
         TrainingTypeDTO dto = new TrainingTypeDTO();
-
         dto.setTrainingTypeId(trainingType.getTrainingTypeId());
         dto.setTrainingType(trainingType.getTrainingType());
         dto.setIsActive(trainingType.getIsActive());

@@ -24,11 +24,11 @@ public class SkillMatrixService {
         return skillMatrixRepo.save(skill);
     }
 
-    public void deleteSkill(UUID id) {
+    public void deleteSkill(Long id) {
         skillMatrixRepo.deleteById(id);
     }
 
-    public SkillMatrix getSkillById(UUID id) {
+    public SkillMatrix getSkillById(Long id) {
         return skillMatrixRepo.findById(id).orElse(null);
     }
 }

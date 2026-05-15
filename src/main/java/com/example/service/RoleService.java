@@ -26,11 +26,11 @@ public class RoleService {
         return roleRepo.save(role);
     }
 
-    public void deleteRole(UUID id) {
+    public void deleteRole(Long id) {
         roleRepo.deleteById(id);
     }
 
-    public Role getRoleById(UUID id) {
+    public Role getRoleById(Long id) {
         return roleRepo.findById(id).orElse(null);
     }
 

@@ -24,11 +24,11 @@ public class TrainingApprovalService {
         return trainingApprovalRepo.save(approval);
     }
 
-    public void deleteApproval(UUID id) {
+    public void deleteApproval(Long id) {
         trainingApprovalRepo.deleteById(id);
     }
 
-    public TrainingApproval getApprovalById(UUID id) {
+    public TrainingApproval getApprovalById(Long id) {
         return trainingApprovalRepo.findById(id).orElse(null);
     }
 }

@@ -5,7 +5,6 @@ import com.example.repo.ApprovalWorkflowConfigRepo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class ApprovalWorkflowConfigService {
@@ -25,11 +24,11 @@ public class ApprovalWorkflowConfigService {
         return approvalWorkflowConfigRepo.save(config);
     }
 
-    public void deleteConfig(UUID id) {
+    public void deleteConfig(Long id) {
         approvalWorkflowConfigRepo.deleteById(id);
     }
 
-    public ApprovalWorkflowConfig getConfigById(UUID id) {
+    public ApprovalWorkflowConfig getConfigById(Long id) {
         return approvalWorkflowConfigRepo.findById(id)
                 .orElse(null);
     }

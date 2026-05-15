@@ -56,7 +56,7 @@ public class CourseView extends VerticalLayout {
         configureFilter();
 
         add(filterText, grid);
-        updateList();
+        updateGrid();
     }
 
     private void configureGrid() {
@@ -132,10 +132,15 @@ public class CourseView extends VerticalLayout {
         filterText.setPlaceholder("Filter by name...");
         filterText.setClearButtonVisible(true);
         filterText.setValueChangeMode(ValueChangeMode.LAZY);
-        filterText.addValueChangeListener(e -> updateList());
+        filterText.addValueChangeListener(e -> updateGrid());
     }
 
-    private void updateList() {
-        grid.setItems(trainingCourseService.findAllCourses(filterText.getValue()));
+    private void updateGrid() {
+        String value = filterText.getValue();
+        if (value == null || value.isEmpty()) {
+            grid.setItems(trainingCourseService.getAllCourseDTOs());
+        } else {
+            grid.setItems(trainingCourseService.searchCourseDTOs(value));
+        }
     }
 }

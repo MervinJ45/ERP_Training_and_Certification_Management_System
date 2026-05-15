@@ -24,11 +24,11 @@ public class CertificationRenewalService {
         return certificationRenewalRepo.save(renewal);
     }
 
-    public void deleteRenewal(UUID id) {
+    public void deleteRenewal(Long id) {
         certificationRenewalRepo.deleteById(id);
     }
 
-    public CertificationRenewal getRenewalById(UUID id) {
+    public CertificationRenewal getRenewalById(Long id) {
         return certificationRenewalRepo.findById(id).orElse(null);
     }
 }

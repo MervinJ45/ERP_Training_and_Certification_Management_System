@@ -5,7 +5,6 @@ import com.example.repo.ApprovalStatusRepo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class ApprovalStatusService {
@@ -24,11 +23,11 @@ public class ApprovalStatusService {
         return approvalStatusRepo.save(approvalStatus);
     }
 
-    public void deleteApprovalStatus(UUID id) {
+    public void deleteApprovalStatus(Long id) {
         approvalStatusRepo.deleteById(id);
     }
 
-    public ApprovalStatus getApprovalStatusById(UUID id) {
+    public ApprovalStatus getApprovalStatusById(Long id) {
         return approvalStatusRepo.findById(id).orElse(null);
     }
 }

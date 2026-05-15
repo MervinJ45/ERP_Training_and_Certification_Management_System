@@ -24,11 +24,11 @@ public class CertificationService {
         return certificationRepo.save(certification);
     }
 
-    public void deleteCertification(UUID id) {
+    public void deleteCertification(Long id) {
         certificationRepo.deleteById(id);
     }
 
-    public Certification getCertificationById(UUID id) {
+    public Certification getCertificationById(Long id) {
         return certificationRepo.findById(id).orElse(null);
     }
 }

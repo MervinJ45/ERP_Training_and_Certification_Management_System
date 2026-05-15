@@ -115,11 +115,11 @@ public class EmployeeService {
     }
 
 
-    public void deleteEmployee(UUID id) {
+    public void deleteEmployee(Long id) {
         employeeRepo.deleteById(id);
     }
 
-    public Employee getEmployeeById(UUID id) {
+    public Employee getEmployeeById(Long id) {
         return employeeRepo.findById(id).orElse(null);
     }
 

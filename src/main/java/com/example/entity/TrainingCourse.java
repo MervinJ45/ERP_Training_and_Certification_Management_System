@@ -5,19 +5,16 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "training_courses")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class TrainingCourse {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID courseId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long courseId;
 
     private String courseName;
 
@@ -29,8 +26,7 @@ public class TrainingCourse {
     private String description;
 
     private Integer durationDays;
-
-    private BigDecimal trainingCost;
+    private java.math.BigDecimal trainingCost;
 
     @ManyToOne
     @JoinColumn(name = "trainer_id")
@@ -41,16 +37,17 @@ public class TrainingCourse {
     private TrainingType trainingType;
 
     private Boolean certificationProvided;
-
     private Integer certificationValidityMonths;
-
     private Integer maxParticipants;
-
-    private Boolean isActive;
 
     @ManyToOne
     @JoinColumn(name = "created_by")
-    private User createdBy;
+    private User creator;
 
+    private Boolean isActive = true;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    @PrePersist protected void onCreate() { this.createdAt = LocalDateTime.now(); this.updatedAt = LocalDateTime.now(); }
+    @PreUpdate protected void onUpdate() { this.updatedAt = LocalDateTime.now(); }
 }

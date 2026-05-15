@@ -5,19 +5,16 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "certifications")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class Certification {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID certificationId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long certificationId;
 
     @ManyToOne
     @JoinColumn(name = "employee_id")
@@ -27,29 +24,27 @@ public class Certification {
     @JoinColumn(name = "course_id")
     private TrainingCourse course;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "enrollment_id")
     private TrainingEnrollment enrollment;
 
     private String certificateNumber;
-
-    private LocalDate issueDate;
-
-    private LocalDate expiryDate;
+    private LocalDateTime issueDate;
+    private LocalDateTime expiryDate;
 
     @ManyToOne
     @JoinColumn(name = "certification_status_id")
-    private CertificationStatus certificationStatus;
+    private CertificationStatus status;
 
     @ManyToOne
     @JoinColumn(name = "issued_by")
-    private User issuedBy;
+    private Employee issuedBy;
 
-    @Column(columnDefinition = "TEXT")
-    private String remarks;
-
-    @Column(columnDefinition = "TEXT")
     private String certificateUrl;
-
+    private Boolean isActive = true;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    @PrePersist protected void onCreate() { this.createdAt = LocalDateTime.now(); this.updatedAt = LocalDateTime.now(); }
+    @PreUpdate protected void onUpdate() { this.updatedAt = LocalDateTime.now(); }
 }

@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;
 
-public interface ApprovalWorkflowConfigRepo extends JpaRepository<ApprovalWorkflowConfig, UUID> {
+public interface ApprovalWorkflowConfigRepo extends JpaRepository<ApprovalWorkflowConfig, Long> {
 
     boolean existsByRequiredLevel(int i);
 }
