@@ -84,6 +84,9 @@ public class MainLayout extends AppLayout {
     private void createDrawer() {
         SideNav nav = new SideNav();
 
+        nav.addItem(new SideNavItem("Dashboard", "super-admin-dashboard", VaadinIcon.DASHBOARD.create()));
+
+
         if(role.equals(superAdmin)) {
             nav.addItem(new SideNavItem("Employees", "employee", VaadinIcon.USER_CARD.create()));
             nav.addItem(new SideNavItem("Users", "user", VaadinIcon.USER.create()));

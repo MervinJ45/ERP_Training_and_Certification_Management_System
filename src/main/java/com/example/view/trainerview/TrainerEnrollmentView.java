@@ -42,7 +42,7 @@ public class TrainerEnrollmentView extends VerticalLayout {
         setSizeFull();
         setPadding(true);
 
-        H2 title = new H2("My Training Course");
+        H2 title = new H2("My Training Courseu");
         Span subTitle = new Span("Manage active students and sign-off completed courses.");
         subTitle.getStyle().set("color", "var(--lumo-secondary-text-color)");
 
