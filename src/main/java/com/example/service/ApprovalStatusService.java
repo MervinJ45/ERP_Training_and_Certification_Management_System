@@ -10,9 +10,11 @@ import java.util.List;
 public class ApprovalStatusService {
 
     private final ApprovalStatusRepo approvalStatusRepo;
+    private final AuditLogService auditLogService;
 
-    public ApprovalStatusService(ApprovalStatusRepo approvalStatusRepo) {
+    public ApprovalStatusService(ApprovalStatusRepo approvalStatusRepo, AuditLogService auditLogService) {
         this.approvalStatusRepo = approvalStatusRepo;
+        this.auditLogService = auditLogService;
     }
 
     public List<ApprovalStatus> getAllApprovalStatuses() {
@@ -20,11 +22,34 @@ public class ApprovalStatusService {
     }
 
     public ApprovalStatus saveApprovalStatus(ApprovalStatus approvalStatus) {
-        return approvalStatusRepo.save(approvalStatus);
+        boolean isUpdate = approvalStatus.getApprovalStatusId() != null;
+
+        ApprovalStatus savedStatus = approvalStatusRepo.save(approvalStatus);
+
+        String action = isUpdate ? "UPDATE" : "INSERT";
+        String details = (isUpdate ? "Updated" : "Created") + " approval status: " + savedStatus.getApprovalStatus();
+
+        auditLogService.logAudit(
+                savedStatus.getApprovalStatusId(),
+                action,
+                "approval_statuses",
+                details
+        );
+
+        return savedStatus;
     }
 
     public void deleteApprovalStatus(Long id) {
-        approvalStatusRepo.deleteById(id);
+        approvalStatusRepo.findById(id).ifPresent(status -> {
+            approvalStatusRepo.deleteById(id);
+
+            auditLogService.logAudit(
+                    id,
+                    "DELETE",
+                    "approval_statuses",
+                    "Deleted approval status: " + status.getApprovalStatus()
+            );
+        });
     }
 
     public ApprovalStatus getApprovalStatusById(Long id) {

@@ -30,6 +30,7 @@ public class TrainingEnrollment {
     @ManyToOne @JoinColumn(name = "enrollment_status_id")
     private EnrollmentStatus enrollmentStatus;
 
+    private String remarks;
     private BigDecimal requestedCost;
     private BigDecimal approvedCost;
     private Integer currentApprovalLevel;

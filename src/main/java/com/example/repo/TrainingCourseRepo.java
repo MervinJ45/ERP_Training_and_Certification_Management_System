@@ -16,4 +16,5 @@ public interface TrainingCourseRepo extends JpaRepository<TrainingCourse, Long> 
     @Query("select c from TrainingCourse c " +
             "where lower(c.courseName) like lower(concat('%', :searchTerm, '%'))")
     List<TrainingCourse> searchByCourseName(@Param("searchTerm") String value);
+
 }

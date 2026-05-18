@@ -13,8 +13,9 @@ import java.util.stream.Collectors;
 public class TrainingTypeService {
 
     private final TrainingTypeRepo trainingTypeRepo;
-    private final AuditLogService auditLogService; // Added
+    private final AuditLogService auditLogService;
 
+    // Constructor injection for both Repository and Audit Log Service
     public TrainingTypeService(TrainingTypeRepo trainingTypeRepo, AuditLogService auditLogService) {
         this.trainingTypeRepo = trainingTypeRepo;
         this.auditLogService = auditLogService;
@@ -34,7 +35,7 @@ public class TrainingTypeService {
 
         TrainingType savedType = trainingTypeRepo.save(trainingType);
 
-        // Logic to enter audit log
+        // Track creation in audit trail
         auditLogService.logAudit(
                 savedType.getTrainingTypeId(),
                 "CREATE_TRAINING_TYPE",
@@ -53,7 +54,7 @@ public class TrainingTypeService {
 
         TrainingType updatedType = trainingTypeRepo.save(trainingType);
 
-        // Logic to enter audit log
+        // Track update in audit trail
         auditLogService.logAudit(
                 updatedType.getTrainingTypeId(),
                 "UPDATE_TRAINING_TYPE",
@@ -64,8 +65,8 @@ public class TrainingTypeService {
 
     @Transactional
     public void deleteTrainingType(Long id) {
+        // Fetch and log details before executing the hard deletion
         trainingTypeRepo.findById(id).ifPresent(type -> {
-            // Log before deletion
             auditLogService.logAudit(
                     id,
                     "DELETE_TRAINING_TYPE",
@@ -73,6 +74,7 @@ public class TrainingTypeService {
                     "Deleted type: " + type.getTrainingType()
             );
         });
+
         trainingTypeRepo.deleteById(id);
     }
 

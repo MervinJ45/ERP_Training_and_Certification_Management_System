@@ -23,7 +23,7 @@ public class EmployeeDTO {
     private String email;
     private String phone;
     private String designation;
-    private LocalDateTime dateOfJoining;
+    private LocalDate dateOfJoining;
     private Boolean isActive;
     private DepartmentDTO department;
     private EmployeeDTO manager;

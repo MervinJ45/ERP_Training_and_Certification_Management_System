@@ -9,11 +9,13 @@ import java.util.List;
 @Service
 public class ApprovalWorkflowConfigService {
 
-    private final ApprovalWorkflowConfigRepo
-            approvalWorkflowConfigRepo;
+    private final ApprovalWorkflowConfigRepo approvalWorkflowConfigRepo;
+    private final AuditLogService auditLogService;
 
-    public ApprovalWorkflowConfigService(ApprovalWorkflowConfigRepo approvalWorkflowConfigRepo) {
+    public ApprovalWorkflowConfigService(ApprovalWorkflowConfigRepo approvalWorkflowConfigRepo,
+                                         AuditLogService auditLogService) {
         this.approvalWorkflowConfigRepo = approvalWorkflowConfigRepo;
+        this.auditLogService = auditLogService;
     }
 
     public List<ApprovalWorkflowConfig> getAllConfigs() {
@@ -21,11 +23,34 @@ public class ApprovalWorkflowConfigService {
     }
 
     public ApprovalWorkflowConfig saveConfig(ApprovalWorkflowConfig config) {
-        return approvalWorkflowConfigRepo.save(config);
+        boolean isUpdate = config.getConfigId() != null;
+
+        ApprovalWorkflowConfig savedConfig = approvalWorkflowConfigRepo.save(config);
+
+        String action = isUpdate ? "UPDATE" : "INSERT";
+        String details = (isUpdate ? "Updated" : "Created") + " workflow configuration step.";
+
+        auditLogService.logAudit(
+                savedConfig.getConfigId(),
+                action,
+                "approval_workflow_configs",
+                details
+        );
+
+        return savedConfig;
     }
 
     public void deleteConfig(Long id) {
-        approvalWorkflowConfigRepo.deleteById(id);
+        approvalWorkflowConfigRepo.findById(id).ifPresent(config -> {
+            approvalWorkflowConfigRepo.deleteById(id);
+
+            auditLogService.logAudit(
+                    id,
+                    "DELETE",
+                    "approval_workflow_configs",
+                    "Deleted approval workflow configuration step ID: " + id
+            );
+        });
     }
 
     public ApprovalWorkflowConfig getConfigById(Long id) {

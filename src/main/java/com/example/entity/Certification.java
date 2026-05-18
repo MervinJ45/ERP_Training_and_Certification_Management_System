@@ -40,6 +40,7 @@ public class Certification {
     @JoinColumn(name = "issued_by")
     private Employee issuedBy;
 
+    private String remarks;
     private String certificateUrl;
     private Boolean isActive = true;
     private LocalDateTime createdAt;

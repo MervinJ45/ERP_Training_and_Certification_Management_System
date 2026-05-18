@@ -39,7 +39,7 @@ public class Employee {
     private User user;
 
     private String designation;
-    private LocalDateTime dateOfJoining;
+    private LocalDate dateOfJoining;
     private Boolean isActive = true;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

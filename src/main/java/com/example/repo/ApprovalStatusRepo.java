@@ -1,6 +1,7 @@
 package com.example.repo;
 
 import com.example.entity.ApprovalStatus;
+import com.vaadin.open.App;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

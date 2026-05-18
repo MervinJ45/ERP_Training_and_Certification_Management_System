@@ -30,7 +30,7 @@ public class TrainingEnrollmentDTO {
     private BigDecimal requestedCost;
     private BigDecimal approvedCost;
     private Integer currentApprovalLevel;
-    private LocalDate completionDate;
+    private LocalDateTime completionDate;
     private Boolean certificateIssued;
     private LocalDateTime createdAt;
 }

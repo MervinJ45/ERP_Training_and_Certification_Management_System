@@ -1,4 +1,4 @@
-package com.example.view;
+package com.example.view.mainview;
 
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;

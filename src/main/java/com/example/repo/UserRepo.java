@@ -14,4 +14,6 @@
         Optional<User> findByUsername(String username);
 
         Optional<User> findByEmployeeEmployeeId(Long employeeId);
+
+        boolean existsByUsername(String superAdmin);
     }

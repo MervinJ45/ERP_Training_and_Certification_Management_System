@@ -1,10 +1,11 @@
-package com.example.view;
+package com.example.view.hrview;
 
 import com.example.dto.EmployeeDTO;
 import com.example.dto.TrainingCategoryDTO;
 import com.example.dto.TrainingCourseDTO;
 import com.example.dto.TrainingTypeDTO;
 import com.example.service.*;
+import com.example.view.mainview.MainLayout;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -30,11 +31,10 @@ import com.vaadin.flow.spring.security.AuthenticationContext;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
-import java.util.UUID;
 
 @Route(value = "manage-courses", layout = MainLayout.class)
 @PageTitle("ERP | Course Management")
-@RolesAllowed({"HR", "ADMIN", "SUPERADMIN"})
+@RolesAllowed({"HR", "ADMIN", "SUPER_ADMIN"})
 public class ManageCourseView extends VerticalLayout {
 
     private final TrainingCourseService trainingCourseService;

@@ -1,9 +1,10 @@
-package com.example.view;
+package com.example.view.employeeview;
 
 import com.example.dto.TrainingEnrollmentDTO;
 import com.example.entity.Employee;
 import com.example.service.TrainingEnrollmentService;
 import com.example.service.UserService;
+import com.example.view.mainview.MainLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;

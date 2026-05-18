@@ -1,14 +1,12 @@
 package com.example.service;
 
 import com.example.dto.TrainingCourseDTO;
-import com.example.entity.AuditLog;
 import com.example.entity.TrainingCourse;
 import com.example.repo.*;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,20 +18,31 @@ public class TrainingCourseService {
     private final TrainingTypeRepo trainingTypeRepo;
     private final EmployeeRepo employeeRepo;
     private final UserRepo userRepo;
-    private final AuditLogRepo auditLogRepo;
+
+    // Injected the specialized AuditLogService instead of the raw repo
+    private final AuditLogService auditLogService;
 
     private final UserService userService;
     private final TrainingCategoryService categoryService;
     private final TrainingTypeService trainingTypeService;
     private final EmployeeService employeeService;
 
-    public TrainingCourseService(TrainingCourseRepo trainingCourseRepo, TrainingCategoryRepo categoryRepo, TrainingTypeRepo trainingTypeRepo, EmployeeRepo employeeRepo, UserRepo userRepo, AuditLogRepo auditLogRepo, UserService userService, TrainingCategoryService categoryService, TrainingTypeService trainingTypeService, EmployeeService employeeService) {
+    public TrainingCourseService(TrainingCourseRepo trainingCourseRepo,
+                                 TrainingCategoryRepo categoryRepo,
+                                 TrainingTypeRepo trainingTypeRepo,
+                                 EmployeeRepo employeeRepo,
+                                 UserRepo userRepo,
+                                 AuditLogService auditLogService, // Updated constructor
+                                 UserService userService,
+                                 TrainingCategoryService categoryService,
+                                 TrainingTypeService trainingTypeService,
+                                 EmployeeService employeeService) {
         this.trainingCourseRepo = trainingCourseRepo;
         this.categoryRepo = categoryRepo;
         this.trainingTypeRepo = trainingTypeRepo;
         this.employeeRepo = employeeRepo;
         this.userRepo = userRepo;
-        this.auditLogRepo = auditLogRepo;
+        this.auditLogService = auditLogService;
         this.userService = userService;
         this.categoryService = categoryService;
         this.trainingTypeService = trainingTypeService;
@@ -49,7 +58,7 @@ public class TrainingCourseService {
     }
 
     @Transactional
-    public TrainingCourseDTO saveCourse(TrainingCourseDTO dto, Long currentUserId, Long currentRoleId) {
+    public TrainingCourseDTO saveCourse(TrainingCourseDTO dto) {
         TrainingCourse course;
         boolean isUpdate = dto.getCourseId() != null;
 
@@ -57,7 +66,6 @@ public class TrainingCourseService {
             course = trainingCourseRepo.findById(dto.getCourseId()).orElseThrow(() -> new RuntimeException("Course not found"));
         } else {
             course = new TrainingCourse();
-            // Assign creator on first save
             if (dto.getCreatedBy() != null && dto.getCreatedBy().getUserId() != null) {
                 course.setCreator(userRepo.findById(dto.getCreatedBy().getUserId()).orElse(null));
             }
@@ -86,14 +94,14 @@ public class TrainingCourseService {
 
         TrainingCourse saved = trainingCourseRepo.save(course);
 
-        logAudit(currentUserId, currentRoleId, saved.getCourseId(), isUpdate ? "UPDATE" : "INSERT", "training_courses", "Course: " + saved.getCourseName());
+        // Updated to use the shared central AuditLogService
+        auditLogService.logAudit(saved.getCourseId(), isUpdate ? "UPDATE" : "INSERT", "training_courses", "Course: " + saved.getCourseName());
 
         return convertToDTO(saved);
     }
 
     @Transactional
     public TrainingCourseDTO updateCourse(TrainingCourseDTO dto) {
-
         if (dto.getCourseId() == null) {
             throw new RuntimeException("Course ID is required for update");
         }
@@ -114,26 +122,29 @@ public class TrainingCourseService {
         if (dto.getCategory() != null) {
             course.setCategory(categoryRepo.findById(dto.getCategory().getCategoryId()).orElse(null));
         }
-
         if (dto.getTrainer() != null) {
             course.setTrainer(employeeRepo.findById(dto.getTrainer().getEmployeeId()).orElse(null));
         }
-
         if (dto.getTrainingType() != null) {
             course.setTrainingType(trainingTypeRepo.findById(dto.getTrainingType().getTrainingTypeId()).orElse(null));
         }
 
         TrainingCourse updatedCourse = trainingCourseRepo.save(course);
 
+        // Added Audit logging to the updateCourse method using AuditLogService
+        auditLogService.logAudit(updatedCourse.getCourseId(), "UPDATE", "training_courses", "Updated Course: " + updatedCourse.getCourseName());
+
         return convertToDTO(updatedCourse);
     }
 
     @Transactional
-    public void deleteCourse(Long id, Long userId, Long roleId) {
+    public void deleteCourse(Long id) {
         trainingCourseRepo.findById(id).ifPresent(course -> {
             course.setIsActive(false);
             trainingCourseRepo.save(course);
-            logAudit(userId, roleId, id, "DEACTIVATE", "training_courses", "Marked course as inactive");
+
+            // Updated to use the shared central AuditLogService
+            auditLogService.logAudit(id, "DEACTIVATE", "training_courses", "Marked course as inactive: " + course.getCourseName());
         });
     }
 
@@ -144,7 +155,7 @@ public class TrainingCourseService {
         dto.setCourseId(course.getCourseId());
         dto.setCourseName(course.getCourseName());
         dto.setDescription(course.getDescription());
-        dto.setCourseDescription(course.getDescription()); // Mapping both to be safe
+        dto.setCourseDescription(course.getDescription());
         dto.setDurationDays(course.getDurationDays());
         dto.setTrainingCost(course.getTrainingCost());
         dto.setCertificationProvided(course.getCertificationProvided());
@@ -153,7 +164,6 @@ public class TrainingCourseService {
         dto.setActive(course.getIsActive() != null ? course.getIsActive() : false);
         dto.setCreatedAt(course.getCreatedAt());
 
-        // Mapping Relationships & Flattening names
         if (course.getCategory() != null) {
             dto.setCategory(categoryService.convertToDTO(course.getCategory()));
             dto.setCategoryName(course.getCategory().getCategoryName());
@@ -169,7 +179,6 @@ public class TrainingCourseService {
             dto.setTrainingTypeName(course.getTrainingType().getTrainingType());
         }
 
-        // Entity "creator" maps to DTO "createdBy"
         if (course.getCreator() != null) {
             dto.setCreatedBy(userService.convertToDTO(course.getCreator()));
             dto.setCreatedByName(course.getCreator().getUsername());
@@ -178,17 +187,10 @@ public class TrainingCourseService {
         return dto;
     }
 
-    private void logAudit(Long userId, Long roleId, Long recordId, String action, String table, String details) {
-        AuditLog log = new AuditLog();
-        log.setRecordId(recordId);
-        log.setAction(action);
-        log.setTableAffected(table);
-        log.setChangeDetails(details);
-        log.setActionTime(LocalDateTime.now());
-        auditLogRepo.save(log);
-    }
-
     public List<TrainingCourseDTO> searchCourseDTOs(String value) {
-        return trainingCourseRepo.findAll().stream().filter(course -> course.getCourseName() != null && course.getCourseName().toLowerCase().contains(value.toLowerCase())).map(this::convertToDTO).collect(Collectors.toList());
+        return trainingCourseRepo.findAll().stream()
+                .filter(course -> course.getCourseName() != null && course.getCourseName().toLowerCase().contains(value.toLowerCase()))
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 }

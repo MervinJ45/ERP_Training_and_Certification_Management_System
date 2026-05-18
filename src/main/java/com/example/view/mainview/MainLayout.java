@@ -1,8 +1,7 @@
-package com.example.view;
+package com.example.view.mainview;
 
 import com.example.entity.User;
 import com.example.utils.CurrentUserProvider;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
@@ -15,13 +14,10 @@ import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
-import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.spring.security.AuthenticationContext;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import java.util.*;
 
 public class MainLayout extends AppLayout {
 
@@ -30,7 +26,9 @@ public class MainLayout extends AppLayout {
     private String admin = "ROLE_ADMIN";
     private String auditor = "ROLE_AUDITOR";
     private String employee = "ROLE_EMPLOYEE";
-    private String superAdmin = "ROLE_SUPERADMIN";
+    private String superAdmin = "ROLE_SUPER_ADMIN";
+    private String director = "ROLE_DIRECTOR";
+    private String trainer = "ROLE_TRAINER";
     private final AuthenticationContext authenticationContext;
     private final CurrentUserProvider currentUserProvider;
 
@@ -86,27 +84,33 @@ public class MainLayout extends AppLayout {
     private void createDrawer() {
         SideNav nav = new SideNav();
 
-        if(role.equals(employee)) {
-            nav.addItem(new SideNavItem("Course Catalog", "/courses", VaadinIcon.ACADEMY_CAP.create()));
-            nav.addItem(new SideNavItem("My Enrollments", "/my-enrollments", VaadinIcon.LIST.create()));
-            nav.addItem(new SideNavItem("Certifications", "/my-certifications", VaadinIcon.CART.create()));
-        }
         if(role.equals(superAdmin)) {
             nav.addItem(new SideNavItem("Employees", "employee", VaadinIcon.USER_CARD.create()));
             nav.addItem(new SideNavItem("Users", "user", VaadinIcon.USER.create()));
         }
-
-        if(role.equals(manager)) {
+        if(role.equals(employee) || role.equals(superAdmin)) {
+            nav.addItem(new SideNavItem("Course Catalog", "/courses", VaadinIcon.ACADEMY_CAP.create()));
+            nav.addItem(new SideNavItem("My Enrollments", "/my-enrollments", VaadinIcon.LIST.create()));
+            nav.addItem(new SideNavItem("Certifications", "/my-certificates", VaadinIcon.CART.create()));
+        }
+        if(role.equals(hr) || role.equals(admin) || role.equals(auditor)) {
+            nav.addItem(new SideNavItem("Manage Courses", "/manage-courses", VaadinIcon.EDIT.create()));
+            nav.addItem(new SideNavItem("Pending Approvals", "/approvals", VaadinIcon.EDIT.create()));
+            nav.addItem(new SideNavItem("Employee Skill Matrix", "/skill-matrix-summary", VaadinIcon.CHART_3D.create()));
+        }
+        if(role.equals(director)) {
+            nav.addItem(new SideNavItem("Pending Approvals", "/approvals", VaadinIcon.EDIT.create()));
+        }
+        if(role.equals(manager) || role.equals(superAdmin)) {
             nav.addItem(new SideNavItem("Pending Approvals", "/manager-approvals", VaadinIcon.CHECK_SQUARE_O.create()));
             nav.addItem(new SideNavItem("My Approvals", "/manager-approved", VaadinIcon.CHECK.create()));
-        }
-        if(role.equals(hr) || role.equals(admin)) {
-            nav.addItem(new SideNavItem("Manage Courses", "/manage-courses", VaadinIcon.EDIT.create()));
-            nav.addItem(new SideNavItem("Employee Skill Matrix", "/skill-matrix", VaadinIcon.CHART_3D.create()));
         }
         if(role.equals(auditor) || role.equals(superAdmin)) {
             nav.addItem(new SideNavItem("Reports", "/reports", VaadinIcon.BAR_CHART.create()));
             nav.addItem(new SideNavItem("Audit Timeline", "/audit", VaadinIcon.CLIPBOARD_TEXT.create()));
+        }
+        if(role.equals(trainer)){
+            nav.addItem(new SideNavItem("My-Class Enrollments", "/trainer-enrollments", VaadinIcon.BAR_CHART.create()));
         }
         Scroller scroller = new Scroller(nav);
         scroller.setClassName(LumoUtility.Padding.SMALL);

@@ -1,4 +1,4 @@
-package com.example.view;
+package com.example.view.employeeview;
 
 import com.example.dto.TrainingCourseDTO;
 import com.example.entity.Employee;
@@ -8,6 +8,7 @@ import com.example.service.TrainingCourseService;
 import com.example.service.TrainingEnrollmentService;
 import com.example.service.UserService;
 import com.example.utils.CurrentUserProvider;
+import com.example.view.mainview.MainLayout;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -28,7 +29,7 @@ import jakarta.annotation.security.RolesAllowed;
 
 @Route(value = "courses", layout = MainLayout.class)
 @PageTitle("ERP | Courses")
-@RolesAllowed("EMPLOYEE")
+@RolesAllowed({"EMPLOYEE", "SUPER_ADMIN"})
 public class CourseView extends VerticalLayout {
 
     private final AuthenticationContext authContext;

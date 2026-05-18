@@ -17,6 +17,8 @@ public class User {
     private String email;
     private String password;
     private Boolean isActive;
+
+    @OneToOne(mappedBy = "user")
     private Employee employee;
 
     @ManyToOne

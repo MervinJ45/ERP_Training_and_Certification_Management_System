@@ -8,4 +8,5 @@ import java.util.UUID;
 
 public interface EnrollmentStatusRepo extends JpaRepository<EnrollmentStatus, Long> {
     Optional<EnrollmentStatus> findByEnrollmentStatus(String status);
+
 }

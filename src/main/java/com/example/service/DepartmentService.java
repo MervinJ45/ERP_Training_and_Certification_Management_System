@@ -6,16 +6,18 @@ import com.example.repo.DepartmentRepo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 public class DepartmentService {
 
     private final DepartmentRepo departmentRepo;
+    // Injected central AuditLogService
+    private final AuditLogService auditLogService;
 
-    public DepartmentService(DepartmentRepo departmentRepo) {
+    public DepartmentService(DepartmentRepo departmentRepo, AuditLogService auditLogService) {
         this.departmentRepo = departmentRepo;
+        this.auditLogService = auditLogService;
     }
 
     public List<DepartmentDTO> getAllDepartmentDTOs() {
@@ -23,11 +25,36 @@ public class DepartmentService {
     }
 
     public Department saveDepartment(Department department) {
-        return departmentRepo.save(department);
+        // Determine whether this action is an update or an insertion
+        boolean isUpdate = department.getDepartmentId() != null;
+
+        Department savedDepartment = departmentRepo.save(department);
+
+        String action = isUpdate ? "UPDATE" : "INSERT";
+        String details = (isUpdate ? "Updated" : "Created") + " department: " + savedDepartment.getDepartmentName();
+
+        auditLogService.logAudit(
+                savedDepartment.getDepartmentId(),
+                action,
+                "departments",
+                details
+        );
+
+        return savedDepartment;
     }
 
     public void deleteDepartment(Long id) {
-        departmentRepo.deleteById(id);
+        // Retrieve the record first to safely log contextual detail information right before deletion
+        departmentRepo.findById(id).ifPresent(department -> {
+            departmentRepo.deleteById(id);
+
+            auditLogService.logAudit(
+                    id,
+                    "DELETE",
+                    "departments",
+                    "Deleted department: " + department.getDepartmentName()
+            );
+        });
     }
 
     public Department getDepartmentById(Long id) {
@@ -35,6 +62,7 @@ public class DepartmentService {
     }
 
     public DepartmentDTO convertToDTO(Department department) {
+        if (department == null) return null;
 
         DepartmentDTO dto = new DepartmentDTO();
         dto.setDepartmentId(department.getDepartmentId());

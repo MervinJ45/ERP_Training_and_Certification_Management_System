@@ -1,4 +1,4 @@
-package com.example.view;
+package com.example.view.superadminview;
 
 import com.example.dto.EmployeeDTO;
 import com.example.dto.DepartmentDTO;
@@ -6,6 +6,7 @@ import com.example.dto.RoleDTO;
 import com.example.service.DepartmentService;
 import com.example.service.EmployeeService;
 import com.example.service.RoleService;
+import com.example.view.mainview.MainLayout;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -28,7 +29,7 @@ import jakarta.annotation.security.RolesAllowed;
 
 @Route(value = "employee", layout = MainLayout.class)
 @PageTitle("Employees")
-@RolesAllowed("SUPERADMIN")
+@RolesAllowed("SUPER_ADMIN")
 public class EmployeeView extends VerticalLayout {
 
     private final EmployeeService employeeService;
@@ -174,9 +175,9 @@ public class EmployeeView extends VerticalLayout {
             dtoToSave.setPhone(phone.getValue());
             dtoToSave.setDesignation(designation.getValue());
             dtoToSave.setDateOfJoining(joiningDate.getValue());
-            dtoToSave.setDepartment(department.getValue());
             dtoToSave.setRole(role.getValue());
             dtoToSave.setIsActive(true);
+            dtoToSave.setDepartment(department.getValue());
 
             if (manager.isVisible()) {
                 dtoToSave.setManager(manager.getValue());
