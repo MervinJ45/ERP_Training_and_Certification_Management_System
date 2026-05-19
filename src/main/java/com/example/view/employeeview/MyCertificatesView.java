@@ -51,14 +51,12 @@ public class MyCertificatesView extends VerticalLayout {
         setSizeFull();
         setPadding(true);
 
-        H2 title = new H2("My Professional Qualifications");
-        Span subTitle = new Span("View your earned corporate credentials. Double-click an expired row to initiate renewal requests.");
-        subTitle.getStyle().set("color", "var(--lumo-secondary-text-color)");
+        H2 title = new H2("My Certificates");
 
         configureGrid();
         loadUserData();
 
-        add(title, subTitle, grid);
+        add(title, grid);
     }
 
     private void configureGrid() {
@@ -139,7 +137,7 @@ public class MyCertificatesView extends VerticalLayout {
         VerticalLayout layout = new VerticalLayout();
         layout.setPadding(false);
 
-        Span info = new Span("Upload the renewed documentation copy for: " + dto.getCourseName());
+        Span info = new Span("Upload the renewed documentation copy for: " + dto.getCourseName() + "only pdf files");
         info.getStyle().set("font-size", "14px").set("color", "var(--lumo-secondary-text-color)");
 
         TextArea remarksField = new TextArea("Employee Remarks / Notes");
@@ -202,11 +200,6 @@ public class MyCertificatesView extends VerticalLayout {
 
     private void loadUserData() {
         User user = currentUserProvider.getCurrentUser();
-        if (user == null || user.getEmployee() == null) {
-            Notification.show("Session Timeout: Unable to verify profile identity.").addThemeVariants(NotificationVariant.LUMO_ERROR);
-            return;
-        }
-
         Long employeeId = user.getEmployee().getEmployeeId();
         List<CertificationDisplayDTO> personalCertificates = certificationService.getMyCertifications(employeeId);
         grid.setItems(personalCertificates);

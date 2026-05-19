@@ -19,6 +19,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -30,7 +31,9 @@ import com.vaadin.flow.spring.security.AuthenticationContext;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Route(value = "manage-courses", layout = MainLayout.class)
 @PageTitle("ERP | Course Management")
@@ -45,7 +48,12 @@ public class ManageCourseView extends VerticalLayout {
     private final AuthenticationContext authContext;
 
     private final Grid<TrainingCourseDTO> grid = new Grid<>(TrainingCourseDTO.class, false);
-    private final TextField filterField = new TextField();
+
+    private final TextField courseSearchField = new TextField();
+    private final Select<String> typeSelectField = new Select<>();
+    private final Select<String> certSelectField = new Select<>();
+
+    private List<TrainingCourseDTO> allData;
 
     public ManageCourseView(TrainingCourseService trainingCourseService, TrainingCategoryService trainingCategoryService, TrainingTypeService trainingTypeService, EmployeeService employeeService, UserService userService, AuthenticationContext authContext) {
         this.trainingCourseService = trainingCourseService;
@@ -56,15 +64,17 @@ public class ManageCourseView extends VerticalLayout {
         this.authContext = authContext;
 
         setSizeFull();
+        setPadding(true);
+        setSpacing(true);
 
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
         H2 title = new H2("Course Management");
 
-        filterField.setPlaceholder("Search Course...");
-        filterField.setPrefixComponent(VaadinIcon.SEARCH.create());
-        filterField.setValueChangeMode(ValueChangeMode.EAGER);
-        filterField.addValueChangeListener(e -> updateGrid());
+        configureCourseSearch();
+        configureTypeFilter();
+        configureCertFilter();
+        configureGrid();
 
         Button addBtn = new Button(VaadinIcon.PLUS.create(), e -> openCourseForm(null));
         addBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -84,48 +94,91 @@ public class ManageCourseView extends VerticalLayout {
             }
         });
 
-        HorizontalLayout toolbar = new HorizontalLayout(filterField, addBtn, editBtn, deleteBtn);
-        toolbar.setWidthFull();
-        toolbar.expand(filterField);
+        // Create an expanding spacer to push the buttons to the right edge
+        HorizontalLayout spacer = new HorizontalLayout();
 
-        configureGrid();
-        updateGrid();
+        // Assemble the layout with filters on the left, spacer in middle, buttons on right
+        HorizontalLayout toolbar = new HorizontalLayout(courseSearchField, typeSelectField, certSelectField, spacer, addBtn, editBtn, deleteBtn);
+        toolbar.setWidthFull();
+        toolbar.setSpacing(true);
+
+        // Tell the toolbar to expand the empty space, driving the action buttons rightward
+        toolbar.expand(spacer);
+
+        grid.setSizeFull();
 
         add(title, toolbar, grid);
-        updateGrid();
+        loadInitialData();
+    }
+
+    private void configureCourseSearch() {
+        courseSearchField.setPlaceholder("Search Course...");
+        courseSearchField.setClearButtonVisible(true);
+        courseSearchField.setPrefixComponent(VaadinIcon.SEARCH.create());
+        courseSearchField.setWidth("200px");
+        courseSearchField.setValueChangeMode(ValueChangeMode.LAZY);
+        courseSearchField.addValueChangeListener(e -> filterGrid());
+    }
+
+    private void configureTypeFilter() {
+        typeSelectField.setPlaceholder("Type (All)");
+        typeSelectField.setEmptySelectionAllowed(true);
+        typeSelectField.setEmptySelectionCaption("Type (All)");
+        typeSelectField.setItems("Online", "Classroom", "Hybrid");
+        typeSelectField.setWidth("180px");
+        typeSelectField.addValueChangeListener(e -> filterGrid());
+    }
+
+    private void configureCertFilter() {
+        certSelectField.setPlaceholder("Certification (All)");
+        certSelectField.setEmptySelectionAllowed(true);
+        certSelectField.setEmptySelectionCaption("Certification (All)");
+        certSelectField.setItems("Yes", "No");
+        certSelectField.setWidth("180px");
+        certSelectField.addValueChangeListener(e -> filterGrid());
     }
 
     private void configureGrid() {
-        grid.addColumn(TrainingCourseDTO::getCourseName).setHeader("Course Name").setAutoWidth(true);
-
-        grid.addColumn(trainingCourseDTO -> trainingCourseDTO.getCategory().getCategoryName()).setHeader("Category").setWidth("250px").setFlexGrow(0);
-
-        grid.addColumn(TrainingCourseDTO::getDurationDays).setHeader("Days").setWidth("150px").setFlexGrow(0);
-
-        grid.addColumn(TrainingCourseDTO::getTrainingCost).setHeader("Cost").setWidth("150px").setFlexGrow(0);
-
-        grid.addColumn(trainingCourse -> trainingCourse.getTrainingType().getTrainingType()).setHeader("Type").setWidth("200px").setFlexGrow(0);
-
-        grid.addColumn(TrainingCourseDTO::getMaxParticipants).setHeader("Max Participants").setWidth("150px").setFlexGrow(0);
-
-        grid.addColumn(trainingCourseDTO -> trainingCourseDTO.getTrainer().getFirstName()).setHeader("Trainer").setWidth("200px").setFlexGrow(0);
-
-        grid.addColumn(trainingCourseDTO -> trainingCourseDTO.getCertificationProvided() ? "YES" : "NO").setHeader("Certificate Provided?").setWidth("150px").setFlexGrow(0);
-
-        grid.addColumn(TrainingCourseDTO::getCertificationValidityMonths).setHeader("Certificate Expire in (Months)").setWidth("250px").setFlexGrow(0);
+        grid.addColumn(TrainingCourseDTO::getCourseName).setHeader("Course Name").setAutoWidth(true).setSortable(true);
+        grid.addColumn(dto -> dto.getCategory() != null ? dto.getCategory().getCategoryName() : "").setHeader("Category").setAutoWidth(true).setSortable(true);
+        grid.addColumn(TrainingCourseDTO::getDurationDays).setHeader("Days").setAutoWidth(true).setSortable(true);
+        grid.addColumn(TrainingCourseDTO::getTrainingCost).setHeader("Cost").setAutoWidth(true).setSortable(true);
+        grid.addColumn(dto -> dto.getTrainingType() != null ? dto.getTrainingType().getTrainingType() : "").setHeader("Type").setAutoWidth(true).setSortable(true);
+        grid.addColumn(dto -> dto.getTrainer() != null ? dto.getTrainer().getFirstName() : "").setHeader("Trainer").setAutoWidth(true).setSortable(true);
+        grid.addColumn(dto -> dto.getCertificationProvided() != null && dto.getCertificationProvided() ? "YES" : "NO").setHeader("Certificate Provided?").setAutoWidth(true).setSortable(true);
+        grid.addColumn(TrainingCourseDTO::getCertificationValidityMonths).setHeader("Certificate Expire in (Months)").setAutoWidth(true).setSortable(true);
 
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.setWidthFull();
-        grid.setHeight("100%");
     }
 
-    private void updateGrid() {
-        String value = filterField.getValue();
-        if (value == null || value.isEmpty()) {
-            grid.setItems(trainingCourseService.getAllCourseDTOs());
-        } else {
-            grid.setItems(trainingCourseService.searchCourseDTOs(value));
+    private void loadInitialData() {
+        allData = trainingCourseService.getAllCourseDTOs();
+        filterGrid();
+    }
+
+    private void filterGrid() {
+        if (allData == null) return;
+
+        String nameQuery = courseSearchField.getValue() != null ? courseSearchField.getValue().trim().toLowerCase() : "";
+        String typeQuery = typeSelectField.getValue();
+        String certQuery = certSelectField.getValue();
+
+        if (nameQuery.isEmpty() && typeQuery == null && certQuery == null) {
+            grid.setItems(allData);
+            return;
         }
+
+        List<TrainingCourseDTO> filteredList = allData.stream().filter(dto -> {
+            boolean matchesName = nameQuery.isEmpty() || (dto.getCourseName() != null && dto.getCourseName().toLowerCase().contains(nameQuery));
+
+            boolean matchesType = typeQuery == null || (dto.getTrainingType() != null && typeQuery.equalsIgnoreCase(dto.getTrainingType().getTrainingType()));
+
+            boolean matchesCert = certQuery == null || (dto.getCertificationProvided() != null && ((certQuery.equals("Yes") && dto.getCertificationProvided()) || (certQuery.equals("No") && !dto.getCertificationProvided())));
+
+            return matchesName && matchesType && matchesCert;
+        }).collect(Collectors.toList());
+
+        grid.setItems(filteredList);
     }
 
     private TrainingCourseDTO checkSingleSelection() {
@@ -142,10 +195,14 @@ public class ManageCourseView extends VerticalLayout {
         dialog.add(new Text("Are you sure you want to delete " + courses.size() + " items?"));
 
         Button confirm = new Button("Delete", e -> {
-            courses.forEach(c -> trainingCourseService.deleteCourse(c.getCourseId()));
-            updateGrid();
+            courses.forEach(c -> {
+                if (c != null && c.getCourseId() != null) {
+                    trainingCourseService.deleteCourse(c.getCourseId());
+                }
+            });
             dialog.close();
             Notification.show("Deleted successfully");
+            loadInitialData();
         });
         confirm.addThemeVariants(ButtonVariant.LUMO_ERROR);
 
@@ -167,18 +224,18 @@ public class ManageCourseView extends VerticalLayout {
 
         ComboBox<TrainingCategoryDTO> category = new ComboBox<>("Category");
         category.setItems(trainingCategoryService.getAllCategoryDTOs());
-        category.setItemLabelGenerator(TrainingCategoryDTO::getCategoryName);
+        category.setItemLabelGenerator(item -> item != null ? item.getCategoryName() : "");
 
         NumberField durationDays = new NumberField("Duration (Days)");
         NumberField trainingCost = new NumberField("Training Cost");
 
         ComboBox<EmployeeDTO> trainer = new ComboBox<>("Trainer");
         trainer.setItems(employeeService.getAllTrainerDTOs());
-        trainer.setItemLabelGenerator(emp -> emp.getFirstName() + " " + emp.getLastName());
+        trainer.setItemLabelGenerator(emp -> emp != null ? emp.getFirstName() + " " + emp.getLastName() : "");
 
         ComboBox<TrainingTypeDTO> trainingType = new ComboBox<>("Training Type");
         trainingType.setItems(trainingTypeService.getAllTrainingTypeDTOs());
-        trainingType.setItemLabelGenerator(TrainingTypeDTO::getTrainingType);
+        trainingType.setItemLabelGenerator(item -> item != null ? item.getTrainingType() : "");
 
         IntegerField maxParticipants = new IntegerField("Max Participants");
 
@@ -192,17 +249,17 @@ public class ManageCourseView extends VerticalLayout {
 
         if (isEditMode) {
             dto = courseToEdit;
-            courseName.setValue(dto.getCourseName());
+            courseName.setValue(dto.getCourseName() != null ? dto.getCourseName() : "");
             description.setValue(dto.getDescription() != null ? dto.getDescription() : "");
             category.setValue(dto.getCategory());
             durationDays.setValue(dto.getDurationDays() != null ? dto.getDurationDays().doubleValue() : 0.0);
             trainingCost.setValue(dto.getTrainingCost() != null ? dto.getTrainingCost().doubleValue() : 0.0);
             trainer.setValue(dto.getTrainer());
             trainingType.setValue(dto.getTrainingType());
-            maxParticipants.setValue(dto.getMaxParticipants());
-            certificationProvided.setValue(dto.getCertificationProvided());
+            maxParticipants.setValue(dto.getMaxParticipants() != null ? dto.getMaxParticipants() : 0);
+            certificationProvided.setValue(dto.getCertificationProvided() != null && dto.getCertificationProvided());
 
-            if (dto.getCertificationProvided()) {
+            if (dto.getCertificationProvided() != null && dto.getCertificationProvided()) {
                 certValidity.setVisible(true);
                 certValidity.setValue(dto.getCertificationValidityMonths());
             }
@@ -217,8 +274,10 @@ public class ManageCourseView extends VerticalLayout {
             dto.setCourseName(courseName.getValue());
             dto.setCategory(category.getValue());
             dto.setDescription(description.getValue());
-            dto.setDurationDays(durationDays.getValue().intValue());
-            dto.setTrainingCost(BigDecimal.valueOf(trainingCost.getValue()));
+
+            dto.setDurationDays(durationDays.getValue() != null ? durationDays.getValue().intValue() : 0);
+            dto.setTrainingCost(trainingCost.getValue() != null ? BigDecimal.valueOf(trainingCost.getValue()) : BigDecimal.ZERO);
+
             dto.setTrainer(trainer.getValue());
             dto.setTrainingType(trainingType.getValue());
             dto.setCertificationProvided(certificationProvided.getValue());
@@ -238,11 +297,13 @@ public class ManageCourseView extends VerticalLayout {
                     userService.findByUsername(userDetails.getUsername()).ifPresent(user -> dto.setCreatedBy(userService.convertToDTO(user)));
                 });
                 trainingCourseService.saveCourse(dto);
-            } else trainingCourseService.updateCourse(dto);
+            } else {
+                trainingCourseService.updateCourse(dto);
+            }
 
             Notification.show(isEditMode ? "Course Updated Successfully" : "Course Created Successfully");
             dialog.close();
-            updateGrid();
+            loadInitialData();
         });
 
         layout.add(courseName, category, description, new HorizontalLayout(durationDays, trainingCost), new HorizontalLayout(trainer, trainingType), maxParticipants, certificationProvided, certValidity, saveBtn);

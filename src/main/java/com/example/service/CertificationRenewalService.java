@@ -72,18 +72,27 @@ public class CertificationRenewalService {
 
         if (isApproved) {
             renewal.setApprovalStatus(approvalStatusService.getApprovalStatusById(2L));
-            Certification primaryCert = renewal.getOriginalCertification();
+            Certification oldCert = renewal.getOriginalCertification();
 
-            int validityMonths = primaryCert.getCourse().getCertificationValidityMonths();
+            int validityMonths = oldCert.getCourse().getCertificationValidityMonths();
             LocalDateTime newExpiry = now.plusMonths(validityMonths);
 
-            primaryCert.setExpiryDate(newExpiry);
-            primaryCert.setCertificateUrl(renewal.getUploadedCertificateUrl());
-            primaryCert.setUpdatedAt(now);
-            certificationRepo.save(primaryCert);
+            Certification newCert = new Certification();
+            newCert.setCertificateNumber(oldCert.getCertificateNumber());
+            newCert.setCourse(oldCert.getCourse());
+            newCert.setEmployee(oldCert.getEmployee());
+            newCert.setIssueDate(now);
+            newCert.setExpiryDate(newExpiry);
+            newCert.setCertificateUrl(renewal.getUploadedCertificateUrl());
+            newCert.setCreatedAt(now);
+            newCert.setUpdatedAt(now);
+            newCert.setIsActive(true);
+
+            Certification savedNewCert = certificationRepo.save(newCert);
 
             renewal.setNewExpiryDate(newExpiry);
-            renewal.setNewCertification(primaryCert);
+            renewal.setNewCertification(savedNewCert);
+
         } else {
             renewal.setApprovalStatus(approvalStatusService.getApprovalStatusById(3L));
         }

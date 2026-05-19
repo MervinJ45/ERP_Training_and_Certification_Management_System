@@ -43,14 +43,12 @@ public class TrainerEnrollmentView extends VerticalLayout {
         setSizeFull();
         setPadding(true);
 
-        H2 title = new H2("My Training Courseu");
-        Span subTitle = new Span("Manage active students and sign-off completed courses.");
-        subTitle.getStyle().set("color", "var(--lumo-secondary-text-color)");
+        H2 title = new H2("My Training Courses");
 
         configureGrid();
         loadData();
 
-        add(title, subTitle, grid);
+        add(title, grid);
     }
 
     private void configureGrid() {
@@ -85,11 +83,10 @@ public class TrainerEnrollmentView extends VerticalLayout {
         Span confirmationText = new Span("Confirm completion status for " + dto.getEmployeeFullName() + " in " + dto.getCourseName() + "?");
         confirmationText.getStyle().set("font-weight", "500");
 
-        // NEW FIELD: Proficiency Rating Selector (1 to 5 scale)
         Select<Integer> proficiencyRating = new Select<>();
         proficiencyRating.setLabel("Proficiency Rating (1-5)");
         proficiencyRating.setItems(1, 2, 3, 4, 5);
-        proficiencyRating.setValue(3); // Default placeholder mid-scale value
+        proficiencyRating.setValue(3);
         proficiencyRating.setWidthFull();
 
         TextArea remarks = new TextArea("Trainer Evaluation Remarks");
@@ -127,14 +124,10 @@ public class TrainerEnrollmentView extends VerticalLayout {
 
     private void loadData() {
         User user = currentUserProvider.getCurrentUser();
-        if (user == null || user.getEmployee() == null) {
-            Notification.show("Session Timeout: Profile reference missing.").addThemeVariants(NotificationVariant.LUMO_ERROR);
-            return;
-        }
 
         Long trainerId = user.getEmployee().getEmployeeId();
 
-        List<TrainingEnrollmentDTO> activeRoster = trainingEnrollmentService.getTrainerSpecificEnrollments(trainerId);
-        grid.setItems(activeRoster);
+        List<TrainingEnrollmentDTO> allData = trainingEnrollmentService.getTrainerSpecificEnrollments(trainerId);
+        grid.setItems(allData);
     }
 }

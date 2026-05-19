@@ -9,12 +9,19 @@ import com.example.view.mainview.MainLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
 
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Route(value = "my-approvals", layout = MainLayout.class)
 @PageTitle("ERP | My Approval History")
@@ -27,39 +34,109 @@ public class MyApprovalsView extends VerticalLayout {
     private final Grid<TrainingApprovalDTO> grid = new Grid<>(TrainingApprovalDTO.class, false);
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
+    private final TextField requesterSearchField = new TextField();
+    private final TextField courseSearchField = new TextField();
+    private final Select<String> statusSelectField = new Select<>();
+
+    private List<TrainingApprovalDTO> allData;
+
     public MyApprovalsView(TrainingApprovalService approvalService, CurrentUserProvider currentUserProvider) {
         this.approvalService = approvalService;
         this.currentUserProvider = currentUserProvider;
 
         setSizeFull();
+        setPadding(true);
+        setSpacing(true);
 
-        H2 title = new H2("My Approval History");
+        H2 title = new H2("Approval History");
 
+        configureRequesterSearch();
+        configureCourseSearch();
+        configureStatusFilter();
         configureGrid();
-        loadData();
 
-        add(title, grid);
+        HorizontalLayout filterActionLayout = new HorizontalLayout(requesterSearchField, courseSearchField, statusSelectField);
+        filterActionLayout.setWidthFull();
+        filterActionLayout.setSpacing(true);
+
+        grid.setSizeFull();
+
+        add(title, filterActionLayout, grid);
+        loadData();
+    }
+
+    private void configureRequesterSearch() {
+        requesterSearchField.setPlaceholder("Search by Requester");
+        requesterSearchField.setClearButtonVisible(true);
+        requesterSearchField.setPrefixComponent(VaadinIcon.SEARCH.create());
+        requesterSearchField.setWidth("200px");
+        requesterSearchField.setValueChangeMode(ValueChangeMode.LAZY);
+        requesterSearchField.addValueChangeListener(e -> filterGrid());
+    }
+
+    private void configureCourseSearch() {
+        courseSearchField.setPlaceholder("Search by Course");
+        courseSearchField.setClearButtonVisible(true);
+        courseSearchField.setPrefixComponent(VaadinIcon.SEARCH.create());
+        courseSearchField.setWidth("200px");
+        courseSearchField.setValueChangeMode(ValueChangeMode.LAZY);
+        courseSearchField.addValueChangeListener(e -> filterGrid());
+    }
+
+    private void configureStatusFilter() {
+        statusSelectField.setPlaceholder("Status (All)");
+        statusSelectField.setEmptySelectionAllowed(true);
+        statusSelectField.setEmptySelectionCaption("Status (All)");
+        statusSelectField.setItems("Approved", "Rejected");
+        statusSelectField.setWidth("150px");
+        statusSelectField.addValueChangeListener(e -> filterGrid());
     }
 
     private void configureGrid() {
-        grid.addColumn(TrainingApprovalDTO::getEnrollmentId).setHeader("Enrollment ID").setAutoWidth(true);
-        grid.addColumn(TrainingApprovalDTO::getCourseName).setHeader("Course").setAutoWidth(true);
-        grid.addColumn(TrainingApprovalDTO::getEmployeeFullName).setHeader("Requester").setAutoWidth(true);
-        grid.addColumn(TrainingApprovalDTO::getApprovalLevel).setHeader("Level").setAutoWidth(true);
-        grid.addColumn(TrainingApprovalDTO::getApprovalStatusName).setHeader("Status").setAutoWidth(true);
+        grid.addColumn(TrainingApprovalDTO::getEnrollmentId).setHeader("Enrollment ID").setAutoWidth(true).setSortable(true);
+        grid.addColumn(TrainingApprovalDTO::getCourseName).setHeader("Course").setAutoWidth(true).setSortable(true);
+        grid.addColumn(TrainingApprovalDTO::getEmployeeFullName).setHeader("Requester").setAutoWidth(true).setSortable(true);
+        grid.addColumn(TrainingApprovalDTO::getApprovalLevel).setHeader("Level").setAutoWidth(true).setSortable(true);
+        grid.addColumn(TrainingApprovalDTO::getApprovalStatusName).setHeader("Status").setAutoWidth(true).setSortable(true);
         grid.addColumn(TrainingApprovalDTO::getComments).setHeader("Comments").setAutoWidth(true);
 
-        grid.addColumn(dto -> dto.getActionDate() != null ? dto.getActionDate().format(DATE_FORMATTER) : "-").setHeader("Action Date").setAutoWidth(true);
+        grid.addColumn(dto -> dto.getActionDate() != null ? dto.getActionDate().format(DATE_FORMATTER) : "-").setHeader("Action Date").setAutoWidth(true).setSortable(true);
 
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.setSizeFull();
     }
 
     private void loadData() {
         User user = currentUserProvider.getCurrentUser();
         if (user != null && user.getEmployee() != null) {
             Employee currentEmployee = user.getEmployee();
-            grid.setItems(approvalService.getApprovalsByApprover(currentEmployee.getEmployeeId()));
+            // Cache raw values locally into master list
+            allData = approvalService.getApprovalsByApprover(currentEmployee.getEmployeeId());
+            grid.setItems(allData);
         }
+    }
+
+    private void filterGrid() {
+        if (allData == null) return;
+
+        String requesterQuery = requesterSearchField.getValue() != null ? requesterSearchField.getValue().trim().toLowerCase() : "";
+        String courseQuery = courseSearchField.getValue() != null ? courseSearchField.getValue().trim().toLowerCase() : "";
+        String statusQuery = statusSelectField.getValue();
+
+        if (requesterQuery.isEmpty() && courseQuery.isEmpty() && statusQuery == null) {
+            grid.setItems(allData);
+            return;
+        }
+
+        List<TrainingApprovalDTO> filteredList = allData.stream().filter(dto -> {
+            boolean matchesRequester = requesterQuery.isEmpty() || (dto.getEmployeeFullName() != null && dto.getEmployeeFullName().toLowerCase().contains(requesterQuery));
+
+            boolean matchesCourse = courseQuery.isEmpty() || (dto.getCourseName() != null && dto.getCourseName().toLowerCase().contains(courseQuery));
+
+            boolean matchesStatus = statusQuery == null || (dto.getApprovalStatusName() != null && dto.getApprovalStatusName().equalsIgnoreCase(statusQuery));
+
+            return matchesRequester && matchesCourse && matchesStatus;
+        }).collect(Collectors.toList());
+
+        grid.setItems(filteredList);
     }
 }

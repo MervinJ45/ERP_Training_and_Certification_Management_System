@@ -89,34 +89,41 @@ public class MainLayout extends AppLayout {
 
         if (role.equals(superAdmin)) {
             nav.addItem(new SideNavItem("Employees", "employee", VaadinIcon.USER_CARD.create()));
-            nav.addItem(new SideNavItem("Users", "user", VaadinIcon.USER.create()));
+            nav.addItem(new SideNavItem("Courses", "training-courses", VaadinIcon.ACADEMY_CAP.create()));
+            nav.addItem(new SideNavItem("Enrollments", "training-enrollments", VaadinIcon.CLIPBOARD_USER.create()));
+            nav.addItem(new SideNavItem("Certifications", "certifications", VaadinIcon.DIPLOMA.create()));
         }
-        if (role.equals(employee) || role.equals(superAdmin)) {
+        if (role.equals(employee)) {
             nav.addItem(new SideNavItem("Course Catalog", "/courses", VaadinIcon.ACADEMY_CAP.create()));
-            nav.addItem(new SideNavItem("My Enrollments", "/my-enrollments", VaadinIcon.LIST.create()));
-            nav.addItem(new SideNavItem("Certifications", "/my-certificates", VaadinIcon.CART.create()));
+            nav.addItem(new SideNavItem("My Enrollments", "/my-enrollments", VaadinIcon.CLIPBOARD_USER.create()));
+            nav.addItem(new SideNavItem("Certifications", "/my-certificates", VaadinIcon.DIPLOMA.create()));
         }
+
         if (role.equals(hr) || role.equals(admin) || role.equals(auditor)) {
-            nav.addItem(new SideNavItem("Manage Courses", "/manage-courses", VaadinIcon.EDIT.create()));
-            nav.addItem(new SideNavItem("Pending Approvals", "/approvals", VaadinIcon.EDIT.create()));
-            nav.addItem(new SideNavItem("My Approvals", "/my-approvals", VaadinIcon.EDIT.create()));
-            nav.addItem(new SideNavItem("Employee Skill Matrix", "/skill-matrix-summary", VaadinIcon.CHART_3D.create()));
+            nav.addItem(new SideNavItem("Manage Courses", "/manage-courses", VaadinIcon.RECORDS.create()));
+            nav.addItem(new SideNavItem("Pending Approvals", "/approvals", VaadinIcon.CLOCK.create()));
+            nav.addItem(new SideNavItem("My Approvals", "/my-approvals", VaadinIcon.CHECK_SQUARE_O.create()));
+            nav.addItem(new SideNavItem("Employee Skill Matrix", "/skill-matrix-summary", VaadinIcon.GRID_BIG_O.create()));
         }
+
         if (role.equals(director)) {
-            nav.addItem(new SideNavItem("Pending Approvals", "/approvals", VaadinIcon.EDIT.create()));
-            nav.addItem(new SideNavItem("My Approvals", "/my-approvals", VaadinIcon.EDIT.create()));
-            nav.addItem(new SideNavItem("Certificate Renewal Request", "/cert-approvals", VaadinIcon.EDIT.create()));
+            nav.addItem(new SideNavItem("Pending Approvals", "/approvals", VaadinIcon.BELL.create()));
+            nav.addItem(new SideNavItem("My Approvals", "/my-approvals", VaadinIcon.CHECK_SQUARE_O.create()));
+            nav.addItem(new SideNavItem("Certificate Renewal Request", "/cert-approvals", VaadinIcon.REFRESH.create()));
         }
-        if (role.equals(manager) || role.equals(superAdmin)) {
-            nav.addItem(new SideNavItem("Pending Approvals", "/manager-approvals", VaadinIcon.CHECK_SQUARE_O.create()));
+
+        if (role.equals(manager)) {
+            nav.addItem(new SideNavItem("Pending Approvals", "/manager-approvals", VaadinIcon.CLOCK.create()));
             nav.addItem(new SideNavItem("My Approvals", "/my-approvals", VaadinIcon.CHECK.create()));
         }
-        if (role.equals(auditor) || role.equals(superAdmin)) {
+
+        if (role.equals(auditor)) {
             nav.addItem(new SideNavItem("Reports", "/reports", VaadinIcon.BAR_CHART.create()));
-            nav.addItem(new SideNavItem("Audit Timeline", "/audit", VaadinIcon.CLIPBOARD_TEXT.create()));
+            nav.addItem(new SideNavItem("Audit Timeline", "/audit", VaadinIcon.TIME_FORWARD.create()));
         }
+
         if (role.equals(trainer)) {
-            nav.addItem(new SideNavItem("My-Class Enrollments", "/trainer-enrollments", VaadinIcon.BAR_CHART.create()));
+            nav.addItem(new SideNavItem("My-Class Enrollments", "/trainer-enrollments", VaadinIcon.PRESENTATION.create()));
         }
         Scroller scroller = new Scroller(nav);
         scroller.setClassName(LumoUtility.Padding.SMALL);

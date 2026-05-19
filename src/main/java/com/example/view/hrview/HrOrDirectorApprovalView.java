@@ -11,11 +11,15 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.security.AuthenticationContext;
@@ -23,6 +27,7 @@ import jakarta.annotation.security.RolesAllowed;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Route(value = "approvals", layout = MainLayout.class)
 @PageTitle("ERP | Pending Approvals ")
@@ -35,26 +40,58 @@ public class HrOrDirectorApprovalView extends VerticalLayout {
 
     private final Grid<TrainingEnrollmentDTO> grid = new Grid<>(TrainingEnrollmentDTO.class, false);
 
+    private final TextField employeeSearchField = new TextField();
+    private final TextField courseSearchField = new TextField();
+
+    private List<TrainingEnrollmentDTO> allData;
+
     public HrOrDirectorApprovalView(TrainingEnrollmentService trainingEnrollmentService, AuthenticationContext authContext, CurrentUserProvider currentUserProvider) {
         this.trainingEnrollmentService = trainingEnrollmentService;
         this.authContext = authContext;
         this.currentUserProvider = currentUserProvider;
 
         setSizeFull();
+        setPadding(true);
+        setSpacing(true);
 
-        H2 title = new H2("Pending Approvals Queue");
+        H2 title = new H2("Pending Approvals");
 
+        configureEmployeeSearch();
+        configureCourseSearch();
         configureGrid();
-        loadData();
 
-        add(title, grid);
+        HorizontalLayout filterActionLayout = new HorizontalLayout(employeeSearchField, courseSearchField);
+        filterActionLayout.setSpacing(true);
+
+        grid.setSizeFull();
+
+        add(title, filterActionLayout, grid);
+        loadData();
+    }
+
+    private void configureEmployeeSearch() {
+        employeeSearchField.setPlaceholder("Search by Employee");
+        employeeSearchField.setClearButtonVisible(true);
+        employeeSearchField.setPrefixComponent(VaadinIcon.SEARCH.create());
+        employeeSearchField.setWidth("200px");
+        employeeSearchField.setValueChangeMode(ValueChangeMode.LAZY);
+        employeeSearchField.addValueChangeListener(e -> filterGrid());
+    }
+
+    private void configureCourseSearch() {
+        courseSearchField.setPlaceholder("Search by Course");
+        courseSearchField.setClearButtonVisible(true);
+        courseSearchField.setPrefixComponent(VaadinIcon.SEARCH.create());
+        courseSearchField.setWidth("200px");
+        courseSearchField.setValueChangeMode(ValueChangeMode.LAZY);
+        courseSearchField.addValueChangeListener(e -> filterGrid());
     }
 
     private void configureGrid() {
-        grid.addColumn(TrainingEnrollmentDTO::getEmployeeFullName).setHeader("Employee").setAutoWidth(true);
-        grid.addColumn(TrainingEnrollmentDTO::getCourseName).setHeader("Course").setAutoWidth(true);
-        grid.addColumn(TrainingEnrollmentDTO::getRequestedCost).setHeader("Requested Cost").setAutoWidth(true);
-        grid.addColumn(TrainingEnrollmentDTO::getEnrollmentStatusName).setHeader("Status").setAutoWidth(true);
+        grid.addColumn(TrainingEnrollmentDTO::getEmployeeFullName).setHeader("Employee").setAutoWidth(true).setSortable(true);
+        grid.addColumn(TrainingEnrollmentDTO::getCourseName).setHeader("Course").setAutoWidth(true).setSortable(true);
+        grid.addColumn(TrainingEnrollmentDTO::getRequestedCost).setHeader("Requested Cost").setAutoWidth(true).setSortable(true);
+        grid.addColumn(TrainingEnrollmentDTO::getEnrollmentStatusName).setHeader("Status").setAutoWidth(true).setSortable(true);
 
         grid.addComponentColumn(dto -> {
             Button approveBtn = new Button("Approve");
@@ -71,7 +108,6 @@ public class HrOrDirectorApprovalView extends VerticalLayout {
         }).setHeader("Reject").setAutoWidth(true);
 
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.setSizeFull();
     }
 
     private void openApprovalDialog(TrainingEnrollmentDTO dto) {
@@ -161,9 +197,31 @@ public class HrOrDirectorApprovalView extends VerticalLayout {
         }
 
         Long roleId = user.getEmployee().getUser().getRole().getRoleId();
+        allData = trainingEnrollmentService.getHrOrDirectorApprovals(roleId);
+        filterGrid();
+    }
 
-        List<TrainingEnrollmentDTO> pendingApprovals = trainingEnrollmentService.getHrOrDirectorApprovals(roleId);
-        grid.setItems(pendingApprovals);
+    private void filterGrid() {
+        if (allData == null) return;
+
+        String employeeQuery = employeeSearchField.getValue() != null ? employeeSearchField.getValue().trim().toLowerCase() : "";
+        String courseQuery = courseSearchField.getValue() != null ? courseSearchField.getValue().trim().toLowerCase() : "";
+
+        if (employeeQuery.isEmpty() && courseQuery.isEmpty()) {
+            grid.setItems(allData);
+            return;
+        }
+
+        List<TrainingEnrollmentDTO> filteredList = allData.stream().filter(dto -> {
+
+            boolean matchesEmployee = employeeQuery.isEmpty() || (dto.getEmployeeFullName() != null && dto.getEmployeeFullName().toLowerCase().contains(employeeQuery));
+
+            boolean matchesCourse = courseQuery.isEmpty() || (dto.getCourseName() != null && dto.getCourseName().toLowerCase().contains(courseQuery));
+
+            return matchesEmployee && matchesCourse;
+        }).collect(Collectors.toList());
+
+        grid.setItems(filteredList);
     }
 
     private Long getCurrentEmployeeId() {

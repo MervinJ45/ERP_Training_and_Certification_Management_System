@@ -11,6 +11,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -28,8 +29,11 @@ import java.util.stream.Collectors;
 public class SkillMatrixSummaryView extends VerticalLayout {
 
     private final SkillMatrixService skillMatrixService;
-    private final Grid<SkillSummaryDTO> grid = new Grid<>();
-    private final TextField searchField = new TextField();
+
+    private final Grid<SkillSummaryDTO> grid = new Grid<>(SkillSummaryDTO.class, false);
+    private final TextField nameSearchField = new TextField();
+    private final TextField courseSearchField = new TextField();
+    private final Select<Integer> proficiencySelectField = new Select<>();
     private List<SkillSummaryDTO> allData;
 
     public SkillMatrixSummaryView(SkillMatrixService skillMatrixService) {
@@ -39,28 +43,52 @@ public class SkillMatrixSummaryView extends VerticalLayout {
         setPadding(true);
         setSpacing(true);
 
-        H2 title = new H2("Corporate Skill Inventory Matrix");
-        Span description = new Span("Real-time summary breakdown of employee proficiencies derived from completed course executions.");
-        description.getStyle().set("color", "var(--lumo-secondary-text-color)");
+        H2 title = new H2("Skill Matrix");
 
-        configureSearch();
+        configureNameSearch();
+        configureCourseSearch();
+        configureProficiencyFilter();
         configureGrid();
 
-        add(title, description, searchField, grid);
+        HorizontalLayout filterActionLayout = new HorizontalLayout(nameSearchField, courseSearchField, proficiencySelectField);
+        filterActionLayout.setWidthFull();
+        filterActionLayout.setSpacing(true);
+
+        grid.setSizeFull();
+
+        add(title, filterActionLayout, grid);
         refreshGrid();
     }
 
-    private void configureSearch() {
-        searchField.setPlaceholder("Search by Employee, Course, or Skill...");
-        searchField.setClearButtonVisible(true);
-        searchField.setPrefixComponent(VaadinIcon.SEARCH.create());
-        searchField.setWidth("350px");
-        searchField.setValueChangeMode(ValueChangeMode.LAZY);
-        searchField.addValueChangeListener(e -> filterGrid());
+    private void configureNameSearch() {
+        nameSearchField.setPlaceholder("Search by Employee");
+        nameSearchField.setClearButtonVisible(true);
+        nameSearchField.setPrefixComponent(VaadinIcon.SEARCH.create());
+        nameSearchField.setWidth("200px");
+        nameSearchField.setValueChangeMode(ValueChangeMode.LAZY);
+        nameSearchField.addValueChangeListener(e -> filterGrid());
+    }
+
+    private void configureCourseSearch() {
+        courseSearchField.setPlaceholder("Search by Course");
+        courseSearchField.setClearButtonVisible(true);
+        courseSearchField.setPrefixComponent(VaadinIcon.SEARCH.create());
+        courseSearchField.setWidth("200px");
+        courseSearchField.setValueChangeMode(ValueChangeMode.LAZY);
+        courseSearchField.addValueChangeListener(e -> filterGrid());
+    }
+
+    private void configureProficiencyFilter() {
+        proficiencySelectField.setPlaceholder("Rating (All)");
+        proficiencySelectField.setEmptySelectionAllowed(true);
+        proficiencySelectField.setEmptySelectionCaption("Rating (All)");
+        proficiencySelectField.setItems(1, 2, 3, 4, 5);
+        proficiencySelectField.setWidth("150px");
+
+        proficiencySelectField.addValueChangeListener(e -> filterGrid());
     }
 
     private void configureGrid() {
-        grid.setSizeFull();
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT);
 
         grid.addColumn(SkillSummaryDTO::getEmployeeFullName).setHeader("Employee Name").setSortable(true);
@@ -68,33 +96,39 @@ public class SkillMatrixSummaryView extends VerticalLayout {
         grid.addColumn(SkillSummaryDTO::getSkillName).setHeader("Acquired Skill").setSortable(true);
 
         grid.addColumn(new ComponentRenderer<>(dto -> {
-            HorizontalLayout ratingLayout = new HorizontalLayout();
-            ratingLayout.setSpacing(false);
+                    HorizontalLayout ratingLayout = new HorizontalLayout();
+                    ratingLayout.setSpacing(false);
 
-            int rating = dto.getProficiencyRating() != null ? dto.getProficiencyRating() : 0;
+                    int rating = dto.getProficiencyRating() != null ? dto.getProficiencyRating() : 0;
 
-            for (int i = 1; i <= 5; i++) {
-                Icon star = VaadinIcon.STAR.create();
-                star.setSize("16px");
-                if (i <= rating) {
-                    star.getColor();
-                    star.getStyle().set("color", "var(--lumo-error-color)");
-                } else {
-                    star.getStyle().set("color", "var(--lumo-contrast-20pct)");
-                }
-                ratingLayout.add(star);
-            }
+                    for (int i = 1; i <= 5; i++) {
+                        Icon star = VaadinIcon.STAR.create();
+                        star.setSize("16px");
+                        if (i <= rating) {
+                            star.getStyle().set("color", "var(--lumo-error-color)");
+                        } else {
+                            star.getStyle().set("color", "var(--lumo-contrast-20pct)");
+                        }
+                        ratingLayout.add(star);
+                    }
 
-            Span numericLabel = new Span(" (" + rating + "/5)");
-            numericLabel.getStyle().set("font-size", "var(--lumo-font-size-s)");
-            numericLabel.getStyle().set("color", "var(--lumo-secondary-text-color)");
-            ratingLayout.add(numericLabel);
+                    Span numericLabel = new Span(" (" + rating + "/5)");
+                    numericLabel.getStyle().set("font-size", "var(--lumo-font-size-s)");
+                    numericLabel.getStyle().set("color", "var(--lumo-secondary-text-color)");
+                    ratingLayout.add(numericLabel);
 
-            return ratingLayout;
-        })).setHeader("Proficiency Rating").setSortable(true).setComparator((a, b) -> Integer.compare(a.getProficiencyRating(), b.getProficiencyRating()));
+                    return ratingLayout;
+                })).setHeader("Proficiency Rating")
+                .setSortable(true)
+                .setComparator((a, b) -> Integer.compare(
+                        a.getProficiencyRating() != null ? a.getProficiencyRating() : 0,
+                        b.getProficiencyRating() != null ? b.getProficiencyRating() : 0
+                ));
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        grid.addColumn(dto -> dto.getUpdatedAt() != null ? dto.getUpdatedAt().format(formatter) : "N/A").setHeader("Last Verified").setSortable(true);
+        grid.addColumn(dto -> dto.getUpdatedAt() != null ? dto.getUpdatedAt().format(formatter) : "N/A")
+                .setHeader("Last Verified")
+                .setSortable(true);
 
         grid.getColumns().forEach(col -> col.setAutoWidth(true));
     }
@@ -105,14 +139,28 @@ public class SkillMatrixSummaryView extends VerticalLayout {
     }
 
     private void filterGrid() {
-        String query = searchField.getValue();
-        if (query == null || query.trim().isEmpty()) {
+        String nameQuery = nameSearchField.getValue() != null ? nameSearchField.getValue().trim().toLowerCase() : "";
+        String courseQuery = courseSearchField.getValue() != null ? courseSearchField.getValue().trim().toLowerCase() : "";
+        Integer ratingQuery = proficiencySelectField.getValue();
+
+        if (nameQuery.isEmpty() && courseQuery.isEmpty() && ratingQuery == null) {
             grid.setItems(allData);
             return;
         }
 
-        String lowerCaseQuery = query.toLowerCase().trim();
-        List<SkillSummaryDTO> filteredList = allData.stream().filter(dto -> (dto.getEmployeeFullName() != null && dto.getEmployeeFullName().toLowerCase().contains(lowerCaseQuery)) || (dto.getCourseName() != null && dto.getCourseName().toLowerCase().contains(lowerCaseQuery)) || (dto.getSkillName() != null && dto.getSkillName().toLowerCase().contains(lowerCaseQuery))).collect(Collectors.toList());
+        List<SkillSummaryDTO> filteredList = allData.stream().filter(dto -> {
+            boolean matchesName = nameQuery.isEmpty() ||
+                    (dto.getEmployeeFullName() != null && dto.getEmployeeFullName().toLowerCase().contains(nameQuery));
+
+            boolean matchesCourse = courseQuery.isEmpty() ||
+                    (dto.getCourseName() != null && dto.getCourseName().toLowerCase().contains(courseQuery));
+
+            boolean matchesRating = ratingQuery == null ||
+                    (dto.getProficiencyRating() != null && dto.getProficiencyRating().equals(ratingQuery));
+
+            return matchesName && matchesCourse && matchesRating;
+        }).collect(Collectors.toList());
+
         grid.setItems(filteredList);
     }
 }
