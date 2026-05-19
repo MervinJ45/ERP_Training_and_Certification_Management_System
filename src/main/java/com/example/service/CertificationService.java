@@ -1,12 +1,14 @@
 package com.example.service;
 
 import com.example.dto.CertificationDisplayDTO;
-import com.example.entity.Certification;
+import com.example.entity.*;
 import com.example.repo.CertificationRepo;
+import com.example.repo.CertificationStatusRepo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
@@ -17,22 +19,24 @@ public class CertificationService {
 
     private final CertificationRepo certificationRepo;
     private final AuditLogService auditLogService;
+    private final CertificationStatusRepo certificationStatusRepo;
 
-    public CertificationService(CertificationRepo certificationRepo, AuditLogService auditLogService) {
+    public CertificationService(CertificationRepo certificationRepo, AuditLogService auditLogService, CertificationStatusRepo certificationStatusRepo) {
         this.certificationRepo = certificationRepo;
         this.auditLogService = auditLogService;
+        this.certificationStatusRepo = certificationStatusRepo;
+    }
+
+    public Certification getCertificateById(Long certificationId) {
+        return certificationRepo.findById(certificationId).orElse(null);
     }
 
     public List<CertificationDisplayDTO> getAllCertificationDTOs() {
-        return certificationRepo.findAll().stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+        return certificationRepo.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     public List<CertificationDisplayDTO> getMyCertifications(Long employeeId) {
-        return certificationRepo.findByEmployeeEmployeeIdAndIsActiveTrue(employeeId).stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+        return certificationRepo.findByEmployeeEmployeeIdAndIsActiveTrue(employeeId).stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     @Transactional
@@ -42,19 +46,12 @@ public class CertificationService {
 
         Certification savedCert = certificationRepo.save(certification);
 
-        String employeeName = savedCert.getEmployee() != null ?
-                savedCert.getEmployee().getFirstName() + " " + savedCert.getEmployee().getLastName() : "N/A";
+        String employeeName = savedCert.getEmployee() != null ? savedCert.getEmployee().getFirstName() + " " + savedCert.getEmployee().getLastName() : "N/A";
         String courseName = savedCert.getCourse() != null ? savedCert.getCourse().getCourseName() : "N/A";
 
-        String details = String.format("Serial: %s, Student: %s, Course: %s",
-                savedCert.getCertificateNumber(), employeeName, courseName);
+        String details = String.format("Serial: %s, Student: %s, Course: %s", savedCert.getCertificateNumber(), employeeName, courseName);
 
-        auditLogService.logAudit(
-                savedCert.getCertificationId(),
-                action,
-                "CERTIFICATIONS",
-                details
-        );
+        auditLogService.logAudit(savedCert.getCertificationId(), action, "CERTIFICATIONS", details);
 
         return savedCert;
     }
@@ -62,12 +59,7 @@ public class CertificationService {
     @Transactional
     public void deleteCertification(Long id) {
         certificationRepo.findById(id).ifPresent(cert -> {
-            auditLogService.logAudit(
-                    id,
-                    "DELETE_CERTIFICATE",
-                    "CERTIFICATIONS",
-                    "Deleted certificate serial: " + cert.getCertificateNumber()
-            );
+            auditLogService.logAudit(id, "DELETE_CERTIFICATE", "CERTIFICATIONS", "Deleted certificate serial: " + cert.getCertificateNumber());
         });
         certificationRepo.deleteById(id);
     }
@@ -85,15 +77,39 @@ public class CertificationService {
         return certificationRepo.findByCertificateNumber(certNo);
     }
 
+    @Transactional
+    public Certification createCertification(TrainingEnrollment enrollment, String remarks, LocalDateTime now) {
+        TrainingCourse course = enrollment.getCourse();
+        Employee student = enrollment.getEmployee();
+
+        CertificationStatus activeCertStatus = certificationStatusRepo.findByCertificationStatus("Active").orElse(null);
+
+        Certification certificate = new Certification();
+        certificate.setEmployee(student);
+        certificate.setCourse(course);
+        certificate.setEnrollment(enrollment);
+
+        String uniqueSerial = "CE" + enrollment.getEnrollmentId() + student.getEmployeeId();
+        if (uniqueSerial.length() > 10) {
+            uniqueSerial = uniqueSerial.substring(0, 10);
+        }
+        certificate.setCertificateNumber(uniqueSerial);
+
+        certificate.setIssueDate(now);
+        certificate.setExpiryDate(now.plusMonths(course.getCertificationValidityMonths()));
+        certificate.setStatus(activeCertStatus);
+        certificate.setIssuedBy(course.getTrainer());
+        certificate.setRemarks(remarks);
+        certificate.setCreatedAt(now);
+        certificate.setUpdatedAt(now);
+        certificate.setIsActive(true);
+
+        return certificationRepo.save(certificate);
+    }
+
     public List<CertificationDisplayDTO> searchCertificationDTOs(String value) {
         String lowerCaseQuery = value.toLowerCase().trim();
-        return certificationRepo.findAll().stream()
-                .filter(cert ->
-                        (cert.getCertificateNumber() != null && cert.getCertificateNumber().toLowerCase().contains(lowerCaseQuery)) ||
-                                (cert.getCourse() != null && cert.getCourse().getCourseName().toLowerCase().contains(lowerCaseQuery))
-                )
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+        return certificationRepo.findAll().stream().filter(cert -> (cert.getCertificateNumber() != null && cert.getCertificateNumber().toLowerCase().contains(lowerCaseQuery)) || (cert.getCourse() != null && cert.getCourse().getCourseName().toLowerCase().contains(lowerCaseQuery))).map(this::convertToDTO).collect(Collectors.toList());
     }
 
     public CertificationDisplayDTO convertToDTO(Certification cert) {
@@ -104,15 +120,6 @@ public class CertificationService {
         String courseName = cert.getCourse() != null ? cert.getCourse().getCourseName() : "N/A";
         String status = cert.getStatus() != null ? cert.getStatus().getCertificationStatus() : "Unknown";
 
-        return CertificationDisplayDTO.builder()
-                .certificationId(cert.getCertificationId())
-                .certificateNumber(cert.getCertificateNumber())
-                .courseName(courseName)
-                .issueDate(cert.getIssueDate() != null ? cert.getIssueDate().toLocalDate() : null)
-                .expiryDate(expiry)
-                .daysRemaining(daysRemaining)
-                .statusName(status)
-                .certificateUrl(cert.getCertificateUrl())
-                .build();
+        return CertificationDisplayDTO.builder().certificationId(cert.getCertificationId()).certificateNumber(cert.getCertificateNumber()).courseName(courseName).issueDate(cert.getIssueDate() != null ? cert.getIssueDate().toLocalDate() : null).expiryDate(expiry).daysRemaining(daysRemaining).statusName(status).certificateUrl(cert.getCertificateUrl()).build();
     }
 }

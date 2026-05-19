@@ -35,37 +35,23 @@ public class UserService {
 
     @Transactional
     public User saveUser(User user) {
-        // Determine action before saving while ID nullability state represents creation vs update
         boolean isNew = (user.getUserId() == null);
         String action = isNew ? "CREATE_USER" : "UPDATE_USER";
 
         User savedUser = userRepo.save(user);
 
-        // Construct descriptive log information
         String roleName = savedUser.getRole() != null ? savedUser.getRole().getRoleName() : "N/A";
         String details = String.format("Username: %s, Role: %s", savedUser.getUsername(), roleName);
 
-        // Track creation or modification in audit trail
-        auditLogService.logAudit(
-                savedUser.getUserId(),
-                action,
-                "USERS",
-                details
-        );
+        auditLogService.logAudit(savedUser.getUserId(), action, "USERS", details);
 
         return savedUser;
     }
 
     @Transactional
     public void deleteUser(Long id) {
-        // Fetch and track details before executing the hard deletion from DB
         userRepo.findById(id).ifPresent(user -> {
-            auditLogService.logAudit(
-                    id,
-                    "DELETE_USER",
-                    "USERS",
-                    "Deleted user: " + user.getUsername()
-            );
+            auditLogService.logAudit(id, "DELETE_USER", "USERS", "Deleted user: " + user.getUsername());
         });
         userRepo.deleteById(id);
     }
@@ -88,10 +74,7 @@ public class UserService {
     }
 
     public List<UserDTO> searchUserDTOs(String value) {
-        return userRepo.findAll().stream()
-                .filter(user -> user.getUsername().toLowerCase().contains(value.toLowerCase()))
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+        return userRepo.findAll().stream().filter(user -> user.getUsername().toLowerCase().contains(value.toLowerCase())).map(this::convertToDTO).collect(Collectors.toList());
     }
 
     public UserDTO convertToDTO(User user) {
@@ -100,16 +83,12 @@ public class UserService {
         dto.setUsername(user.getUsername());
         dto.setEmail(user.getEmail());
 
-        // FIX: Do not pass the entity to employeeService.convertToDTO()
         if (user.getEmployee() != null) {
             dto.setEmployeeName(user.getEmployee().getFirstName() + " " + user.getEmployee().getLastName());
-            // If your UserDTO absolutely needs an employee ID reference field:
-            // dto.setEmployeeId(user.getEmployee().getEmployeeId());
         }
 
         if (user.getRole() != null) {
             dto.setRoleName(user.getRole().getRoleName());
-            // Safeguard against internal nested mappings causing loops:
             dto.setRole(roleService.convertToDTO(user.getRole()));
         }
 

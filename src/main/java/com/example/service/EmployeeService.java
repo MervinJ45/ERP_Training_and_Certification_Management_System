@@ -63,12 +63,10 @@ public class EmployeeService {
 
         employee.setIsActive(dto.getIsActive());
 
-        // AUTO GENERATE EMPLOYEE CODE
         Long nextEmployeeNumber = employeeRepo.count() + 1;
 
         employee.setEmployeeCode("EMP" + nextEmployeeNumber);
 
-        // SET MANAGER
         if (dto.getManager() != null) {
 
             Employee managerEmployee = employeeRepo.findById(dto.getManager().getEmployeeId()).orElse(null);
@@ -76,10 +74,8 @@ public class EmployeeService {
             employee.setManager(managerEmployee);
         }
 
-        // SAVE EMPLOYEE FIRST
         Employee savedEmployee = employeeRepo.save(employee);
 
-        // CREATE USER
         User user = new User();
 
         user.setUsername(dto.getUsername());
@@ -91,14 +87,11 @@ public class EmployeeService {
         user.setIsActive(true);
         user.setCreatedAt(LocalDateTime.now());
 
-        // SAVE USER
         User savedUser = userService.saveUser(user);
 
-        // LINK BOTH SIDES
         savedEmployee.setUser(savedUser);
         savedUser.setEmployee(savedEmployee);
 
-        // SAVE AGAIN TO UPDATE RELATION
         employeeRepo.save(savedEmployee);
         userService.saveUser(savedUser);
 
@@ -123,19 +116,14 @@ public class EmployeeService {
 
         employee.setIsActive(dto.getIsActive());
 
-        // UPDATE MANAGER
         if (dto.getManager() != null) {
-
             Employee managerEmployee = employeeRepo.findById(dto.getManager().getEmployeeId()).orElse(null);
-
             employee.setManager(managerEmployee);
 
         } else {
-
             employee.setManager(null);
         }
 
-        // UPDATE USER
         if (employee.getUser() != null) {
 
             employee.getUser().setEmail(dto.getEmail());
@@ -145,53 +133,41 @@ public class EmployeeService {
                 employee.getUser().setRole(roleService.getRoleById(dto.getRole().getRoleId()));
             }
 
-            // KEEP BOTH SIDES SYNCED
             employee.getUser().setEmployee(employee);
-
             userService.saveUser(employee.getUser());
         }
 
         Employee updatedEmployee = employeeRepo.save(employee);
 
         String fullName = updatedEmployee.getFirstName() + " " + updatedEmployee.getLastName();
-
         auditLogService.logAudit(updatedEmployee.getEmployeeId(), "UPDATE", "employees", "Updated employee details for: " + fullName);
     }
 
     @Transactional
     public void deleteEmployee(Long id) {
-
         employeeRepo.findById(id).ifPresent(employee -> {
-
             employeeRepo.deleteById(id);
-
             String fullName = employee.getFirstName() + " " + employee.getLastName();
-
             auditLogService.logAudit(id, "DELETE", "employees", "Deleted employee record for: " + fullName);
         });
     }
 
     public Employee getEmployeeById(Long id) {
-
         return employeeRepo.findById(id).orElse(null);
     }
 
     public List<EmployeeDTO> getAllTrainerDTOs() {
-
         return employeeRepo.findAllTrainers().stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     public List<Employee> getAllManagers() {
-
         return employeeRepo.findAllManagers();
     }
 
     public EmployeeDTO convertToDTO(Employee employee) {
-
         if (employee == null) {
             return null;
         }
-
         EmployeeDTO dto = new EmployeeDTO();
 
         dto.setEmployeeId(employee.getEmployeeId());
@@ -206,31 +182,20 @@ public class EmployeeService {
 
         dto.setIsActive(employee.getIsActive());
 
-        // MANAGER
         if (employee.getManager() != null) {
-
             EmployeeDTO managerSummary = new EmployeeDTO();
-
             managerSummary.setEmployeeId(employee.getManager().getEmployeeId());
-
             managerSummary.setFirstName(employee.getManager().getFirstName());
-
             managerSummary.setLastName(employee.getManager().getLastName());
-
             dto.setManager(managerSummary);
         }
 
-        // USER
         if (employee.getUser() != null) {
-
             dto.setUsername(employee.getUser().getUsername());
-
             if (employee.getUser().getRole() != null) {
-
                 dto.setRole(roleService.convertToDTO(employee.getUser().getRole()));
             }
         }
-
         return dto;
     }
 }

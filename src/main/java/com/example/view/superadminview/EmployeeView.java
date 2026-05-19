@@ -87,9 +87,7 @@ public class EmployeeView extends VerticalLayout {
         grid.addColumn(EmployeeDTO::getEmail).setHeader("Email").setWidth("250px").setFlexGrow(0);
         grid.addColumn(EmployeeDTO::getPhone).setHeader("Phone").setWidth("180px").setFlexGrow(0);
 
-        grid.addColumn(dto -> dto.getDepartment() != null ?
-                        dto.getDepartment().getDepartmentName() : "No Dept")
-                .setHeader("Department").setWidth("200px").setFlexGrow(0);
+        grid.addColumn(dto -> dto.getDepartment() != null ? dto.getDepartment().getDepartmentName() : "No Dept").setHeader("Department").setWidth("200px").setFlexGrow(0);
 
         grid.addColumn(dto -> {
             if (dto.getManager() != null) {
@@ -101,9 +99,7 @@ public class EmployeeView extends VerticalLayout {
         grid.addColumn(EmployeeDTO::getDesignation).setHeader("Designation").setWidth("200px").setFlexGrow(0);
         grid.addColumn(EmployeeDTO::getDateOfJoining).setHeader("Date Of Joining").setWidth("180px").setFlexGrow(0);
 
-        grid.addColumn(dto -> dto.getRole() != null ?
-                        dto.getRole().getRoleName() : "No Role")
-                .setHeader("Role").setWidth("180px").setFlexGrow(0);
+        grid.addColumn(dto -> dto.getRole() != null ? dto.getRole().getRoleName() : "No Role").setHeader("Role").setWidth("180px").setFlexGrow(0);
 
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.setWidthFull();
@@ -188,10 +184,9 @@ public class EmployeeView extends VerticalLayout {
                 dtoToSave.setPassword("password123");
             }
 
-            if(employeeDTO == null){
+            if (employeeDTO == null) {
                 employeeService.registerEmployee(dtoToSave);
-            }
-            else employeeService.updateEmployee(dtoToSave);
+            } else employeeService.updateEmployee(dtoToSave);
 
             Notification.show(employeeDTO == null ? "Employee Registered!" : "Employee Updated!");
             dialog.close();

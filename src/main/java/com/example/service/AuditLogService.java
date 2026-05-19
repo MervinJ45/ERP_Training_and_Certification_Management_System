@@ -31,8 +31,7 @@ public class AuditLogService {
 
 
     public AuditLog getAuditLogById(Long id) {
-        return auditLogRepo.findById(id)
-                .orElse(null);
+        return auditLogRepo.findById(id).orElse(null);
     }
 
     public void logAudit(Long recordId, String action, String table, String details) {

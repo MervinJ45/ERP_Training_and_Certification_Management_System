@@ -95,9 +95,7 @@ public class ManagerApprovalView extends VerticalLayout {
 
         Button approveBtn = new Button("Approve", e -> {
             // FIX: Prevent NullPointerException if the field is cleared manually by a user
-            BigDecimal finalCost = (approvedCost.getValue() != null)
-                    ? BigDecimal.valueOf(approvedCost.getValue())
-                    : dto.getRequestedCost();
+            BigDecimal finalCost = (approvedCost.getValue() != null) ? BigDecimal.valueOf(approvedCost.getValue()) : dto.getRequestedCost();
 
             try {
                 Long approverId = getCurrentEmployee().getEmployeeId();
@@ -108,8 +106,7 @@ public class ManagerApprovalView extends VerticalLayout {
                 dialog.close();
                 loadData();
             } catch (Exception ex) {
-                Notification.show("Error processing approval: " + ex.getMessage(), 5000, Notification.Position.MIDDLE)
-                        .addThemeVariants(NotificationVariant.LUMO_ERROR);
+                Notification.show("Error processing approval: " + ex.getMessage(), 5000, Notification.Position.MIDDLE).addThemeVariants(NotificationVariant.LUMO_ERROR);
             }
         });
 
@@ -149,8 +146,7 @@ public class ManagerApprovalView extends VerticalLayout {
                 dialog.close();
                 loadData();
             } catch (Exception ex) {
-                Notification.show("Error processing rejection: " + ex.getMessage(), 5000, Notification.Position.MIDDLE)
-                        .addThemeVariants(NotificationVariant.LUMO_ERROR);
+                Notification.show("Error processing rejection: " + ex.getMessage(), 5000, Notification.Position.MIDDLE).addThemeVariants(NotificationVariant.LUMO_ERROR);
             }
         });
 

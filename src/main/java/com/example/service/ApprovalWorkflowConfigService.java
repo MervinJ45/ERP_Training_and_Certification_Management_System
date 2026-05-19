@@ -12,8 +12,7 @@ public class ApprovalWorkflowConfigService {
     private final ApprovalWorkflowConfigRepo approvalWorkflowConfigRepo;
     private final AuditLogService auditLogService;
 
-    public ApprovalWorkflowConfigService(ApprovalWorkflowConfigRepo approvalWorkflowConfigRepo,
-                                         AuditLogService auditLogService) {
+    public ApprovalWorkflowConfigService(ApprovalWorkflowConfigRepo approvalWorkflowConfigRepo, AuditLogService auditLogService) {
         this.approvalWorkflowConfigRepo = approvalWorkflowConfigRepo;
         this.auditLogService = auditLogService;
     }
@@ -30,12 +29,7 @@ public class ApprovalWorkflowConfigService {
         String action = isUpdate ? "UPDATE" : "INSERT";
         String details = (isUpdate ? "Updated" : "Created") + " workflow configuration step.";
 
-        auditLogService.logAudit(
-                savedConfig.getConfigId(),
-                action,
-                "approval_workflow_configs",
-                details
-        );
+        auditLogService.logAudit(savedConfig.getConfigId(), action, "approval_workflow_configs", details);
 
         return savedConfig;
     }
@@ -44,17 +38,11 @@ public class ApprovalWorkflowConfigService {
         approvalWorkflowConfigRepo.findById(id).ifPresent(config -> {
             approvalWorkflowConfigRepo.deleteById(id);
 
-            auditLogService.logAudit(
-                    id,
-                    "DELETE",
-                    "approval_workflow_configs",
-                    "Deleted approval workflow configuration step ID: " + id
-            );
+            auditLogService.logAudit(id, "DELETE", "approval_workflow_configs", "Deleted approval workflow configuration step ID: " + id);
         });
     }
 
     public ApprovalWorkflowConfig getConfigById(Long id) {
-        return approvalWorkflowConfigRepo.findById(id)
-                .orElse(null);
+        return approvalWorkflowConfigRepo.findById(id).orElse(null);
     }
 }

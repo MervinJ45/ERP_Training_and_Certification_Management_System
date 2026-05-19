@@ -52,13 +52,7 @@ public class DashboardService {
 
 
     public List<TrainingApproval> getPendingApprovals() {
-        return trainingApprovalRepo.findAll()
-                .stream()
-                .filter(a ->
-                        a.getApprovalStatus() != null &&
-                                a.getApprovalStatus().getApprovalStatus().equalsIgnoreCase("Pending")
-                )
-                .toList();
+        return trainingApprovalRepo.findAll().stream().filter(a -> a.getApprovalStatus() != null && a.getApprovalStatus().getApprovalStatus().equalsIgnoreCase("Pending")).toList();
     }
 
 
@@ -66,21 +60,11 @@ public class DashboardService {
 
         LocalDateTime next30Days = LocalDateTime.now().plusDays(30);
 
-        return certificationRepo.findAll()
-                .stream()
-                .filter(c ->
-                        c.getExpiryDate() != null &&
-                                c.getExpiryDate().isBefore(next30Days)
-                )
-                .toList();
+        return certificationRepo.findAll().stream().filter(c -> c.getExpiryDate() != null && c.getExpiryDate().isBefore(next30Days)).toList();
     }
 
     public BigDecimal getTotalTrainingCost() {
 
-        return trainingEnrollmentRepo.findAll()
-                .stream()
-                .map(TrainingEnrollment::getApprovedCost)
-                .filter(cost -> cost != null)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return trainingEnrollmentRepo.findAll().stream().map(TrainingEnrollment::getApprovedCost).filter(cost -> cost != null).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

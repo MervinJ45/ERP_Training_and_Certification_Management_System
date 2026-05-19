@@ -46,9 +46,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         loginButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         loginButton.setWidthFull();
 
-        loginButton.getElement().executeJs(
-                "this.addEventListener('click', () => { this.closest('form').submit(); });"
-        );
+        loginButton.getElement().executeJs("this.addEventListener('click', () => { this.closest('form').submit(); });");
 
         HtmlComponent form = new HtmlComponent("form");
         form.getElement().setAttribute("method", "post");
@@ -65,8 +63,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
         if (event.getLocation().getQueryParameters().getParameters().containsKey("error")) {
-            Notification.show("Invalid credentials", 3000, Notification.Position.MIDDLE)
-                    .addThemeVariants(NotificationVariant.LUMO_ERROR);
+            Notification.show("Invalid credentials", 3000, Notification.Position.MIDDLE).addThemeVariants(NotificationVariant.LUMO_ERROR);
         }
     }
 }

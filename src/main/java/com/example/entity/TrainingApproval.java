@@ -9,7 +9,10 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "training_approvals")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class TrainingApproval {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,6 +38,14 @@ public class TrainingApproval {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    @PrePersist protected void onCreate() { this.createdAt = LocalDateTime.now(); this.updatedAt = LocalDateTime.now(); }
-    @PreUpdate protected void onUpdate() { this.updatedAt = LocalDateTime.now(); }
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }

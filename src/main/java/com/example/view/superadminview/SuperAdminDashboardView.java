@@ -42,18 +42,12 @@ public class SuperAdminDashboardView extends VerticalLayout {
         HorizontalLayout kpiLayout1 = new HorizontalLayout();
         kpiLayout1.setWidthFull();
 
-        kpiLayout1.add(createKpiCard("Total Employees", String.valueOf(dashboardService.getTotalEmployees()), "👨‍💼"),
-                createKpiCard("Departments", String.valueOf(dashboardService.getTotalDepartments()), "🏢"),
-                createKpiCard("Courses", String.valueOf(dashboardService.getTotalCourses()), "📘"),
-                createKpiCard("Enrollments", String.valueOf(dashboardService.getTotalEnrollments()), "📝"));
+        kpiLayout1.add(createKpiCard("Total Employees", String.valueOf(dashboardService.getTotalEmployees()), "👨‍💼"), createKpiCard("Departments", String.valueOf(dashboardService.getTotalDepartments()), "🏢"), createKpiCard("Courses", String.valueOf(dashboardService.getTotalCourses()), "📘"), createKpiCard("Enrollments", String.valueOf(dashboardService.getTotalEnrollments()), "📝"));
 
         HorizontalLayout kpiLayout2 = new HorizontalLayout();
         kpiLayout2.setWidthFull();
 
-        kpiLayout2.add(createKpiCard("Certifications", String.valueOf(dashboardService.getTotalCertifications()), "🎓"),
-                createKpiCard("Pending Approvals", String.valueOf(dashboardService.getPendingApprovals().size()), "⏳"),
-                createKpiCard("Expiring Certifications", String.valueOf(dashboardService.getExpiringCertifications().size()), "⚠️"),
-                createKpiCard("Training Cost", "₹ " + dashboardService.getTotalTrainingCost(), "💰"));
+        kpiLayout2.add(createKpiCard("Certifications", String.valueOf(dashboardService.getTotalCertifications()), "🎓"), createKpiCard("Pending Approvals", String.valueOf(dashboardService.getPendingApprovals().size()), "⏳"), createKpiCard("Expiring Certifications", String.valueOf(dashboardService.getExpiringCertifications().size()), "⚠️"), createKpiCard("Training Cost", "₹ " + dashboardService.getTotalTrainingCost(), "💰"));
         add(kpiLayout1, kpiLayout2);
     }
 

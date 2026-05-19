@@ -54,19 +54,19 @@ public class MainLayout extends AppLayout {
 
         User currentUser = currentUserProvider.getCurrentUser();
 
-            Span name = new Span(currentUser.getUsername());
-            name.addClassNames(LumoUtility.FontWeight.BOLD, LumoUtility.FontSize.SMALL);
+        Span name = new Span(currentUser.getUsername());
+        name.addClassNames(LumoUtility.FontWeight.BOLD, LumoUtility.FontSize.SMALL);
 
-            Span role = new Span(currentUser.getRole().getRoleName());
-            role.addClassNames(LumoUtility.FontSize.XXSMALL, LumoUtility.TextColor.SECONDARY);
-            role.getStyle().set("text-transform", "uppercase");
+        Span role = new Span(currentUser.getRole().getRoleName());
+        role.addClassNames(LumoUtility.FontSize.XXSMALL, LumoUtility.TextColor.SECONDARY);
+        role.getStyle().set("text-transform", "uppercase");
 
-            VerticalLayout nameAndRole = new VerticalLayout(name, role);
-            nameAndRole.setSpacing(false);
-            nameAndRole.setPadding(false);
-            nameAndRole.setAlignItems(FlexComponent.Alignment.END);
+        VerticalLayout nameAndRole = new VerticalLayout(name, role);
+        nameAndRole.setSpacing(false);
+        nameAndRole.setPadding(false);
+        nameAndRole.setAlignItems(FlexComponent.Alignment.END);
 
-            userInfo.add(nameAndRole);
+        userInfo.add(nameAndRole);
 
         Button logout = new Button("Logout", e -> {
             authenticationContext.logout();
@@ -87,32 +87,35 @@ public class MainLayout extends AppLayout {
         nav.addItem(new SideNavItem("Dashboard", "super-admin-dashboard", VaadinIcon.DASHBOARD.create()));
 
 
-        if(role.equals(superAdmin)) {
+        if (role.equals(superAdmin)) {
             nav.addItem(new SideNavItem("Employees", "employee", VaadinIcon.USER_CARD.create()));
             nav.addItem(new SideNavItem("Users", "user", VaadinIcon.USER.create()));
         }
-        if(role.equals(employee) || role.equals(superAdmin)) {
+        if (role.equals(employee) || role.equals(superAdmin)) {
             nav.addItem(new SideNavItem("Course Catalog", "/courses", VaadinIcon.ACADEMY_CAP.create()));
             nav.addItem(new SideNavItem("My Enrollments", "/my-enrollments", VaadinIcon.LIST.create()));
             nav.addItem(new SideNavItem("Certifications", "/my-certificates", VaadinIcon.CART.create()));
         }
-        if(role.equals(hr) || role.equals(admin) || role.equals(auditor)) {
+        if (role.equals(hr) || role.equals(admin) || role.equals(auditor)) {
             nav.addItem(new SideNavItem("Manage Courses", "/manage-courses", VaadinIcon.EDIT.create()));
             nav.addItem(new SideNavItem("Pending Approvals", "/approvals", VaadinIcon.EDIT.create()));
+            nav.addItem(new SideNavItem("My Approvals", "/my-approvals", VaadinIcon.EDIT.create()));
             nav.addItem(new SideNavItem("Employee Skill Matrix", "/skill-matrix-summary", VaadinIcon.CHART_3D.create()));
         }
-        if(role.equals(director)) {
+        if (role.equals(director)) {
             nav.addItem(new SideNavItem("Pending Approvals", "/approvals", VaadinIcon.EDIT.create()));
+            nav.addItem(new SideNavItem("My Approvals", "/my-approvals", VaadinIcon.EDIT.create()));
+            nav.addItem(new SideNavItem("Certificate Renewal Request", "/cert-approvals", VaadinIcon.EDIT.create()));
         }
-        if(role.equals(manager) || role.equals(superAdmin)) {
+        if (role.equals(manager) || role.equals(superAdmin)) {
             nav.addItem(new SideNavItem("Pending Approvals", "/manager-approvals", VaadinIcon.CHECK_SQUARE_O.create()));
-            nav.addItem(new SideNavItem("My Approvals", "/manager-approved", VaadinIcon.CHECK.create()));
+            nav.addItem(new SideNavItem("My Approvals", "/my-approvals", VaadinIcon.CHECK.create()));
         }
-        if(role.equals(auditor) || role.equals(superAdmin)) {
+        if (role.equals(auditor) || role.equals(superAdmin)) {
             nav.addItem(new SideNavItem("Reports", "/reports", VaadinIcon.BAR_CHART.create()));
             nav.addItem(new SideNavItem("Audit Timeline", "/audit", VaadinIcon.CLIPBOARD_TEXT.create()));
         }
-        if(role.equals(trainer)){
+        if (role.equals(trainer)) {
             nav.addItem(new SideNavItem("My-Class Enrollments", "/trainer-enrollments", VaadinIcon.BAR_CHART.create()));
         }
         Scroller scroller = new Scroller(nav);

@@ -1,7 +1,16 @@
 package com.example.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class SkillSummaryDTO {
     private Long skillId;
     private String employeeFullName;
@@ -9,22 +18,4 @@ public class SkillSummaryDTO {
     private String skillName;
     private Integer proficiencyRating;
     private LocalDateTime updatedAt;
-
-    public SkillSummaryDTO(Long skillId, String employeeFullName, String courseName,
-                           String skillName, Integer proficiencyRating, LocalDateTime updatedAt) {
-        this.skillId = skillId;
-        this.employeeFullName = employeeFullName;
-        this.courseName = courseName;
-        this.skillName = skillName;
-        this.proficiencyRating = proficiencyRating;
-        this.updatedAt = updatedAt;
-    }
-
-    // Getters and Setters
-    public Long getSkillId() { return skillId; }
-    public String getEmployeeFullName() { return employeeFullName; }
-    public String getCourseName() { return courseName; }
-    public String getSkillName() { return skillName; }
-    public Integer getProficiencyRating() { return proficiencyRating; }
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
 }

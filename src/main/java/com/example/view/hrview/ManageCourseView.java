@@ -96,49 +96,23 @@ public class ManageCourseView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.addColumn(TrainingCourseDTO::getCourseName)
-                .setHeader("Course Name")
-                .setAutoWidth(true);
+        grid.addColumn(TrainingCourseDTO::getCourseName).setHeader("Course Name").setAutoWidth(true);
 
-        grid.addColumn(trainingCourseDTO -> trainingCourseDTO.getCategory().getCategoryName())
-                .setHeader("Category")
-                .setWidth("250px")
-                .setFlexGrow(0);
+        grid.addColumn(trainingCourseDTO -> trainingCourseDTO.getCategory().getCategoryName()).setHeader("Category").setWidth("250px").setFlexGrow(0);
 
-        grid.addColumn(TrainingCourseDTO::getDurationDays)
-                .setHeader("Days")
-                .setWidth("150px")
-                .setFlexGrow(0);
+        grid.addColumn(TrainingCourseDTO::getDurationDays).setHeader("Days").setWidth("150px").setFlexGrow(0);
 
-        grid.addColumn(TrainingCourseDTO::getTrainingCost)
-                .setHeader("Cost")
-                .setWidth("150px")
-                .setFlexGrow(0);
+        grid.addColumn(TrainingCourseDTO::getTrainingCost).setHeader("Cost").setWidth("150px").setFlexGrow(0);
 
-        grid.addColumn(trainingCourse -> trainingCourse.getTrainingType().getTrainingType())
-                .setHeader("Type")
-                .setWidth("200px")
-                .setFlexGrow(0);
+        grid.addColumn(trainingCourse -> trainingCourse.getTrainingType().getTrainingType()).setHeader("Type").setWidth("200px").setFlexGrow(0);
 
-        grid.addColumn(TrainingCourseDTO::getMaxParticipants)
-                .setHeader("Max Participants")
-                .setWidth("150px")
-                .setFlexGrow(0);
+        grid.addColumn(TrainingCourseDTO::getMaxParticipants).setHeader("Max Participants").setWidth("150px").setFlexGrow(0);
 
-        grid.addColumn(trainingCourseDTO -> trainingCourseDTO.getTrainer().getFirstName())
-                .setHeader("Trainer")
-                .setWidth("200px")
-                .setFlexGrow(0);
+        grid.addColumn(trainingCourseDTO -> trainingCourseDTO.getTrainer().getFirstName()).setHeader("Trainer").setWidth("200px").setFlexGrow(0);
 
-        grid.addColumn(trainingCourseDTO -> trainingCourseDTO.getCertificationProvided() ? "YES" : "NO")
-                .setHeader("Certificate Provided?")
-                .setWidth("150px")
-                .setFlexGrow(0);
+        grid.addColumn(trainingCourseDTO -> trainingCourseDTO.getCertificationProvided() ? "YES" : "NO").setHeader("Certificate Provided?").setWidth("150px").setFlexGrow(0);
 
-        grid.addColumn(TrainingCourseDTO::getCertificationValidityMonths)
-                .setHeader("Certificate Expire in (Months)")
-                .setWidth("250px")
-                .setFlexGrow(0);
+        grid.addColumn(TrainingCourseDTO::getCertificationValidityMonths).setHeader("Certificate Expire in (Months)").setWidth("250px").setFlexGrow(0);
 
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.setWidthFull();
@@ -260,11 +234,9 @@ public class ManageCourseView extends VerticalLayout {
             if (!isEditMode) {
                 dto.setActive(true);
                 dto.setCreatedAt(LocalDateTime.now());
-                authContext.getAuthenticatedUser(org.springframework.security.core.userdetails.UserDetails.class)
-                        .ifPresent(userDetails -> {
-                            userService.findByUsername(userDetails.getUsername())
-                                    .ifPresent(user -> dto.setCreatedBy(userService.convertToDTO(user)));
-                        });
+                authContext.getAuthenticatedUser(org.springframework.security.core.userdetails.UserDetails.class).ifPresent(userDetails -> {
+                    userService.findByUsername(userDetails.getUsername()).ifPresent(user -> dto.setCreatedBy(userService.convertToDTO(user)));
+                });
                 trainingCourseService.saveCourse(dto);
             } else trainingCourseService.updateCourse(dto);
 
@@ -273,10 +245,7 @@ public class ManageCourseView extends VerticalLayout {
             updateGrid();
         });
 
-        layout.add(courseName, category, description,
-                new HorizontalLayout(durationDays, trainingCost),
-                new HorizontalLayout(trainer, trainingType),
-                maxParticipants, certificationProvided, certValidity, saveBtn);
+        layout.add(courseName, category, description, new HorizontalLayout(durationDays, trainingCost), new HorizontalLayout(trainer, trainingType), maxParticipants, certificationProvided, certValidity, saveBtn);
 
         dialog.add(layout);
         dialog.open();

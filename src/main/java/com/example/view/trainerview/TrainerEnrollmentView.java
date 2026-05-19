@@ -1,6 +1,7 @@
 package com.example.view.trainerview;
 
 import com.example.dto.TrainingEnrollmentDTO;
+import com.example.entity.Certification;
 import com.example.entity.User;
 import com.example.service.TrainingEnrollmentService;
 import com.example.utils.CurrentUserProvider;
@@ -100,23 +101,19 @@ public class TrainerEnrollmentView extends VerticalLayout {
 
         Button confirmBtn = new Button("Submit Completion", e -> {
             if (proficiencyRating.getValue() == null) {
-                Notification.show("Please assign a Proficiency Rating before completing.", 3000, Notification.Position.MIDDLE)
-                        .addThemeVariants(NotificationVariant.LUMO_WARNING);
+                Notification.show("Please assign a Proficiency Rating before completing.", 3000, Notification.Position.MIDDLE).addThemeVariants(NotificationVariant.LUMO_WARNING);
                 return;
             }
 
             try {
-                // CHANGED: Passing both remarks AND the proficiency rating integer down to the backend engine
-                trainingEnrollmentService.completeEnrollment(dto.getEnrollmentId(), remarks.getValue(), proficiencyRating.getValue());
-
+                Certification certificate = trainingEnrollmentService.finalizeAndGenerateCertificate(dto.getEnrollmentId(), remarks.getValue(), proficiencyRating.getValue());
                 Notification n = Notification.show("Course execution successfully finalized!");
                 n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 
                 dialog.close();
                 loadData();
             } catch (Exception ex) {
-                Notification.show("Error saving progression: " + ex.getMessage(), 5000, Notification.Position.MIDDLE)
-                        .addThemeVariants(NotificationVariant.LUMO_ERROR);
+                Notification.show("Error saving progression: " + ex.getMessage(), 5000, Notification.Position.MIDDLE).addThemeVariants(NotificationVariant.LUMO_ERROR);
             }
         });
         confirmBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);

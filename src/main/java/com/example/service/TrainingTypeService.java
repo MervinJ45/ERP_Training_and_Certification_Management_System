@@ -15,16 +15,13 @@ public class TrainingTypeService {
     private final TrainingTypeRepo trainingTypeRepo;
     private final AuditLogService auditLogService;
 
-    // Constructor injection for both Repository and Audit Log Service
     public TrainingTypeService(TrainingTypeRepo trainingTypeRepo, AuditLogService auditLogService) {
         this.trainingTypeRepo = trainingTypeRepo;
         this.auditLogService = auditLogService;
     }
 
     public List<TrainingTypeDTO> getAllTrainingTypeDTOs() {
-        return trainingTypeRepo.findAll().stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+        return trainingTypeRepo.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     @Transactional
@@ -35,44 +32,25 @@ public class TrainingTypeService {
 
         TrainingType savedType = trainingTypeRepo.save(trainingType);
 
-        // Track creation in audit trail
-        auditLogService.logAudit(
-                savedType.getTrainingTypeId(),
-                "CREATE_TRAINING_TYPE",
-                "TRAINING_TYPES",
-                "Created type: " + savedType.getTrainingType()
-        );
+        auditLogService.logAudit(savedType.getTrainingTypeId(), "CREATE_TRAINING_TYPE", "TRAINING_TYPES", "Created type: " + savedType.getTrainingType());
     }
 
     @Transactional
     public void updateTrainingType(TrainingTypeDTO dto) {
-        TrainingType trainingType = trainingTypeRepo.findById(dto.getTrainingTypeId())
-                .orElseThrow(() -> new RuntimeException("Training Type Not Found"));
+        TrainingType trainingType = trainingTypeRepo.findById(dto.getTrainingTypeId()).orElseThrow(() -> new RuntimeException("Training Type Not Found"));
 
         trainingType.setTrainingType(dto.getTrainingType());
         trainingType.setIsActive(dto.getIsActive());
 
         TrainingType updatedType = trainingTypeRepo.save(trainingType);
 
-        // Track update in audit trail
-        auditLogService.logAudit(
-                updatedType.getTrainingTypeId(),
-                "UPDATE_TRAINING_TYPE",
-                "TRAINING_TYPES",
-                "Updated type to: " + updatedType.getTrainingType() + " (Active: " + updatedType.getIsActive() + ")"
-        );
+        auditLogService.logAudit(updatedType.getTrainingTypeId(), "UPDATE_TRAINING_TYPE", "TRAINING_TYPES", "Updated type to: " + updatedType.getTrainingType() + " (Active: " + updatedType.getIsActive() + ")");
     }
 
     @Transactional
     public void deleteTrainingType(Long id) {
-        // Fetch and log details before executing the hard deletion
         trainingTypeRepo.findById(id).ifPresent(type -> {
-            auditLogService.logAudit(
-                    id,
-                    "DELETE_TRAINING_TYPE",
-                    "TRAINING_TYPES",
-                    "Deleted type: " + type.getTrainingType()
-            );
+            auditLogService.logAudit(id, "DELETE_TRAINING_TYPE", "TRAINING_TYPES", "Deleted type: " + type.getTrainingType());
         });
 
         trainingTypeRepo.deleteById(id);

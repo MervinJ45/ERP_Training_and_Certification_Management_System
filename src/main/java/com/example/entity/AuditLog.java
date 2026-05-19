@@ -9,7 +9,10 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "audit_logs")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class AuditLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,7 +38,8 @@ public class AuditLog {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    @PrePersist protected void onCreate() {
+    @PrePersist
+    protected void onCreate() {
         this.actionTime = LocalDateTime.now();
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();

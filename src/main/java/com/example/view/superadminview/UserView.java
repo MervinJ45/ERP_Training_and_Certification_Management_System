@@ -59,29 +59,13 @@ public class UserView extends VerticalLayout {
 
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
 
-        grid.addColumn(UserDTO::getUsername)
-                .setHeader("Username")
-                .setWidth("200px")
-                .setFlexGrow(0)
-                .setFrozen(true);
+        grid.addColumn(UserDTO::getUsername).setHeader("Username").setWidth("200px").setFlexGrow(0).setFrozen(true);
 
-        grid.addColumn(UserDTO::getEmail)
-                .setHeader("Email")
-                .setWidth("300px")
-                .setFlexGrow(0);
+        grid.addColumn(UserDTO::getEmail).setHeader("Email").setWidth("300px").setFlexGrow(0);
 
-        grid.addColumn(UserDTO::getEmployeeName)
-                .setHeader("Linked Employee")
-                .setWidth("250px")
-                .setFlexGrow(0);
+        grid.addColumn(UserDTO::getEmployeeName).setHeader("Linked Employee").setWidth("250px").setFlexGrow(0);
 
-        grid.addColumn(userDTO ->
-                        userDTO.getRole() != null
-                                ? userDTO.getRole().getRoleName()
-                                : "No Role")
-                .setHeader("System Role")
-                .setWidth("200px")
-                .setFlexGrow(0);
+        grid.addColumn(userDTO -> userDTO.getRole() != null ? userDTO.getRole().getRoleName() : "No Role").setHeader("System Role").setWidth("200px").setFlexGrow(0);
     }
 
     private void updateGrid() {

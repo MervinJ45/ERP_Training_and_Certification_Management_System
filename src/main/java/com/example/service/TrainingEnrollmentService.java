@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.security.cert.Certificate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,12 +23,15 @@ public class TrainingEnrollmentService {
     private final ApprovalStatusRepo approvalStatusRepo;
     private final TrainingApprovalRepo trainingApprovalRepo;
     private final ApprovalWorkflowConfigRepo approvalWorkflowConfigRepo;
-    private final SkillMatrixRepo skillMatrixRepo;
-    private final CertificationStatusRepo certificationStatusRepo;
+    private final SkillMatrixService skillMatrixService;
+    private final CertificationService certificationService;
+    private final CertificatePdfService certificatePdfService;
+    private final CloudinaryStorageService cloudinaryStorageService;
     private final CertificationRepo certificationRepo;
     private final AuditLogService auditLogService;
 
-    public TrainingEnrollmentService(TrainingEnrollmentRepo trainingEnrollmentRepo, EmployeeRepo employeeRepo, TrainingCourseRepo courseRepo, EnrollmentStatusRepo statusRepo, ApprovalStatusRepo approvalStatusRepo, TrainingApprovalRepo trainingApprovalRepo, ApprovalWorkflowConfigRepo approvalWorkflowConfigRepo, AuditLogService auditLogService, SkillMatrixRepo skillMatrixRepo, CertificationStatusRepo certificationStatusRepo, CertificationRepo certificationRepo) {
+
+    public TrainingEnrollmentService(TrainingEnrollmentRepo trainingEnrollmentRepo, EmployeeRepo employeeRepo, TrainingCourseRepo courseRepo, EnrollmentStatusRepo statusRepo, ApprovalStatusRepo approvalStatusRepo, TrainingApprovalRepo trainingApprovalRepo, ApprovalWorkflowConfigRepo approvalWorkflowConfigRepo, AuditLogService auditLogService, SkillMatrixService skillMatrixService, CertificationService certificationService, CertificatePdfService certificatePdfService, CloudinaryStorageService cloudinaryStorageService, CertificationRepo certificationRepo) {
         this.trainingEnrollmentRepo = trainingEnrollmentRepo;
         this.employeeRepo = employeeRepo;
         this.courseRepo = courseRepo;
@@ -36,8 +40,10 @@ public class TrainingEnrollmentService {
         this.trainingApprovalRepo = trainingApprovalRepo;
         this.approvalWorkflowConfigRepo = approvalWorkflowConfigRepo;
         this.auditLogService = auditLogService;
-        this.skillMatrixRepo = skillMatrixRepo;
-        this.certificationStatusRepo = certificationStatusRepo;
+        this.skillMatrixService = skillMatrixService;
+        this.certificationService = certificationService;
+        this.certificatePdfService = certificatePdfService;
+        this.cloudinaryStorageService = cloudinaryStorageService;
         this.certificationRepo = certificationRepo;
     }
 
@@ -96,7 +102,9 @@ public class TrainingEnrollmentService {
     }
 
     public List<TrainingEnrollmentDTO> getEnrollmentsApprovedByManager(Long managerId) {
-        return trainingEnrollmentRepo.findByEmployeeManagerEmployeeIdAndCurrentApprovalLevelGreaterThan(managerId, 0).stream().map(this::convertToDTO).collect(Collectors.toList());
+        List<TrainingEnrollment> managerTeamEnrollments = trainingEnrollmentRepo.findByEmployeeManagerEmployeeId(managerId);
+
+        return managerTeamEnrollments.stream().filter(enrollment -> enrollment.getCurrentApprovalLevel() >= 1 || (enrollment.getEnrollmentStatus() != null && "Approved".equals(enrollment.getEnrollmentStatus().getEnrollmentStatus()))).map(this::convertToDTO).collect(Collectors.toList());
     }
 
     public List<TrainingEnrollmentDTO> getPendingManagerApprovals(Long managerId) {
@@ -105,13 +113,11 @@ public class TrainingEnrollmentService {
         List<ApprovalWorkflowConfig> activeWorkflowRules = approvalWorkflowConfigRepo.findByIsActiveTrue();
 
         return allPendingRequests.stream().filter(enrollment -> enrollment.getEmployee() != null && enrollment.getEmployee().getManager() != null).filter(enrollment -> enrollment.getEmployee().getManager().getEmployeeId().equals(managerId)).filter(enrollment -> {
-            // CHANGED: Direct match look-up instead of look-ahead math (+1)
             int currentLevel = enrollment.getCurrentApprovalLevel();
             BigDecimal cost = enrollment.getRequestedCost();
 
             ApprovalWorkflowConfig matchingRule = activeWorkflowRules.stream().filter(rule -> rule.getRequiredLevel() == currentLevel).filter(rule -> cost.compareTo(rule.getMinCost()) >= 0 && cost.compareTo(rule.getMaxCost()) <= 0).findFirst().orElse(null);
 
-            // Fixed primitive comparison to safe object evaluation (.equals)
             return matchingRule != null && matchingRule.getApproverRole().getRoleId().equals(4L);
         }).map(this::convertToDTO).collect(Collectors.toList());
     }
@@ -123,29 +129,23 @@ public class TrainingEnrollmentService {
 
         List<ApprovalWorkflowConfig> activeWorkflowRules = approvalWorkflowConfigRepo.findByIsActiveTrue();
 
-        // 1. The current step that is being approved right now
         int currentActiveLevel = enrollment.getCurrentApprovalLevel();
         BigDecimal cost = enrollment.getRequestedCost();
 
-        // 2. Look ahead: Is there a HIGHER approval level required after this one?
         int subsequentLevel = currentActiveLevel + 1;
         boolean hasMoreLevels = activeWorkflowRules.stream().anyMatch(rule -> rule.getRequiredLevel() == subsequentLevel && cost.compareTo(rule.getMinCost()) >= 0 && cost.compareTo(rule.getMaxCost()) <= 0);
 
         enrollment.setApprovedCost(approvedCost);
 
         if (!hasMoreLevels) {
-            // No higher tiers exist -> Request is FULLY APPROVED
-            // FIX: Keep the level at currentActiveLevel so it reflects the last acting rule step
             EnrollmentStatus approvedStatus = statusRepo.findByEnrollmentStatus("Approved").orElseThrow(() -> new IllegalStateException("Status 'Approved' not initialized in database."));
             enrollment.setEnrollmentStatus(approvedStatus);
         } else {
-            // A higher tier exists (e.g., moving from Manager to HR, or HR to Director)
             enrollment.setCurrentApprovalLevel(subsequentLevel);
         }
 
         trainingEnrollmentRepo.save(enrollment);
 
-        // 3. Save to Audit Trail
         TrainingApproval trainingApproval = new TrainingApproval();
         trainingApproval.setEnrollment(enrollment);
 
@@ -153,7 +153,6 @@ public class TrainingEnrollmentService {
         approver.setEmployeeId(approverId);
         trainingApproval.setApprover(approver);
 
-        // Logs the exact step that was handled during this action
         trainingApproval.setApprovalLevel(currentActiveLevel);
         trainingApproval.setApprovalStatus(approvalStatusRepo.findByApprovalStatus("Approved").orElse(null));
         trainingApproval.setComments(comments);
@@ -169,10 +168,8 @@ public class TrainingEnrollmentService {
 
     @Transactional
     public void rejectEnrollment(Long enrollmentId, Long approverId, String comments) {
-        // 1. Fetch the target enrollment record
         TrainingEnrollment enrollment = trainingEnrollmentRepo.findById(enrollmentId).orElseThrow(() -> new IllegalArgumentException("Enrollment record not found ID: " + enrollmentId));
 
-        // 2. Terminate the process immediately
         EnrollmentStatus rejectedStatus = statusRepo.findByEnrollmentStatus("Rejected").orElseThrow(() -> new IllegalStateException("Status 'REJECTED' not initialized in database."));
 
         enrollment.setEnrollmentStatus(rejectedStatus);
@@ -199,11 +196,10 @@ public class TrainingEnrollmentService {
     }
 
     @Transactional
-    public void completeEnrollment(Long enrollmentId, String remarks, Integer rating) {
+    public Certification completeEnrollment(Long enrollmentId, String remarks, Integer rating) {
         LocalDateTime now = LocalDateTime.now();
 
-        TrainingEnrollment enrollment = trainingEnrollmentRepo.findById(enrollmentId)
-                .orElseThrow(() -> new IllegalArgumentException("Enrollment record not found ID: " + enrollmentId));
+        TrainingEnrollment enrollment = trainingEnrollmentRepo.findById(enrollmentId).orElseThrow(() -> new IllegalArgumentException("Enrollment record not found ID: " + enrollmentId));
 
         Employee student = enrollment.getEmployee();
         TrainingCourse course = enrollment.getCourse();
@@ -211,8 +207,7 @@ public class TrainingEnrollmentService {
         boolean isCertProvided = course.getCertificationProvided() != null && course.getCertificationProvided();
         String targetStatusName = isCertProvided ? "Certified" : "Completed";
 
-        EnrollmentStatus finalStatus = statusRepo.findByEnrollmentStatus(targetStatusName)
-                .orElseThrow(() -> new IllegalStateException("Status '" + targetStatusName + "' not initialized in database."));
+        EnrollmentStatus finalStatus = statusRepo.findByEnrollmentStatus(targetStatusName).orElseThrow(() -> new IllegalStateException("Status '" + targetStatusName + "' not initialized in database."));
 
         enrollment.setEnrollmentStatus(finalStatus);
         enrollment.setCompletionDate(now);
@@ -221,61 +216,46 @@ public class TrainingEnrollmentService {
         enrollment.setUpdatedAt(now);
         trainingEnrollmentRepo.save(enrollment);
 
-        CertificationStatus activeCertStatus = certificationStatusRepo.findByCertificationStatus("Active")
-                .orElse(null);
+        Certification savedCertificate = certificationService.createCertification(enrollment, remarks, now);
 
-        Certification certificate = new Certification();
-        certificate.setEmployee(student);
-        certificate.setCourse(course);
-        certificate.setEnrollment(enrollment);
+        skillMatrixService.createSkillEntry(student, course, rating, now);
 
-        String uniqueSerial = "CE" + enrollmentId + student.getEmployeeId();
-        if(uniqueSerial.length() > 10) {
-            uniqueSerial = uniqueSerial.substring(0, 10);
+        auditLogService.logAudit(enrollmentId, "UPDATE", "training_enrollments", String.format("Generated Certification %s, Injected Skill Proficiency Rating: %d", savedCertificate.getCertificateNumber(), rating));
+
+        return savedCertificate;
+    }
+
+    public Certification finalizeAndGenerateCertificate(Long enrollmentId, String remarks, Integer rating) {
+
+        Certification certRecord = completeEnrollment(enrollmentId, remarks, rating);
+
+        if (certRecord == null) {
+            return null;
         }
-        certificate.setCertificateNumber(uniqueSerial);
 
-        certificate.setIssueDate(now);
-        certificate.setExpiryDate(now.plusYears(2));
-        certificate.setStatus(activeCertStatus);
-        certificate.setIssuedBy(course.getTrainer());
-        certificate.setRemarks(remarks);
-        certificate.setCreatedAt(now);
-        certificate.setUpdatedAt(now);
-        certificate.setIsActive(true);
+        try {
+            String studentName = certRecord.getEmployee().getFirstName() + " " + certRecord.getEmployee().getLastName();
+            String courseName = certRecord.getCourse().getCourseName();
+            String certNumber = certRecord.getCertificateNumber();
+            String formattedDate = certRecord.getIssueDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-        certificationRepo.save(certificate);
+            byte[] pdfBytes = certificatePdfService.generateCertificatePdf(studentName, courseName, certNumber, formattedDate);
 
-        SkillMatrix skillMatrix = new SkillMatrix();
+            String url = cloudinaryStorageService.uploadCertificate(pdfBytes, certNumber);
 
-        skillMatrix.setEmployee(student);
-        skillMatrix.setCourse(course);
-        skillMatrix.setCreatedAt(now);
-        skillMatrix.setSkillName(course.getCourseName());
-        skillMatrix.setProficiencyRating(rating);
-        skillMatrix.setUpdatedAt(now);
-        skillMatrix.setIsActive(true);
+            certRecord.setCertificateUrl(url);
+            certificationRepo.save(certRecord);
 
-        skillMatrixRepo.save(skillMatrix);
+        } catch (Exception e) {
+            System.err.println("Database states saved, but Cloud document generation pipelines encountered an error: " + e.getMessage());
+        }
 
-        auditLogService.logAudit(enrollmentId, "UPDATE", "training_enrollments",
-                String.format(" Generated Certification %s, Injected Skill Proficiency Rating: %d",
-                        uniqueSerial, rating));
+        return certRecord;
     }
 
     public List<TrainingEnrollmentDTO> getTrainerSpecificEnrollments(Long trainerId) {
-
         List<TrainingEnrollment> allEnrollments = trainingEnrollmentRepo.findAll();
-
-        return allEnrollments.stream()
-                .filter(enrollment -> enrollment.getIsActive() != null && enrollment.getIsActive())
-                .filter(enrollment -> enrollment.getEnrollmentStatus() != null
-                        && "Approved".equals(enrollment.getEnrollmentStatus().getEnrollmentStatus()))
-                .filter(enrollment -> enrollment.getCourse() != null
-                        && enrollment.getCourse().getTrainer() != null
-                        && enrollment.getCourse().getTrainer().getEmployeeId().equals(trainerId))
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+        return allEnrollments.stream().filter(enrollment -> enrollment.getIsActive() != null && enrollment.getIsActive()).filter(enrollment -> enrollment.getEnrollmentStatus() != null && "Approved".equals(enrollment.getEnrollmentStatus().getEnrollmentStatus())).filter(enrollment -> enrollment.getCourse() != null && enrollment.getCourse().getTrainer() != null && enrollment.getCourse().getTrainer().getEmployeeId().equals(trainerId)).map(this::convertToDTO).collect(Collectors.toList());
     }
 
     public List<TrainingEnrollmentDTO> getHrOrDirectorApprovals(Long roleId) {

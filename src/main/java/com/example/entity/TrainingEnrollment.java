@@ -11,23 +11,29 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "training_enrollments")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class TrainingEnrollment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long enrollmentId;
 
-    @ManyToOne @JoinColumn(name = "employee_id")
+    @ManyToOne
+    @JoinColumn(name = "employee_id")
     private Employee employee;
 
-    @ManyToOne @JoinColumn(name = "course_id")
+    @ManyToOne
+    @JoinColumn(name = "course_id")
     private TrainingCourse course;
 
     private LocalDateTime enrollmentDate;
 
     private LocalDateTime completionDate;
 
-    @ManyToOne @JoinColumn(name = "enrollment_status_id")
+    @ManyToOne
+    @JoinColumn(name = "enrollment_status_id")
     private EnrollmentStatus enrollmentStatus;
 
     private String remarks;
@@ -40,6 +46,14 @@ public class TrainingEnrollment {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    @PrePersist protected void onCreate() { this.createdAt = LocalDateTime.now(); this.updatedAt = LocalDateTime.now(); }
-    @PreUpdate protected void onUpdate() { this.updatedAt = LocalDateTime.now(); }
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }

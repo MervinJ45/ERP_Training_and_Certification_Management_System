@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 public class TrainingCategoryService {
 
     private final TrainingCategoryRepo trainingCategoryRepo;
-    // Injected central AuditLogService
     private final AuditLogService auditLogService;
 
     public TrainingCategoryService(TrainingCategoryRepo trainingCategoryRepo, AuditLogService auditLogService) {
@@ -24,7 +23,6 @@ public class TrainingCategoryService {
         return trainingCategoryRepo.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
-    // Added this method to support fully-audited creates/updates
     public TrainingCategory saveCategory(TrainingCategory category) {
         boolean isUpdate = category.getCategoryId() != null;
 
@@ -33,27 +31,16 @@ public class TrainingCategoryService {
         String action = isUpdate ? "UPDATE" : "INSERT";
         String details = (isUpdate ? "Updated" : "Created") + " training category: " + savedCategory.getCategoryName();
 
-        auditLogService.logAudit(
-                savedCategory.getCategoryId(),
-                action,
-                "training_categories",
-                details
-        );
+        auditLogService.logAudit(savedCategory.getCategoryId(), action, "training_categories", details);
 
         return savedCategory;
     }
 
     public void deleteCategory(Long id) {
-        // Retrieve record first to preserve descriptive metadata inside the audit trail before deletion
         trainingCategoryRepo.findById(id).ifPresent(category -> {
             trainingCategoryRepo.deleteById(id);
 
-            auditLogService.logAudit(
-                    id,
-                    "DELETE",
-                    "training_categories",
-                    "Deleted training category: " + category.getCategoryName()
-            );
+            auditLogService.logAudit(id, "DELETE", "training_categories", "Deleted training category: " + category.getCategoryName());
         });
     }
 

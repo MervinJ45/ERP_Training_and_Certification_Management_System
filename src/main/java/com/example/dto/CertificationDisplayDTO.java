@@ -1,6 +1,7 @@
 package com.example.dto;
 
 import java.time.LocalDate;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,7 +18,7 @@ public class CertificationDisplayDTO {
     private String courseName;
     private LocalDate issueDate;
     private LocalDate expiryDate;
-    private Long daysRemaining; // Dynamically calculated time delta
+    private Long daysRemaining;
     private String statusName;
     private String certificateUrl;
 }

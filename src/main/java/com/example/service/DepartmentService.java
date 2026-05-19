@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 public class DepartmentService {
 
     private final DepartmentRepo departmentRepo;
-    // Injected central AuditLogService
     private final AuditLogService auditLogService;
 
     public DepartmentService(DepartmentRepo departmentRepo, AuditLogService auditLogService) {
@@ -25,7 +24,6 @@ public class DepartmentService {
     }
 
     public Department saveDepartment(Department department) {
-        // Determine whether this action is an update or an insertion
         boolean isUpdate = department.getDepartmentId() != null;
 
         Department savedDepartment = departmentRepo.save(department);
@@ -33,27 +31,16 @@ public class DepartmentService {
         String action = isUpdate ? "UPDATE" : "INSERT";
         String details = (isUpdate ? "Updated" : "Created") + " department: " + savedDepartment.getDepartmentName();
 
-        auditLogService.logAudit(
-                savedDepartment.getDepartmentId(),
-                action,
-                "departments",
-                details
-        );
+        auditLogService.logAudit(savedDepartment.getDepartmentId(), action, "departments", details);
 
         return savedDepartment;
     }
 
     public void deleteDepartment(Long id) {
-        // Retrieve the record first to safely log contextual detail information right before deletion
         departmentRepo.findById(id).ifPresent(department -> {
             departmentRepo.deleteById(id);
 
-            auditLogService.logAudit(
-                    id,
-                    "DELETE",
-                    "departments",
-                    "Deleted department: " + department.getDepartmentName()
-            );
+            auditLogService.logAudit(id, "DELETE", "departments", "Deleted department: " + department.getDepartmentName());
         });
     }
 

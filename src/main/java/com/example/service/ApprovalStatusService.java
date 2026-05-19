@@ -29,12 +29,7 @@ public class ApprovalStatusService {
         String action = isUpdate ? "UPDATE" : "INSERT";
         String details = (isUpdate ? "Updated" : "Created") + " approval status: " + savedStatus.getApprovalStatus();
 
-        auditLogService.logAudit(
-                savedStatus.getApprovalStatusId(),
-                action,
-                "approval_statuses",
-                details
-        );
+        auditLogService.logAudit(savedStatus.getApprovalStatusId(), action, "approval_statuses", details);
 
         return savedStatus;
     }
@@ -43,12 +38,7 @@ public class ApprovalStatusService {
         approvalStatusRepo.findById(id).ifPresent(status -> {
             approvalStatusRepo.deleteById(id);
 
-            auditLogService.logAudit(
-                    id,
-                    "DELETE",
-                    "approval_statuses",
-                    "Deleted approval status: " + status.getApprovalStatus()
-            );
+            auditLogService.logAudit(id, "DELETE", "approval_statuses", "Deleted approval status: " + status.getApprovalStatus());
         });
     }
 

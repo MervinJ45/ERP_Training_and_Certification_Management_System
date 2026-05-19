@@ -39,7 +39,6 @@ public class SkillMatrixSummaryView extends VerticalLayout {
         setPadding(true);
         setSpacing(true);
 
-        // Header Section
         H2 title = new H2("Corporate Skill Inventory Matrix");
         Span description = new Span("Real-time summary breakdown of employee proficiencies derived from completed course executions.");
         description.getStyle().set("color", "var(--lumo-secondary-text-color)");
@@ -64,27 +63,24 @@ public class SkillMatrixSummaryView extends VerticalLayout {
         grid.setSizeFull();
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT);
 
-        // Standard Data Columns
         grid.addColumn(SkillSummaryDTO::getEmployeeFullName).setHeader("Employee Name").setSortable(true);
         grid.addColumn(SkillSummaryDTO::getCourseName).setHeader("Source Course").setSortable(true);
         grid.addColumn(SkillSummaryDTO::getSkillName).setHeader("Acquired Skill").setSortable(true);
 
-        // CUSTOM COLUMN: Render Rating Scale visually as Star badges
         grid.addColumn(new ComponentRenderer<>(dto -> {
             HorizontalLayout ratingLayout = new HorizontalLayout();
             ratingLayout.setSpacing(false);
 
             int rating = dto.getProficiencyRating() != null ? dto.getProficiencyRating() : 0;
 
-            // Generate visual star markers matching rating number
             for (int i = 1; i <= 5; i++) {
                 Icon star = VaadinIcon.STAR.create();
                 star.setSize("16px");
                 if (i <= rating) {
                     star.getColor();
-                    star.getStyle().set("color", "var(--lumo-error-color)"); // Bright gold/amber accent coloring
+                    star.getStyle().set("color", "var(--lumo-error-color)");
                 } else {
-                    star.getStyle().set("color", "var(--lumo-contrast-20pct)"); // Light gray empty star representation
+                    star.getStyle().set("color", "var(--lumo-contrast-20pct)");
                 }
                 ratingLayout.add(star);
             }
@@ -97,17 +93,13 @@ public class SkillMatrixSummaryView extends VerticalLayout {
             return ratingLayout;
         })).setHeader("Proficiency Rating").setSortable(true).setComparator((a, b) -> Integer.compare(a.getProficiencyRating(), b.getProficiencyRating()));
 
-        // Date Conversion formatting column column map
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        grid.addColumn(dto -> dto.getUpdatedAt() != null ? dto.getUpdatedAt().format(formatter) : "N/A")
-                .setHeader("Last Verified")
-                .setSortable(true);
+        grid.addColumn(dto -> dto.getUpdatedAt() != null ? dto.getUpdatedAt().format(formatter) : "N/A").setHeader("Last Verified").setSortable(true);
 
         grid.getColumns().forEach(col -> col.setAutoWidth(true));
     }
 
     private void refreshGrid() {
-        // Pull master active tracking list directly out of the service layer boundary
         allData = skillMatrixService.getSkillMatrixSummary();
         grid.setItems(allData);
     }
@@ -120,14 +112,7 @@ public class SkillMatrixSummaryView extends VerticalLayout {
         }
 
         String lowerCaseQuery = query.toLowerCase().trim();
-
-        // In-memory filter layer to enable rapid sorting responses on key releases
-        List<SkillSummaryDTO> filteredList = allData.stream().filter(dto ->
-                (dto.getEmployeeFullName() != null && dto.getEmployeeFullName().toLowerCase().contains(lowerCaseQuery)) ||
-                        (dto.getCourseName() != null && dto.getCourseName().toLowerCase().contains(lowerCaseQuery)) ||
-                        (dto.getSkillName() != null && dto.getSkillName().toLowerCase().contains(lowerCaseQuery))
-        ).collect(Collectors.toList());
-
+        List<SkillSummaryDTO> filteredList = allData.stream().filter(dto -> (dto.getEmployeeFullName() != null && dto.getEmployeeFullName().toLowerCase().contains(lowerCaseQuery)) || (dto.getCourseName() != null && dto.getCourseName().toLowerCase().contains(lowerCaseQuery)) || (dto.getSkillName() != null && dto.getSkillName().toLowerCase().contains(lowerCaseQuery))).collect(Collectors.toList());
         grid.setItems(filteredList);
     }
 }
