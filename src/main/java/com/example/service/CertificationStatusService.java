@@ -2,12 +2,16 @@ package com.example.service;
 
 import com.example.entity.CertificationStatus;
 import com.example.repo.CertificationStatusRepo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class CertificationStatusService {
+
+    private static final Logger logger = LoggerFactory.getLogger(CertificationStatusService.class);
 
     private final CertificationStatusRepo certificationStatusRepo;
     private final AuditLogService auditLogService;
@@ -18,31 +22,48 @@ public class CertificationStatusService {
     }
 
     public List<CertificationStatus> getAllStatuses() {
+
+        logger.info("Fetching all certification statuses");
+
         return certificationStatusRepo.findAll();
     }
 
     public CertificationStatus saveStatus(CertificationStatus status) {
+
         boolean isUpdate = status.getCertificationStatusId() != null;
+
+        logger.info("{} operation started for certification status: {}", isUpdate ? "UPDATE" : "CREATE", status.getCertificationStatus());
 
         CertificationStatus savedStatus = certificationStatusRepo.save(status);
 
         String action = isUpdate ? "UPDATE" : "INSERT";
         String details = (isUpdate ? "Updated" : "Created") + " certification status: " + savedStatus.getCertificationStatus();
 
-        auditLogService.logAudit(savedStatus.getCertificationStatusId(), action, "certification_statuses", details);
+        auditLogService.logAudit(savedStatus.getCertificationStatusId(), action, "CERTIFICATION_STATUS", details);
+
+        logger.info("Certification status saved successfully with id: {}", savedStatus.getCertificationStatusId());
 
         return savedStatus;
     }
 
     public void deleteStatus(Long id) {
+
+        logger.info("Deleting certification status id: {}", id);
+
         certificationStatusRepo.findById(id).ifPresent(status -> {
+
             certificationStatusRepo.deleteById(id);
 
-            auditLogService.logAudit(id, "DELETE", "certification_statuses", "Deleted certification status: " + status.getCertificationStatus());
+            auditLogService.logAudit(id, "DELETE", "CERTIFICATION_STATUS", "Deleted certification status: " + status.getCertificationStatus());
+
+            logger.info("Certification status deleted successfully: {}", status.getCertificationStatus());
         });
     }
 
     public CertificationStatus getStatusById(Long id) {
+
+        logger.info("Fetching certification status by id: {}", id);
+
         return certificationStatusRepo.findById(id).orElse(null);
     }
 }

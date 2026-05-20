@@ -12,6 +12,8 @@ import com.example.repo.TrainingApprovalRepo;
 import com.example.repo.TrainingCourseRepo;
 import com.example.repo.TrainingEnrollmentRepo;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -22,6 +24,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DashboardService {
 
+    private static final Logger logger = LoggerFactory.getLogger(DashboardService.class);
+
     private final EmployeeRepo employeeRepo;
     private final DepartmentRepo departmentRepo;
     private final TrainingCourseRepo trainingCourseRepo;
@@ -29,42 +33,70 @@ public class DashboardService {
     private final TrainingApprovalRepo trainingApprovalRepo;
     private final CertificationRepo certificationRepo;
 
-
     public long getTotalEmployees() {
+
+        logger.info("Fetching total employee count");
+
         return employeeRepo.count();
     }
 
     public long getTotalDepartments() {
+
+        logger.info("Fetching total department count");
+
         return departmentRepo.count();
     }
 
     public long getTotalCourses() {
+
+        logger.info("Fetching total training course count");
+
         return trainingCourseRepo.count();
     }
 
     public long getTotalEnrollments() {
+
+        logger.info("Fetching total enrollment count");
+
         return trainingEnrollmentRepo.count();
     }
 
     public long getTotalCertifications() {
+
+        logger.info("Fetching total certification count");
+
         return certificationRepo.count();
     }
 
-
     public List<TrainingApproval> getPendingApprovals() {
-        return trainingApprovalRepo.findAll().stream().filter(a -> a.getApprovalStatus() != null && a.getApprovalStatus().getApprovalStatus().equalsIgnoreCase("Pending")).toList();
-    }
 
+        logger.info("Fetching pending approvals");
+
+        return trainingApprovalRepo.findAll().stream()
+                .filter(a -> a.getApprovalStatus() != null &&
+                        a.getApprovalStatus().getApprovalStatus().equalsIgnoreCase("Pending"))
+                .toList();
+    }
 
     public List<Certification> getExpiringCertifications() {
 
+        logger.info("Fetching expiring certifications");
+
         LocalDateTime next30Days = LocalDateTime.now().plusDays(30);
 
-        return certificationRepo.findAll().stream().filter(c -> c.getExpiryDate() != null && c.getExpiryDate().isBefore(next30Days)).toList();
+        return certificationRepo.findAll().stream()
+                .filter(c -> c.getExpiryDate() != null &&
+                        c.getExpiryDate().isBefore(next30Days))
+                .toList();
     }
 
     public BigDecimal getTotalTrainingCost() {
 
-        return trainingEnrollmentRepo.findAll().stream().map(TrainingEnrollment::getApprovedCost).filter(cost -> cost != null).reduce(BigDecimal.ZERO, BigDecimal::add);
+        logger.info("Calculating total approved training cost");
+
+        return trainingEnrollmentRepo.findAll().stream()
+                .map(TrainingEnrollment::getApprovedCost)
+                .filter(cost -> cost != null)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

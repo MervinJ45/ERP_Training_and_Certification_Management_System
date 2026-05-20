@@ -4,6 +4,8 @@ import com.example.entity.AuditLog;
 import com.example.entity.User;
 import com.example.repo.AuditLogRepo;
 import com.example.utils.CurrentUserProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -11,6 +13,8 @@ import java.util.List;
 
 @Service
 public class AuditLogService {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuditLogService.class);
 
     private final AuditLogRepo auditLogRepo;
     private final CurrentUserProvider currentUserProvider;
@@ -21,16 +25,25 @@ public class AuditLogService {
     }
 
     public List<AuditLog> getAllAuditLogs() {
+
+        logger.info("Fetching all audit logs");
+
         return auditLogRepo.findAll();
     }
 
 
     public AuditLog saveAuditLog(AuditLog auditLog) {
+
+        logger.info("Saving audit log for action: {}", auditLog.getAction());
+
         return auditLogRepo.save(auditLog);
     }
 
 
     public AuditLog getAuditLogById(Long id) {
+
+        logger.info("Fetching audit log by ID: {}", id);
+
         return auditLogRepo.findById(id).orElse(null);
     }
 
@@ -39,14 +52,19 @@ public class AuditLogService {
 
         AuditLog log = new AuditLog();
         log.setUser(user);
+
         if (user != null) {
             log.setRole(user.getRole());
         }
+
         log.setRecordId(recordId);
         log.setAction(action);
         log.setTableAffected(table);
         log.setChangeDetails(details);
         log.setActionTime(LocalDateTime.now());
+
         auditLogRepo.save(log);
+
+        logger.info("AUDIT LOG -> Action: {}, Table: {}, Record ID: {}, Details: {}", action, table, recordId, details);
     }
 }

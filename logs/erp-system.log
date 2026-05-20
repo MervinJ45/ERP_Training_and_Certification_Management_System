@@ -1,0 +1,92 @@
+2026-05-20 12:33:21 - Starting Application using Java 21.0.10 with PID 9764 (C:\Users\mervin\Desktop\Assignment\ERP Training and Certification Management System\target\classes started by mervin in C:\Users\mervin\Desktop\Assignment\ERP Training and Certification Management System)
+2026-05-20 12:33:21 - No active profile set, falling back to 1 default profile: "default"
+2026-05-20 12:33:27 - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-05-20 12:33:32 - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-05-20 12:33:34 - AtmosphereHandler.onRequest called before PushHandler has been set. This should really not happen
+2026-05-20 12:33:38 - Started Application in 17.402 seconds (process running for 18.017)
+2026-05-20 12:35:32 - Finding user by username: rohitkumar
+2026-05-20 12:35:33 - Finding user by username: rohitkumar
+2026-05-20 12:35:33 - Fetching certifications for employee id: 8
+2026-05-20 12:35:34 - Finding user by username: rohitkumar
+2026-05-20 12:35:34 - Fetching enrollments for employee id: 8
+2026-05-20 12:35:36 - Finding user by username: rohitkumar
+2026-05-20 12:35:36 - Fetching certifications for employee id: 8
+2026-05-20 12:35:37 - Fetching all training courses
+2026-05-20 12:35:39 - Fetching total employee count
+2026-05-20 12:35:39 - Fetching total department count
+2026-05-20 12:35:39 - Fetching total training course count
+2026-05-20 12:35:39 - Fetching total enrollment count
+2026-05-20 12:35:39 - Fetching total certification count
+2026-05-20 12:35:39 - Fetching pending approvals
+2026-05-20 12:35:39 - Fetching expiring certifications
+2026-05-20 12:35:39 - Calculating total approved training cost
+2026-05-20 12:58:13 - Finding user by username: rohitkumar
+2026-05-20 12:58:13 - Fetching certifications for employee id: 8
+2026-05-20 12:58:14 - Finding user by username: rohitkumar
+2026-05-20 12:58:14 - Fetching enrollments for employee id: 8
+2026-05-20 12:58:15 - Finding user by username: rohitkumar
+2026-05-20 12:58:15 - Fetching certifications for employee id: 8
+2026-05-20 15:24:57 - Starting Application using Java 21.0.10 with PID 10176 (C:\Users\mervin\Desktop\Assignment\ERP Training and Certification Management System\target\classes started by mervin in C:\Users\mervin\Desktop\Assignment\ERP Training and Certification Management System)
+2026-05-20 15:24:57 - Running with Spring Boot v3.4.5, Spring v6.2.6
+2026-05-20 15:24:57 - No active profile set, falling back to 1 default profile: "default"
+2026-05-20 15:24:58 - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-05-20 15:24:59 - Finished Spring Data repository scanning in 361 ms. Found 17 JPA repository interfaces.
+2026-05-20 15:25:00 - Tomcat initialized with port 8080 (http)
+2026-05-20 15:25:00 - Starting service [Tomcat]
+2026-05-20 15:25:00 - Starting Servlet engine: [Apache Tomcat/10.1.40]
+2026-05-20 15:25:00 - Initializing Spring embedded WebApplicationContext
+2026-05-20 15:25:00 - Root WebApplicationContext: initialization completed in 2868 ms
+2026-05-20 15:25:00 - Initializing AtmosphereFramework
+2026-05-20 15:25:02 - Search for subclasses and classes with annotations took 1046 ms
+2026-05-20 15:25:02 - Starting dev-mode updaters in C:\Users\mervin\Desktop\Assignment\ERP Training and Certification Management System folder.
+2026-05-20 15:25:02 - Visited 122 classes. Took 32 ms.
+2026-05-20 15:25:02 - Checking if a development mode bundle build is needed
+2026-05-20 15:25:03 - A development mode bundle build is not needed
+2026-05-20 15:25:03 - Copying frontend resources from jar files ...
+2026-05-20 15:25:03 - Visited 21 resources. Took 135 ms.
+2026-05-20 15:25:03 - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-05-20 15:25:03 - HHH000412: Hibernate ORM core version 6.6.13.Final
+2026-05-20 15:25:03 - HHH000026: Second-level cache disabled
+2026-05-20 15:25:04 - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-05-20 15:25:04 - HikariPool-1 - Starting...
+2026-05-20 15:25:04 - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@73543048
+2026-05-20 15:25:04 - HikariPool-1 - Start completed.
+2026-05-20 15:25:04 - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-05-20 15:25:04 - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 18.3
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-05-20 15:25:06 - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-05-20 15:25:08 - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-05-20 15:25:09 - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-05-20 15:25:10 - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-05-20 15:25:10 - Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-05-20 15:25:14 - 
+Vaadin is running in DEVELOPMENT mode - do not use for production deployments.
+2026-05-20 15:25:14 - The number of beans implementing 'I18NProvider' is 0. Cannot use Spring beans for I18N, falling back to the default behavior
+2026-05-20 15:25:14 - Tomcat started on port 8080 (http) with context path '/'
+2026-05-20 15:25:14 - Started Application in 18.379 seconds (process running for 19.254)
+2026-05-20 15:25:15 - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-20 15:25:15 - Initializing Servlet 'dispatcherServlet'
+2026-05-20 15:25:15 - Completed initialization in 4 ms
+2026-05-20 15:25:20 - Finding user by username: rohitkumar
+2026-05-20 15:25:23 - Finding user by username: rohitkumar
+2026-05-20 15:25:23 - Fetching enrollments for employee id: 8
+2026-05-20 15:25:24 - Fetching all training courses
+2026-05-20 15:52:08 - Searching training courses with value: erp
+2026-05-20 15:52:09 - Searching training courses with value: er
+2026-05-20 15:52:10 - Fetching all training courses
+2026-05-20 16:13:27 - Finding user by username: madhanganesan
+2026-05-20 16:13:29 - Fetching skill matrix summary
+2026-05-20 16:59:25 - Finding user by username: madhanganesan
+2026-05-20 16:59:25 - Fetching skill matrix summary
+2026-05-20 17:04:05 - Finding user by username: madhanganesan
+2026-05-20 17:04:05 - Fetching approvals for approver employee id: 2
+2026-05-20 17:04:47 - Finding user by username: madhanganesan
+2026-05-20 17:04:47 - Finding user by username: madhanganesan
+2026-05-20 17:04:47 - Fetching approvals for approver employee id: 2
+2026-05-20 18:32:06 - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=1h16m29s785ms660µs900ns).

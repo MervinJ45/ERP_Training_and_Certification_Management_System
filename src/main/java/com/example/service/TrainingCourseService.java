@@ -4,6 +4,8 @@ import com.example.dto.TrainingCourseDTO;
 import com.example.entity.TrainingCourse;
 import com.example.repo.*;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -12,6 +14,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class TrainingCourseService {
+
+    private static final Logger logger = LoggerFactory.getLogger(TrainingCourseService.class);
 
     private final TrainingCourseRepo trainingCourseRepo;
     private final TrainingCategoryRepo categoryRepo;
@@ -24,7 +28,7 @@ public class TrainingCourseService {
     private final TrainingTypeService trainingTypeService;
     private final EmployeeService employeeService;
 
-    public TrainingCourseService(TrainingCourseRepo trainingCourseRepo, TrainingCategoryRepo categoryRepo, TrainingTypeRepo trainingTypeRepo, EmployeeRepo employeeRepo, UserRepo userRepo, AuditLogService auditLogService, // Updated constructor
+    public TrainingCourseService(TrainingCourseRepo trainingCourseRepo, TrainingCategoryRepo categoryRepo, TrainingTypeRepo trainingTypeRepo, EmployeeRepo employeeRepo, UserRepo userRepo, AuditLogService auditLogService,
                                  UserService userService, TrainingCategoryService categoryService, TrainingTypeService trainingTypeService, EmployeeService employeeService) {
         this.trainingCourseRepo = trainingCourseRepo;
         this.categoryRepo = categoryRepo;
@@ -39,22 +43,33 @@ public class TrainingCourseService {
     }
 
     public List<TrainingCourseDTO> getAllCourseDTOs() {
+
+        logger.info("Fetching all training courses");
+
         return trainingCourseRepo.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     public TrainingCourseDTO getCourseDTOById(Long id) {
+
+        logger.info("Fetching training course by id: {}", id);
+
         return trainingCourseRepo.findById(id).map(this::convertToDTO).orElse(null);
     }
 
     @Transactional
     public TrainingCourseDTO saveCourse(TrainingCourseDTO dto) {
-        TrainingCourse course;
+
         boolean isUpdate = dto.getCourseId() != null;
+
+        logger.info("{} operation started for training course: {}", isUpdate ? "UPDATE" : "CREATE", dto.getCourseName());
+
+        TrainingCourse course;
 
         if (isUpdate) {
             course = trainingCourseRepo.findById(dto.getCourseId()).orElseThrow(() -> new RuntimeException("Course not found"));
         } else {
             course = new TrainingCourse();
+
             if (dto.getCreatedBy() != null && dto.getCreatedBy().getUserId() != null) {
                 course.setCreator(userRepo.findById(dto.getCreatedBy().getUserId()).orElse(null));
             }
@@ -72,23 +87,32 @@ public class TrainingCourseService {
         if (dto.getCategory() != null) {
             course.setCategory(categoryRepo.findById(dto.getCategory().getCategoryId()).orElse(null));
         }
+
         if (dto.getTrainer() != null) {
             course.setTrainer(employeeRepo.findById(dto.getTrainer().getEmployeeId()).orElse(null));
         }
+
         if (dto.getTrainingType() != null) {
             course.setTrainingType(trainingTypeRepo.findById(dto.getTrainingType().getTrainingTypeId()).orElse(null));
         }
 
         TrainingCourse saved = trainingCourseRepo.save(course);
 
-        auditLogService.logAudit(saved.getCourseId(), isUpdate ? "UPDATE" : "INSERT", "training_courses", "Course: " + saved.getCourseName());
+        auditLogService.logAudit(saved.getCourseId(), isUpdate ? "UPDATE" : "INSERT", "TRAINING_COURSES", "Course: " + saved.getCourseName());
+
+        logger.info("Training course saved successfully with id: {}", saved.getCourseId());
 
         return convertToDTO(saved);
     }
 
     @Transactional
     public TrainingCourseDTO updateCourse(TrainingCourseDTO dto) {
+
+        logger.info("Updating training course id: {}", dto.getCourseId());
+
         if (dto.getCourseId() == null) {
+            logger.error("Course ID is missing for update");
+
             throw new RuntimeException("Course ID is required for update");
         }
 
@@ -106,27 +130,38 @@ public class TrainingCourseService {
         if (dto.getCategory() != null) {
             course.setCategory(categoryRepo.findById(dto.getCategory().getCategoryId()).orElse(null));
         }
+
         if (dto.getTrainer() != null) {
             course.setTrainer(employeeRepo.findById(dto.getTrainer().getEmployeeId()).orElse(null));
         }
+
         if (dto.getTrainingType() != null) {
             course.setTrainingType(trainingTypeRepo.findById(dto.getTrainingType().getTrainingTypeId()).orElse(null));
         }
 
         TrainingCourse updatedCourse = trainingCourseRepo.save(course);
 
-        auditLogService.logAudit(updatedCourse.getCourseId(), "UPDATE", "training_courses", "Updated Course: " + updatedCourse.getCourseName());
+        auditLogService.logAudit(updatedCourse.getCourseId(), "UPDATE", "TRAINING_COURSES", "Updated Course: " + updatedCourse.getCourseName());
+
+        logger.info("Training course updated successfully with id: {}", updatedCourse.getCourseId());
 
         return convertToDTO(updatedCourse);
     }
 
     @Transactional
     public void deleteCourse(Long id) {
+
+        logger.info("Deactivating training course id: {}", id);
+
         trainingCourseRepo.findById(id).ifPresent(course -> {
+
             course.setIsActive(false);
+
             trainingCourseRepo.save(course);
 
-            auditLogService.logAudit(id, "DEACTIVATE", "training_courses", "Marked course as inactive: " + course.getCourseName());
+            auditLogService.logAudit(id, "DEACTIVATE", "TRAINING_COURSES", "Marked course as inactive: " + course.getCourseName());
+
+            logger.info("Training course marked inactive successfully: {}", course.getCourseName());
         });
     }
 
@@ -170,6 +205,9 @@ public class TrainingCourseService {
     }
 
     public List<TrainingCourseDTO> searchCourseDTOs(String value) {
+
+        logger.info("Searching training courses with value: {}", value);
+
         return trainingCourseRepo.findAll().stream().filter(course -> course.getCourseName() != null && course.getCourseName().toLowerCase().contains(value.toLowerCase())).map(this::convertToDTO).collect(Collectors.toList());
     }
 }

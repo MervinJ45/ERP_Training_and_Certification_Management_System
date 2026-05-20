@@ -5,6 +5,8 @@ import com.example.entity.Employee;
 import com.example.entity.User;
 import com.example.repo.EmployeeRepo;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class EmployeeService {
+
+    private static final Logger logger = LoggerFactory.getLogger(EmployeeService.class);
 
     private final EmployeeRepo employeeRepo;
     private final UserService userService;
@@ -34,21 +38,29 @@ public class EmployeeService {
 
     public List<EmployeeDTO> getAllEmployeeDTOs() {
 
+        logger.info("Fetching all employees");
+
         return employeeRepo.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     public List<EmployeeDTO> getAllManagerDTOs() {
+
+        logger.info("Fetching all managers");
 
         return employeeRepo.findAllManagers().stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     public List<EmployeeDTO> searchEmployeeDTOs(String value) {
 
+        logger.info("Searching employees with keyword: {}", value);
+
         return employeeRepo.findAll().stream().filter(employee -> employee.getFirstName().toLowerCase().contains(value.toLowerCase())).map(this::convertToDTO).collect(Collectors.toList());
     }
 
     @Transactional
     public void registerEmployee(EmployeeDTO dto) {
+
+        logger.info("Registering new employee: {} {}", dto.getFirstName(), dto.getLastName());
 
         Employee employee = new Employee();
 
@@ -97,11 +109,15 @@ public class EmployeeService {
 
         String fullName = savedEmployee.getFirstName() + " " + savedEmployee.getLastName();
 
-        auditLogService.logAudit(savedEmployee.getEmployeeId(), "INSERT", "employees", "Registered new employee: " + fullName + " with account username: " + user.getUsername());
+        auditLogService.logAudit(savedEmployee.getEmployeeId(), "INSERT", "EMPLOYEES", "Registered new employee: " + fullName + " with account username: " + user.getUsername());
+
+        logger.info("Employee registered successfully with id: {}", savedEmployee.getEmployeeId());
     }
 
     @Transactional
     public void updateEmployee(EmployeeDTO dto) {
+
+        logger.info("Updating employee with id: {}", dto.getEmployeeId());
 
         Employee employee = employeeRepo.findById(dto.getEmployeeId()).orElseThrow(() -> new RuntimeException("Employee Not Found"));
 
@@ -117,10 +133,13 @@ public class EmployeeService {
         employee.setIsActive(dto.getIsActive());
 
         if (dto.getManager() != null) {
+
             Employee managerEmployee = employeeRepo.findById(dto.getManager().getEmployeeId()).orElse(null);
+
             employee.setManager(managerEmployee);
 
         } else {
+
             employee.setManager(null);
         }
 
@@ -134,40 +153,63 @@ public class EmployeeService {
             }
 
             employee.getUser().setEmployee(employee);
+
             userService.saveUser(employee.getUser());
         }
 
         Employee updatedEmployee = employeeRepo.save(employee);
 
         String fullName = updatedEmployee.getFirstName() + " " + updatedEmployee.getLastName();
-        auditLogService.logAudit(updatedEmployee.getEmployeeId(), "UPDATE", "employees", "Updated employee details for: " + fullName);
+
+        auditLogService.logAudit(updatedEmployee.getEmployeeId(), "UPDATE", "EMPLOYEES", "Updated employee details for: " + fullName);
+
+        logger.info("Employee updated successfully with id: {}", updatedEmployee.getEmployeeId());
     }
 
     @Transactional
     public void deleteEmployee(Long id) {
+
+        logger.info("Deleting employee with id: {}", id);
+
         employeeRepo.findById(id).ifPresent(employee -> {
+
             employeeRepo.deleteById(id);
+
             String fullName = employee.getFirstName() + " " + employee.getLastName();
-            auditLogService.logAudit(id, "DELETE", "employees", "Deleted employee record for: " + fullName);
+
+            auditLogService.logAudit(id, "DELETE", "EMPLOYEES", "Deleted employee record for: " + fullName);
+
+            logger.info("Employee deleted successfully: {}", fullName);
         });
     }
 
     public Employee getEmployeeById(Long id) {
+
+        logger.info("Fetching employee by id: {}", id);
+
         return employeeRepo.findById(id).orElse(null);
     }
 
     public List<EmployeeDTO> getAllTrainerDTOs() {
+
+        logger.info("Fetching all trainers");
+
         return employeeRepo.findAllTrainers().stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     public List<Employee> getAllManagers() {
+
+        logger.info("Fetching all manager entities");
+
         return employeeRepo.findAllManagers();
     }
 
     public EmployeeDTO convertToDTO(Employee employee) {
+
         if (employee == null) {
             return null;
         }
+
         EmployeeDTO dto = new EmployeeDTO();
 
         dto.setEmployeeId(employee.getEmployeeId());
@@ -183,19 +225,26 @@ public class EmployeeService {
         dto.setIsActive(employee.getIsActive());
 
         if (employee.getManager() != null) {
+
             EmployeeDTO managerSummary = new EmployeeDTO();
+
             managerSummary.setEmployeeId(employee.getManager().getEmployeeId());
             managerSummary.setFirstName(employee.getManager().getFirstName());
             managerSummary.setLastName(employee.getManager().getLastName());
+
             dto.setManager(managerSummary);
         }
 
         if (employee.getUser() != null) {
+
             dto.setUsername(employee.getUser().getUsername());
+
             if (employee.getUser().getRole() != null) {
+
                 dto.setRole(roleService.convertToDTO(employee.getUser().getRole()));
             }
         }
+
         return dto;
     }
 }

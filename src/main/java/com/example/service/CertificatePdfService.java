@@ -1,6 +1,8 @@
 package com.example.service;
 
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -8,7 +10,11 @@ import java.io.ByteArrayOutputStream;
 @Service
 public class CertificatePdfService {
 
+    private static final Logger logger = LoggerFactory.getLogger(CertificatePdfService.class);
+
     public byte[] generateCertificatePdf(String studentName, String courseName, String certNumber, String issueDate) {
+
+        logger.info("Generating certificate PDF for student: {}", studentName);
 
         String htmlTemplate = """
                 <head>
@@ -52,8 +58,14 @@ public class CertificatePdfService {
             builder.withHtmlContent(formattedHtml, "/");
             builder.toStream(os);
             builder.run();
+
+            logger.info("Successfully generated certificate PDF for certificate number: {}", certNumber);
+
             return os.toByteArray();
         } catch (Exception e) {
+
+            logger.error("Failed to generate certificate PDF for certificate number: {}", certNumber, e);
+
             throw new RuntimeException("Failed to render Certificate PDF properties", e);
         }
     }

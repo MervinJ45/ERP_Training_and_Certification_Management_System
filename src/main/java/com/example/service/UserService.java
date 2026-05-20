@@ -3,6 +3,8 @@ package com.example.service;
 import com.example.dto.UserDTO;
 import com.example.entity.User;
 import com.example.repo.UserRepo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,11 +17,13 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
 
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+
     private final UserRepo userRepo;
     private final PasswordEncoder passwordEncoder;
     private final EmployeeService employeeService;
     private final RoleService roleService;
-    private final AuditLogService auditLogService; // Injected Audit Log Service
+    private final AuditLogService auditLogService;
 
     public UserService(UserRepo userRepo, PasswordEncoder passwordEncoder, @Lazy EmployeeService employeeService, RoleService roleService, AuditLogService auditLogService) {
         this.userRepo = userRepo;
@@ -30,6 +34,7 @@ public class UserService {
     }
 
     public List<UserDTO> getAllUserDTOs() {
+        logger.info("Fetching all users");
         return userRepo.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
@@ -38,6 +43,8 @@ public class UserService {
         boolean isNew = (user.getUserId() == null);
         String action = isNew ? "CREATE_USER" : "UPDATE_USER";
 
+        logger.info("{} operation started for user: {}", action, user.getUsername());
+
         User savedUser = userRepo.save(user);
 
         String roleName = savedUser.getRole() != null ? savedUser.getRole().getRoleName() : "N/A";
@@ -45,35 +52,52 @@ public class UserService {
 
         auditLogService.logAudit(savedUser.getUserId(), action, "USERS", details);
 
+        logger.info("{} operation completed for user: {}", action, savedUser.getUsername());
+
         return savedUser;
     }
 
     @Transactional
     public void deleteUser(Long id) {
+        logger.info("Delete operation started for user id: {}", id);
+
         userRepo.findById(id).ifPresent(user -> {
             auditLogService.logAudit(id, "DELETE_USER", "USERS", "Deleted user: " + user.getUsername());
+
+            logger.info("User deleted: {}", user.getUsername());
         });
+
         userRepo.deleteById(id);
     }
 
     public UserDTO getUserDTOById(Long id) {
+        logger.info("Fetching user by id: {}", id);
+
         User user = userRepo.findById(id).orElse(null);
         return (user != null) ? convertToDTO(user) : null;
     }
 
     public User getUserById(Long id) {
+        logger.info("Fetching user entity by id: {}", id);
+
         return userRepo.findById(id).orElse(null);
     }
 
     public Optional<User> findByUsername(String value) {
+        logger.info("Finding user by username: {}", value);
+
         return userRepo.findByUsername(value);
     }
 
     public User findByEmployeeId(Long employeeId) {
+        logger.info("Finding user by employee id: {}", employeeId);
+
         return userRepo.findByEmployeeEmployeeId(employeeId).orElse(null);
     }
 
     public List<UserDTO> searchUserDTOs(String value) {
+        logger.info("Searching users with value: {}", value);
+
         return userRepo.findAll().stream().filter(user -> user.getUsername().toLowerCase().contains(value.toLowerCase())).map(this::convertToDTO).collect(Collectors.toList());
     }
 
