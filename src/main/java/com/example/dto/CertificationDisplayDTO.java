@@ -15,6 +15,7 @@ public class CertificationDisplayDTO {
 
     private Long certificationId;
     private String certificateNumber;
+    private String employee;
     private String courseName;
     private LocalDate issueDate;
     private LocalDate expiryDate;

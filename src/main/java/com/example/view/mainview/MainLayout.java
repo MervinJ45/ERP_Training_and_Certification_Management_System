@@ -96,7 +96,8 @@ public class MainLayout extends AppLayout {
         if (role.equals(employee)) {
             nav.addItem(new SideNavItem("Course Catalog", "/courses", VaadinIcon.ACADEMY_CAP.create()));
             nav.addItem(new SideNavItem("My Enrollments", "/my-enrollments", VaadinIcon.CLIPBOARD_USER.create()));
-            nav.addItem(new SideNavItem("Certifications", "/my-certificates", VaadinIcon.DIPLOMA.create()));
+            nav.addItem(new SideNavItem("My Certificates", "/my-certificates", VaadinIcon.DIPLOMA.create()));
+            nav.addItem(new SideNavItem("Certificate History", "/certificate-history", VaadinIcon.DIPLOMA.create()));
         }
 
         if (role.equals(hr) || role.equals(admin) || role.equals(auditor)) {
@@ -109,12 +110,12 @@ public class MainLayout extends AppLayout {
         if (role.equals(director)) {
             nav.addItem(new SideNavItem("Pending Approvals", "/approvals", VaadinIcon.BELL.create()));
             nav.addItem(new SideNavItem("My Approvals", "/my-approvals", VaadinIcon.CHECK_SQUARE_O.create()));
-            nav.addItem(new SideNavItem("Certificate Renewal Request", "/cert-approvals", VaadinIcon.REFRESH.create()));
         }
 
         if (role.equals(manager)) {
             nav.addItem(new SideNavItem("Pending Approvals", "/manager-approvals", VaadinIcon.CLOCK.create()));
             nav.addItem(new SideNavItem("My Approvals", "/my-approvals", VaadinIcon.CHECK.create()));
+            nav.addItem(new SideNavItem("Certificate Renewal Request", "/cert-approvals", VaadinIcon.REFRESH.create()));
         }
 
         if (role.equals(auditor)) {

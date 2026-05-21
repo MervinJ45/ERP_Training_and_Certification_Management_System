@@ -13,6 +13,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -53,10 +54,12 @@ public class CourseView extends VerticalLayout {
         addClassName("course-view");
         setSizeFull();
 
+        H2 title = new H2("Course View");
+
         configureGrid();
         configureFilter();
 
-        add(filterText, grid);
+        add(title, filterText, grid);
         updateGrid();
     }
 
@@ -67,7 +70,7 @@ public class CourseView extends VerticalLayout {
         grid.addColumn(TrainingCourseDTO::getCourseName).setHeader("Course Name").setSortable(true).setResizable(true);
         grid.addColumn(TrainingCourseDTO::getDurationDays).setHeader("Days").setAutoWidth(true);
         grid.addColumn(trainingCourse -> "₹" + trainingCourse.getTrainingCost()).setHeader("Cost").setAutoWidth(true);
-        grid.addColumn(TrainingCourseDTO::getMaxParticipants).setHeader("Max Capacity").setAutoWidth(true);
+        grid.addColumn(TrainingCourseDTO::getTrainerName).setHeader("Trainer Name").setAutoWidth(true);
 
         grid.addColumn(new ComponentRenderer<>(trainingCourse -> {
             Icon icon;

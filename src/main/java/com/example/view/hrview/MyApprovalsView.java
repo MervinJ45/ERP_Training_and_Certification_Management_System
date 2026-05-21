@@ -9,11 +9,13 @@ import com.example.view.mainview.MainLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -69,7 +71,7 @@ public class MyApprovalsView extends VerticalLayout {
         requesterSearchField.setPlaceholder("Search by Requester");
         requesterSearchField.setClearButtonVisible(true);
         requesterSearchField.setPrefixComponent(VaadinIcon.SEARCH.create());
-        requesterSearchField.setWidth("200px");
+        requesterSearchField.setWidth("240px");
         requesterSearchField.setValueChangeMode(ValueChangeMode.LAZY);
         requesterSearchField.addValueChangeListener(e -> filterGrid());
     }
@@ -78,7 +80,7 @@ public class MyApprovalsView extends VerticalLayout {
         courseSearchField.setPlaceholder("Search by Course");
         courseSearchField.setClearButtonVisible(true);
         courseSearchField.setPrefixComponent(VaadinIcon.SEARCH.create());
-        courseSearchField.setWidth("200px");
+        courseSearchField.setWidth("240px");
         courseSearchField.setValueChangeMode(ValueChangeMode.LAZY);
         courseSearchField.addValueChangeListener(e -> filterGrid());
     }
@@ -88,28 +90,52 @@ public class MyApprovalsView extends VerticalLayout {
         statusSelectField.setEmptySelectionAllowed(true);
         statusSelectField.setEmptySelectionCaption("Status (All)");
         statusSelectField.setItems("Approved", "Rejected");
-        statusSelectField.setWidth("150px");
+        statusSelectField.setWidth("200px");
         statusSelectField.addValueChangeListener(e -> filterGrid());
     }
 
     private void configureGrid() {
+        grid.setSizeFull();
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+
         grid.addColumn(TrainingApprovalDTO::getEnrollmentId).setHeader("Enrollment ID").setAutoWidth(true).setSortable(true);
         grid.addColumn(TrainingApprovalDTO::getCourseName).setHeader("Course").setAutoWidth(true).setSortable(true);
         grid.addColumn(TrainingApprovalDTO::getEmployeeFullName).setHeader("Requester").setAutoWidth(true).setSortable(true);
-        grid.addColumn(TrainingApprovalDTO::getApprovalLevel).setHeader("Level").setAutoWidth(true).setSortable(true);
-        grid.addColumn(TrainingApprovalDTO::getApprovalStatusName).setHeader("Status").setAutoWidth(true).setSortable(true);
+
+        grid.addColumn(new ComponentRenderer<>(this::createApprovalStatusBadge))
+                .setHeader("Status")
+                .setSortable(true)
+                .setAutoWidth(true);
+
         grid.addColumn(TrainingApprovalDTO::getComments).setHeader("Comments").setAutoWidth(true);
+        grid.addColumn(dto -> dto.getActionDate() != null ? dto.getActionDate().format(DATE_FORMATTER) : "-").setHeader("Action Date & Time").setAutoWidth(true).setSortable(true);
+    }
 
-        grid.addColumn(dto -> dto.getActionDate() != null ? dto.getActionDate().format(DATE_FORMATTER) : "-").setHeader("Action Date").setAutoWidth(true).setSortable(true);
 
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+    private Span createApprovalStatusBadge(TrainingApprovalDTO dto) {
+        String status = dto.getApprovalStatusName() != null ? dto.getApprovalStatusName().trim().toUpperCase() : "UNKNOWN";
+        Span badge = new Span(dto.getApprovalStatusName() != null ? dto.getApprovalStatusName() : "Unknown");
+
+        badge.getElement().getThemeList().add("badge");
+
+        switch (status) {
+            case "APPROVED":
+                badge.getElement().getThemeList().add("success");
+                break;
+            case "REJECTED":
+                badge.getElement().getThemeList().add("error");
+                break;
+            default:
+                badge.getElement().getThemeList().add("contrast");
+                break;
+        }
+        return badge;
     }
 
     private void loadData() {
         User user = currentUserProvider.getCurrentUser();
         if (user != null && user.getEmployee() != null) {
             Employee currentEmployee = user.getEmployee();
-            // Cache raw values locally into master list
             allData = approvalService.getApprovalsByApprover(currentEmployee.getEmployeeId());
             grid.setItems(allData);
         }

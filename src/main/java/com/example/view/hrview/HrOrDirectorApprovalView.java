@@ -5,6 +5,7 @@ import com.example.entity.User;
 import com.example.service.TrainingEnrollmentService;
 import com.example.utils.CurrentUserProvider;
 import com.example.view.mainview.MainLayout;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -19,6 +20,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -62,6 +64,7 @@ public class HrOrDirectorApprovalView extends VerticalLayout {
 
         HorizontalLayout filterActionLayout = new HorizontalLayout(employeeSearchField, courseSearchField);
         filterActionLayout.setSpacing(true);
+        filterActionLayout.setWidthFull();
 
         grid.setSizeFull();
 
@@ -72,8 +75,8 @@ public class HrOrDirectorApprovalView extends VerticalLayout {
     private void configureEmployeeSearch() {
         employeeSearchField.setPlaceholder("Search by Employee");
         employeeSearchField.setClearButtonVisible(true);
-        employeeSearchField.setPrefixComponent(VaadinIcon.SEARCH.create());
-        employeeSearchField.setWidth("200px");
+        employeeSearchField.setPrefixComponent(VaadinIcon.USER.create());
+        employeeSearchField.setWidth("240px");
         employeeSearchField.setValueChangeMode(ValueChangeMode.LAZY);
         employeeSearchField.addValueChangeListener(e -> filterGrid());
     }
@@ -81,8 +84,8 @@ public class HrOrDirectorApprovalView extends VerticalLayout {
     private void configureCourseSearch() {
         courseSearchField.setPlaceholder("Search by Course");
         courseSearchField.setClearButtonVisible(true);
-        courseSearchField.setPrefixComponent(VaadinIcon.SEARCH.create());
-        courseSearchField.setWidth("200px");
+        courseSearchField.setPrefixComponent(VaadinIcon.ACADEMY_CAP.create());
+        courseSearchField.setWidth("240px");
         courseSearchField.setValueChangeMode(ValueChangeMode.LAZY);
         courseSearchField.addValueChangeListener(e -> filterGrid());
     }
@@ -91,23 +94,46 @@ public class HrOrDirectorApprovalView extends VerticalLayout {
         grid.addColumn(TrainingEnrollmentDTO::getEmployeeFullName).setHeader("Employee").setAutoWidth(true).setSortable(true);
         grid.addColumn(TrainingEnrollmentDTO::getCourseName).setHeader("Course").setAutoWidth(true).setSortable(true);
         grid.addColumn(TrainingEnrollmentDTO::getRequestedCost).setHeader("Requested Cost").setAutoWidth(true).setSortable(true);
-        grid.addColumn(TrainingEnrollmentDTO::getEnrollmentStatusName).setHeader("Status").setAutoWidth(true).setSortable(true);
-
-        grid.addComponentColumn(dto -> {
-            Button approveBtn = new Button("Approve");
-            approveBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            approveBtn.addClickListener(e -> openApprovalDialog(dto));
-            return approveBtn;
-        }).setHeader("Approve").setAutoWidth(true);
-
-        grid.addComponentColumn(dto -> {
-            Button rejectBtn = new Button("Reject");
-            rejectBtn.addThemeVariants(ButtonVariant.LUMO_ERROR);
-            rejectBtn.addClickListener(e -> openRejectionDialog(dto));
-            return rejectBtn;
-        }).setHeader("Reject").setAutoWidth(true);
+        grid.addColumn(new ComponentRenderer<>(this::createActionButtons)).setHeader("Actions").setAutoWidth(true);
 
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+    }
+
+
+    private Component createActionButtons(TrainingEnrollmentDTO dto) {
+        Button approveBtn = new Button("Approve", VaadinIcon.CHECK.create());
+        approveBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
+        approveBtn.addClickListener(e -> openApprovalDialog(dto));
+
+        Button rejectBtn = new Button("Reject", VaadinIcon.CLOSE.create());
+        rejectBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
+        rejectBtn.addClickListener(e -> openRejectionDialog(dto));
+
+        HorizontalLayout actionsLayout = new HorizontalLayout(approveBtn, rejectBtn);
+        actionsLayout.setSpacing(true);
+        return actionsLayout;
+    }
+
+    private void filterGrid() {
+        if (allData == null) return;
+
+        String employeeQuery = employeeSearchField.getValue() != null ? employeeSearchField.getValue().trim().toLowerCase() : "";
+        String courseQuery = courseSearchField.getValue() != null ? courseSearchField.getValue().trim().toLowerCase() : "";
+
+        if (employeeQuery.isEmpty() && courseQuery.isEmpty()) {
+            grid.setItems(allData);
+            return;
+        }
+
+        List<TrainingEnrollmentDTO> filteredList = allData.stream().filter(dto -> {
+            boolean matchesEmployee = employeeQuery.isEmpty() || (dto.getEmployeeFullName() != null && dto.getEmployeeFullName().toLowerCase().contains(employeeQuery));
+
+            boolean matchesCourse = courseQuery.isEmpty() || (dto.getCourseName() != null && dto.getCourseName().toLowerCase().contains(courseQuery));
+
+            return matchesEmployee && matchesCourse;
+        }).collect(Collectors.toList());
+
+        grid.setItems(filteredList);
     }
 
     private void openApprovalDialog(TrainingEnrollmentDTO dto) {
@@ -189,7 +215,7 @@ public class HrOrDirectorApprovalView extends VerticalLayout {
         dialog.open();
     }
 
-    private void loadData() {
+    public void loadData() {
         User user = currentUserProvider.getCurrentUser();
         if (user == null || user.getEmployee() == null) {
             Notification.show("Session Error: Employee entity missing.").addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -199,29 +225,6 @@ public class HrOrDirectorApprovalView extends VerticalLayout {
         Long roleId = user.getEmployee().getUser().getRole().getRoleId();
         allData = trainingEnrollmentService.getHrOrDirectorApprovals(roleId);
         filterGrid();
-    }
-
-    private void filterGrid() {
-        if (allData == null) return;
-
-        String employeeQuery = employeeSearchField.getValue() != null ? employeeSearchField.getValue().trim().toLowerCase() : "";
-        String courseQuery = courseSearchField.getValue() != null ? courseSearchField.getValue().trim().toLowerCase() : "";
-
-        if (employeeQuery.isEmpty() && courseQuery.isEmpty()) {
-            grid.setItems(allData);
-            return;
-        }
-
-        List<TrainingEnrollmentDTO> filteredList = allData.stream().filter(dto -> {
-
-            boolean matchesEmployee = employeeQuery.isEmpty() || (dto.getEmployeeFullName() != null && dto.getEmployeeFullName().toLowerCase().contains(employeeQuery));
-
-            boolean matchesCourse = courseQuery.isEmpty() || (dto.getCourseName() != null && dto.getCourseName().toLowerCase().contains(courseQuery));
-
-            return matchesEmployee && matchesCourse;
-        }).collect(Collectors.toList());
-
-        grid.setItems(filteredList);
     }
 
     private Long getCurrentEmployeeId() {

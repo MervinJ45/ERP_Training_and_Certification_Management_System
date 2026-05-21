@@ -17,6 +17,8 @@ public class CertificatePdfService {
         logger.info("Generating certificate PDF for student: {}", studentName);
 
         String htmlTemplate = """
+                <!DOCTYPE html>
+                <html>
                 <head>
                     <style>
                         @page { size: letter landscape; margin: 0; }
@@ -25,7 +27,6 @@ public class CertificatePdfService {
                         .subtitle { font-size: 18px; color: #64748B; margin: 20px 0; font-style: italic; }
                         .name { font-size: 36px; font-weight: bold; color: #C2410C; margin: 20px 0; padding: 10px; border-bottom: 2px solid #E2E8F0; display: inline-block; }
                         .course { font-size: 24px; color: #334155; font-weight: 600; margin: 15px 0; }
-                        .footer-meta { margin-top: 80px; display: flex; justify-content: space-around; font-size: 14px; color: #64748B; }
                         .cert-num { font-family: monospace; font-size: 16px; color: #475569; margin-top: 10px; }
                     </style>
                 </head>
@@ -36,7 +37,7 @@ public class CertificatePdfService {
                     <div class="subtitle">for successfully completing the specialized training program</div>
                     <div class="course">%s</div>
                 
-                    <table style="width:100%%; margin-top:80px; font-size:14px; color:#64748B;">
+                    <table style="width: 100%%; margin-top: 80px; font-size: 14px; color: #64748B;">
                         <tr>
                             <td style="text-align: left; padding-left: 50px;">
                                 <strong>Issue Date:</strong> %s
@@ -66,7 +67,7 @@ public class CertificatePdfService {
 
             logger.error("Failed to generate certificate PDF for certificate number: {}", certNumber, e);
 
-            throw new RuntimeException("Failed to render Certificate PDF properties", e);
+            throw new RuntimeException("Failed to render Certificate PDF properties due to template validation errors", e);
         }
     }
 }

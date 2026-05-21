@@ -66,4 +66,17 @@ public class CertificationStatusService {
 
         return certificationStatusRepo.findById(id).orElse(null);
     }
+
+    public String getBadgeColorByStatusId(String statusName) {
+        if (statusName == null) {
+            return "background-color: #94A3B8; color: white;";
+        }
+
+        return switch (statusName) {
+            case "Active" -> "background-color: #DCFCE7; color: #15803D;";
+            case "Expired" -> "background-color: #FEE2E2; color: #B91C1C;";
+            case "Renewed" -> "background-color: #FFEDD5; color: #C2410C;";
+            default -> "background-color: #FEF9C3; color: #854D0E;";
+        };
+    }
 }

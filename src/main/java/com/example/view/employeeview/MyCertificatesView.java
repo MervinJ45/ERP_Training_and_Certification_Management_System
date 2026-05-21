@@ -36,17 +36,19 @@ public class MyCertificatesView extends VerticalLayout {
 
     private final CertificationService certificationService;
     private final CertificationRenewalService renewalService;
+    private final CertificationStatusService certificationStatusService;
     private final CloudinaryStorageService cloudinaryStorageService;
     private final CurrentUserProvider currentUserProvider;
 
     private final Grid<CertificationDisplayDTO> grid = new Grid<>();
     private String uploadedCloudinaryUrl = null;
 
-    public MyCertificatesView(CertificationService certificationService, CertificationRenewalService renewalService, CloudinaryStorageService cloudinaryStorageService, CurrentUserProvider currentUserProvider) {
+    public MyCertificatesView(CertificationService certificationService, CertificationRenewalService renewalService, CloudinaryStorageService cloudinaryStorageService, CurrentUserProvider currentUserProvider, CertificationStatusService certificationStatusService) {
         this.certificationService = certificationService;
         this.renewalService = renewalService;
         this.cloudinaryStorageService = cloudinaryStorageService;
         this.currentUserProvider = currentUserProvider;
+        this.certificationStatusService = certificationStatusService;
 
         setSizeFull();
         setPadding(true);
@@ -71,29 +73,16 @@ public class MyCertificatesView extends VerticalLayout {
         grid.addColumn(dto -> dto.getIssueDate() != null ? dto.getIssueDate().format(formatter) : "N/A").setHeader("Issue Date");
         grid.addColumn(dto -> dto.getExpiryDate() != null ? dto.getExpiryDate().format(formatter) : "Permanent").setHeader("Expiry Date").setSortable(true);
 
-        grid.addColumn(new ComponentRenderer<>(dto -> {
-            Span badge = new Span();
+        grid.addComponentColumn(certification -> {
+            Span statusBadge = new Span(certification.getStatusName());
 
-            if (dto.getExpiryDate() == null) {
-                badge.setText("Permanent Credentials");
-                badge.getElement().getThemeList().add("badge success");
-                return badge;
-            }
+            String statusName = certification.getStatusName();
+            statusBadge.getElement().setAttribute("style", certificationStatusService.getBadgeColorByStatusId(statusName));
 
-            long days = dto.getDaysRemaining();
+            statusBadge.getElement().getThemeList().add("badge");
 
-            if (days <= 0) {
-                badge.setText("Expired");
-                badge.getElement().getThemeList().add("badge error");
-            } else if (days <= 30) {
-                badge.setText(days + " Days Left (Expiring Soon)");
-                badge.getElement().getThemeList().add("badge warning");
-            } else {
-                badge.setText(days + " Days Valid");
-                badge.getElement().getThemeList().add("badge success");
-            }
-            return badge;
-        })).setHeader("Validity Status").setSortable(true);
+            return statusBadge;
+        }).setHeader("Validity Status");
 
         grid.addColumn(new ComponentRenderer<>(dto -> {
             Button downloadBtn = new Button("Download");
@@ -137,16 +126,13 @@ public class MyCertificatesView extends VerticalLayout {
         VerticalLayout layout = new VerticalLayout();
         layout.setPadding(false);
 
-        Span info = new Span("Upload the renewed documentation copy for: " + dto.getCourseName() + "only pdf files");
+        Span info = new Span("Upload the renewed documentation copy for: " + dto.getCourseName() + " (only pdf files)");
         info.getStyle().set("font-size", "14px").set("color", "var(--lumo-secondary-text-color)");
 
-        TextArea remarksField = new TextArea("Employee Remarks / Notes");
-        remarksField.setPlaceholder("Enter any additional details or references here...");
-        remarksField.setWidthFull();
 
         MemoryBuffer buffer = new MemoryBuffer();
         Upload upload = new Upload(buffer);
-        upload.setAcceptedFileTypes("application/pdf", "image/png", "image/jpeg");
+        upload.setAcceptedFileTypes("application/pdf");
         upload.setMaxFiles(1);
         upload.setWidthFull();
 
@@ -165,7 +151,7 @@ public class MyCertificatesView extends VerticalLayout {
             }
         });
 
-        layout.add(info, upload, remarksField);
+        layout.add(info, upload);
 
         Button submitBtn = new Button("Submit Request", e -> {
             if (uploadedCloudinaryUrl == null) {
@@ -176,9 +162,9 @@ public class MyCertificatesView extends VerticalLayout {
             try {
                 Long currentEmpId = currentUserProvider.getCurrentUser().getEmployee().getEmployeeId();
 
-                renewalService.submitRenewalRequest(dto.getCertificationId(), currentEmpId, uploadedCloudinaryUrl, remarksField.getValue());
+                renewalService.submitRenewalRequest(dto.getCertificationId(), currentEmpId, uploadedCloudinaryUrl);
 
-                Notification n = Notification.show("Renewal request successfully submitted for administrative review!");
+                Notification n = Notification.show("Renewal request successfully submitted for review!");
                 n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 
                 dialog.close();

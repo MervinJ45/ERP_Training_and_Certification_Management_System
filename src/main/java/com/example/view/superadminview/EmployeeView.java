@@ -81,14 +81,14 @@ public class EmployeeView extends VerticalLayout {
     }
 
     private void configureFilters() {
-        firstNameFilter.setPlaceholder("Filter by First Name...");
+        firstNameFilter.setPlaceholder("Filter by First Name");
         firstNameFilter.setClearButtonVisible(true);
         firstNameFilter.setPrefixComponent(VaadinIcon.SEARCH.create());
         firstNameFilter.setWidth("200px");
         firstNameFilter.setValueChangeMode(ValueChangeMode.LAZY);
         firstNameFilter.addValueChangeListener(e -> filterGrid());
 
-        emailFilter.setPlaceholder("Filter by Email...");
+        emailFilter.setPlaceholder("Filter by Email");
         emailFilter.setClearButtonVisible(true);
         emailFilter.setPrefixComponent(VaadinIcon.ENVELOPE.create());
         emailFilter.setWidth("200px");

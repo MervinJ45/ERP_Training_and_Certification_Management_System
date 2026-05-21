@@ -1,6 +1,5 @@
 package com.example.service;
 
-import com.example.entity.ApprovalStatus;
 import com.example.entity.Certification;
 import com.example.entity.CertificationRenewal;
 import com.example.repo.CertificationRenewalRepo;
@@ -23,15 +22,17 @@ public class CertificationRenewalService {
     private final CertificationService certificationService;
     private final ApprovalStatusService approvalStatusService;
     private final CertificationRepo certificationRepo;
+    private final CertificationStatusService certificationStatusService;
     private final AuditLogService auditLogService;
 
-    public CertificationRenewalService(CertificationRenewalRepo certificationRenewalRepo, AuditLogService auditLogService, EmployeeService employeeService, CertificationService certificationService, ApprovalStatusService approvalStatusService, CertificationRepo certificationRepo) {
+    public CertificationRenewalService(CertificationRenewalRepo certificationRenewalRepo, AuditLogService auditLogService, EmployeeService employeeService, CertificationService certificationService, ApprovalStatusService approvalStatusService, CertificationRepo certificationRepo, CertificationStatusService certificationStatusService) {
         this.certificationRenewalRepo = certificationRenewalRepo;
         this.auditLogService = auditLogService;
         this.employeeService = employeeService;
         this.certificationService = certificationService;
         this.approvalStatusService = approvalStatusService;
         this.certificationRepo = certificationRepo;
+        this.certificationStatusService = certificationStatusService;
     }
 
     public List<CertificationRenewal> getAllRenewals() {
@@ -71,19 +72,23 @@ public class CertificationRenewalService {
     }
 
     @Transactional
-    public void processApprovalDecision(Long renewalId, Long directorEmployeeId, boolean isApproved, String directorRemarks) {
+    public void processApprovalDecision(Long renewalId, Long directorEmployeeId, boolean isApproved, String remarks) {
         CertificationRenewal renewal = certificationRenewalRepo.findById(renewalId).orElseThrow(() -> new IllegalArgumentException("Renewal request record not found ID: " + renewalId));
 
         LocalDateTime now = LocalDateTime.now();
 
         renewal.setApprovedBy(employeeService.getEmployeeById(directorEmployeeId));
         renewal.setApprovalDate(now);
-        renewal.setRemarks(directorRemarks);
+        renewal.setRemarks(remarks);
         renewal.setUpdatedAt(now);
 
         if (isApproved) {
             renewal.setApprovalStatus(approvalStatusService.getApprovalStatusById(2L));
             Certification oldCert = renewal.getOriginalCertification();
+
+            oldCert.setStatus(certificationStatusService.getStatusById(4L));
+
+            certificationRepo.save(oldCert);
 
             int validityMonths = oldCert.getCourse().getCertificationValidityMonths();
             LocalDateTime newExpiry = now.plusMonths(validityMonths);
@@ -91,10 +96,14 @@ public class CertificationRenewalService {
             Certification newCert = new Certification();
             newCert.setCertificateNumber(oldCert.getCertificateNumber());
             newCert.setCourse(oldCert.getCourse());
+            newCert.setEnrollment(oldCert.getEnrollment());
             newCert.setEmployee(oldCert.getEmployee());
             newCert.setIssueDate(now);
             newCert.setExpiryDate(newExpiry);
             newCert.setCertificateUrl(renewal.getUploadedCertificateUrl());
+            newCert.setStatus(certificationStatusService.getStatusById(1L));
+            newCert.setIssuedBy(employeeService.getEmployeeById(directorEmployeeId));
+            newCert.setRemarks(remarks);
             newCert.setCreatedAt(now);
             newCert.setUpdatedAt(now);
             newCert.setIsActive(true);
@@ -120,13 +129,12 @@ public class CertificationRenewalService {
     }
 
     @Transactional
-    public void submitRenewalRequest(Long certificationId, Long employeeId, String cloudinaryUrl, String remarks) {
+    public void submitRenewalRequest(Long certificationId, Long employeeId, String cloudinaryUrl) {
         CertificationRenewal renewal = new CertificationRenewal();
 
         renewal.setOriginalCertification(certificationService.getCertificateById(certificationId));
         renewal.setEmployee(employeeService.getEmployeeById(employeeId));
         renewal.setUploadedCertificateUrl(cloudinaryUrl);
-        renewal.setRemarks(remarks);
 
         renewal.setRenewalDate(LocalDateTime.now());
         renewal.setApprovalStatus(approvalStatusService.getApprovalStatusById(1L));

@@ -8,6 +8,8 @@ import com.example.view.mainview.MainLayout;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -47,6 +49,8 @@ public class TrainingCourseListView extends VerticalLayout {
         setPadding(true);
         setSpacing(true);
 
+        H2 title  = new H2("Course List");
+
         configureFilters();
         configureGrid();
 
@@ -57,7 +61,7 @@ public class TrainingCourseListView extends VerticalLayout {
         toolbar.setSpacing(true);
         toolbar.expand(spacer);
 
-        add(toolbar, grid);
+        add(title, toolbar, grid);
         loadInitialData();
     }
 
@@ -73,7 +77,6 @@ public class TrainingCourseListView extends VerticalLayout {
         categoryFilterField.setClearButtonVisible(true);
         categoryFilterField.setWidth("220px");
 
-        // Load data directly from database via service
         categoryFilterField.setItems(trainingCategoryService.getAllCategoryDTOs());
         categoryFilterField.setItemLabelGenerator(item -> item != null ? item.getCategoryName() : "");
         categoryFilterField.addValueChangeListener(e -> filterGrid());
@@ -87,7 +90,7 @@ public class TrainingCourseListView extends VerticalLayout {
         grid.addColumn(this::getCategoryNameSafe).setHeader("Category").setSortable(true).setAutoWidth(true);
         grid.addColumn(dto -> dto.getTrainerName() != null ? dto.getTrainerName() : (dto.getTrainer() != null ? dto.getTrainer().getFirstName() : "Unassigned")).setHeader("Trainer").setAutoWidth(true);
         grid.addColumn(TrainingCourseDTO::getDurationDays).setHeader("Duration (Days)").setSortable(true).setAutoWidth(true);
-        grid.addColumn(new NumberRenderer<>(TrainingCourseDTO::getTrainingCost, NumberFormat.getCurrencyInstance(Locale.US))).setHeader("Cost").setSortable(true).setAutoWidth(true);
+        grid.addColumn(new NumberRenderer<>(TrainingCourseDTO::getTrainingCost, NumberFormat.getCurrencyInstance(new Locale("en","IN")))).setHeader("Cost").setSortable(true).setAutoWidth(true);
         grid.addColumn(new ComponentRenderer<>(this::createCertificationBadge)).setHeader("Certification").setAutoWidth(true);
     }
 

@@ -175,8 +175,14 @@ public class CertificationService {
 
         String courseName = cert.getCourse() != null ? cert.getCourse().getCourseName() : "N/A";
 
+        String employee = cert.getEmployee() != null ? cert.getEmployee().getFirstName() : "N/A";
+
         String status = cert.getStatus() != null ? cert.getStatus().getCertificationStatus() : "Unknown";
 
-        return CertificationDisplayDTO.builder().certificationId(cert.getCertificationId()).certificateNumber(cert.getCertificateNumber()).courseName(courseName).issueDate(cert.getIssueDate() != null ? cert.getIssueDate().toLocalDate() : null).expiryDate(expiry).daysRemaining(daysRemaining).statusName(status).certificateUrl(cert.getCertificateUrl()).build();
+        return CertificationDisplayDTO.builder().certificationId(cert.getCertificationId()).certificateNumber(cert.getCertificateNumber()).courseName(courseName).employee(employee).issueDate(cert.getIssueDate() != null ? cert.getIssueDate().toLocalDate() : null).expiryDate(expiry).daysRemaining(daysRemaining).statusName(status).certificateUrl(cert.getCertificateUrl()).build();
+    }
+
+    public List<Certification> getCertificationsByEnrollmentId(Long enrollmentId) {
+        return certificationRepo.findByEnrollmentEnrollmentId(enrollmentId);
     }
 }

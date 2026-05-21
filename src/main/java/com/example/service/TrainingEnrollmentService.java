@@ -9,10 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.security.cert.Certificate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -124,7 +124,7 @@ public class TrainingEnrollmentService {
 
         logger.info("Fetching enrollments for employee id: {}", employeeId);
 
-        return trainingEnrollmentRepo.findByEmployeeEmployeeId(employeeId).stream().map(this::convertToDTO).collect(Collectors.toList());
+        return trainingEnrollmentRepo.findByEmployeeEmployeeId(employeeId).stream().filter(enrollment -> Objects.equals(enrollment.getEnrollmentStatus().getEnrollmentStatus(), "Certified")).map(this::convertToDTO).collect(Collectors.toList());
     }
 
     public List<TrainingEnrollmentDTO> getEnrollmentsApprovedByManager(Long managerId) {
@@ -198,7 +198,7 @@ public class TrainingEnrollmentService {
 
         trainingApprovalRepo.save(trainingApproval);
 
-        auditLogService.logAudit(enrollmentId, "APPROVE_ENROLLMENT", "TRAINING_APPROVALS", "Enrollment approved by approver id: " + approverId + ", Comments: " + comments);
+        auditLogService.logAudit(enrollmentId, "INSERT", "training_approvals", "Enrollment approved by approver id: " + approverId + ", Comments: " + comments);
 
         logger.info("Enrollment approved successfully for enrollment id: {}", enrollmentId);
     }
@@ -234,7 +234,7 @@ public class TrainingEnrollmentService {
 
         trainingApprovalRepo.save(trainingApproval);
 
-        auditLogService.logAudit(enrollmentId, "REJECT_ENROLLMENT", "TRAINING_APPROVALS", "Enrollment rejected by approver id: " + approverId + ", Comments: " + comments);
+        auditLogService.logAudit(enrollmentId, "INSERT", "training_approvals", "Enrollment rejected by approver id: " + approverId + ", Comments: " + comments);
 
         logger.info("Enrollment rejected successfully for enrollment id: {}", enrollmentId);
     }
@@ -267,48 +267,40 @@ public class TrainingEnrollmentService {
 
         skillMatrixService.createSkillEntry(student, course, rating, now);
 
-        auditLogService.logAudit(enrollmentId, "COMPLETE_ENROLLMENT", "TRAINING_ENROLLMENTS", String.format("Generated Certification %s, Injected Skill Proficiency Rating: %d", savedCertificate.getCertificateNumber(), rating));
+        auditLogService.logAudit(enrollmentId, "UPDATE", "training_enrollments", String.format("Generated Certification %s, Injected Skill Proficiency Rating: %d", savedCertificate.getCertificateNumber(), rating));
 
         logger.info("Enrollment completed successfully with certification number: {}", savedCertificate.getCertificateNumber());
 
         return savedCertificate;
     }
 
+    @Transactional
     public Certification finalizeAndGenerateCertificate(Long enrollmentId, String remarks, Integer rating) {
-
         logger.info("Certificate generation started for enrollment id: {}", enrollmentId);
 
         Certification certRecord = completeEnrollment(enrollmentId, remarks, rating);
 
         if (certRecord == null) {
-            return null;
+            throw new IllegalStateException("Failed to complete enrollment. Certification record could not be created.");
         }
 
-        try {
-            String studentName = certRecord.getEmployee().getFirstName() + " " + certRecord.getEmployee().getLastName();
-            String courseName = certRecord.getCourse().getCourseName();
-            String certNumber = certRecord.getCertificateNumber();
-            String formattedDate = certRecord.getIssueDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String studentName = certRecord.getEmployee().getFirstName() + " " + certRecord.getEmployee().getLastName();
+        String courseName = certRecord.getCourse().getCourseName();
+        String certNumber = certRecord.getCertificateNumber();
+        String formattedDate = certRecord.getIssueDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-            byte[] pdfBytes = certificatePdfService.generateCertificatePdf(studentName, courseName, certNumber, formattedDate);
+        byte[] pdfBytes = certificatePdfService.generateCertificatePdf(studentName, courseName, certNumber, formattedDate);
 
-            String url = cloudinaryStorageService.uploadCertificate(pdfBytes, certNumber);
+        String url = cloudinaryStorageService.uploadCertificate(pdfBytes, certNumber);
 
-            certRecord.setCertificateUrl(url);
-            certificationRepo.save(certRecord);
+        certRecord.setCertificateUrl(url);
+        Certification finalizedCert = certificationRepo.save(certRecord);
 
-            auditLogService.logAudit(certRecord.getCertificationId(), "GENERATE_CERTIFICATE", "CERTIFICATIONS", "Certificate generated and uploaded successfully. Certificate Number: " + certRecord.getCertificateNumber());
+        auditLogService.logAudit(finalizedCert.getCertificationId(), "INSERT", "certifications", "Certificate generated and uploaded successfully. Certificate Number: " + finalizedCert.getCertificateNumber());
 
-            logger.info("Certificate generated successfully for certification id: {}", certRecord.getCertificationId());
+        logger.info("Certificate generated successfully for certification id: {}", finalizedCert.getCertificationId());
 
-        } catch (Exception e) {
-
-            logger.error("Certificate generation failed for enrollment id: {}", enrollmentId, e);
-
-            System.err.println("Database states saved, but Cloud document generation pipelines encountered an error: " + e.getMessage());
-        }
-
-        return certRecord;
+        return finalizedCert;
     }
 
     public List<TrainingEnrollmentDTO> getTrainerSpecificEnrollments(Long trainerId) {

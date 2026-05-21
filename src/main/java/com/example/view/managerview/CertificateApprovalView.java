@@ -1,4 +1,4 @@
-package com.example.view.directorview;
+package com.example.view.managerview;
 
 import com.example.entity.CertificationRenewal;
 import com.example.entity.User;
@@ -29,7 +29,7 @@ import java.util.List;
 
 @Route(value = "cert-approvals", layout = MainLayout.class)
 @PageTitle("ERP | Certificate Renewal Approvals")
-@RolesAllowed({"DIRECTOR"})
+@RolesAllowed({"MANAGER"})
 public class CertificateApprovalView extends VerticalLayout {
 
     private final CertificationRenewalService renewalService;
@@ -43,25 +43,23 @@ public class CertificateApprovalView extends VerticalLayout {
         setSizeFull();
         setPadding(true);
 
-        H2 title = new H2("Credential Renewal Control Panel");
-        Span subTitle = new Span("Review uploaded employee credential certifications and manage database lifecycle updates.");
-        subTitle.getStyle().set("color", "var(--lumo-secondary-text-color)");
+        H2 title = new H2("Certificate Renewal");
 
         configureGrid();
         refreshGridData();
 
-        add(title, subTitle, grid);
+        add(title, grid);
     }
 
     private void configureGrid() {
         grid.setSizeFull();
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
 
-        grid.addColumn(renewal -> renewal.getRenewalId()).setHeader("ID").setAutoWidth(true);
-        grid.addColumn(renewal -> renewal.getOriginalCertification().getCertificationId()).setHeader("Target Cert ID");
-        grid.addColumn(renewal -> renewal.getEmployee().getEmployeeId()).setHeader("Employee ID");
+        grid.addColumn(CertificationRenewal::getRenewalId).setHeader("ID").setAutoWidth(true);
+        grid.addColumn(renewal -> renewal.getOriginalCertification().getCertificateNumber()).setHeader("Certification Number");
+        grid.addColumn(renewal -> renewal.getEmployee().getFirstName() + " " + renewal.getEmployee().getFirstName()).setHeader("Employee Name");
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         grid.addColumn(renewal -> renewal.getRenewalDate() != null ? renewal.getRenewalDate().format(formatter) : "N/A").setHeader("Submission Date");
 
         grid.addColumn(new ComponentRenderer<>(renewal -> {
