@@ -25,6 +25,7 @@ public class Department {
     private String departmentName;
 
     private java.math.BigDecimal annualBudget;
+    private BigDecimal availableBalance;
     private Boolean isActive = true;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

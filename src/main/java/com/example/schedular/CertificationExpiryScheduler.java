@@ -1,10 +1,8 @@
 package com.example.schedular;
 
 import com.example.entity.Certification;
-import com.example.entity.CertificationStatus;
+import com.example.entity.Employee;
 import com.example.repo.CertificationRepo;
-import com.example.repo.CertificationStatusRepo;
-import com.example.service.AuditLogService;
 import com.example.service.CertificateExpiryEmailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,8 +10,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class CertificationExpiryScheduler {
@@ -21,65 +21,70 @@ public class CertificationExpiryScheduler {
     private static final Logger logger = LoggerFactory.getLogger(CertificationExpiryScheduler.class);
 
     private final CertificationRepo certificationRepository;
-    private final CertificationStatusRepo statusRepository;
     private final CertificateExpiryEmailService emailService;
-    private final AuditLogService auditLogService;
 
-    public CertificationExpiryScheduler(CertificationRepo certificationRepository, CertificationStatusRepo statusRepository, CertificateExpiryEmailService emailService, AuditLogService auditLogService) {
+    public CertificationExpiryScheduler(CertificationRepo certificationRepository, CertificateExpiryEmailService emailService) {
         this.certificationRepository = certificationRepository;
-        this.statusRepository = statusRepository;
         this.emailService = emailService;
-        this.auditLogService = auditLogService;
     }
 
-    @Scheduled(cron = "0 57 12 * * ?")
+    @Scheduled(cron = "0 43 16 * * ?")
     @Transactional
-    public void processExpiredCertificates() {
-        logger.info("Starting automated certificate expiry check job...");
+    public void processUpcomingExpiryReminders() {
+        logger.info("Starting automated course-duration and day-before expiry reminder job...");
 
-        LocalDateTime now = LocalDateTime.now();
+        LocalDate today = LocalDate.now();
 
-        CertificationStatus expiredStatus = statusRepository.findById(2L).orElseThrow(() -> {
-            logger.error("Expired status configuration (ID: 2L) not found in database!");
-            return new IllegalStateException("Expired status configuration not found in DB");
-        });
+        List<Certification> allCertificates = certificationRepository.findAll();
 
-        List<Certification> certificates = certificationRepository.findCertificatesToProcess(now, expiredStatus);
-        logger.info("Found {} certificate records requiring processing.", certificates.size());
+        if (allCertificates.isEmpty()) {
+            logger.info("No certificate records found in the system.");
+            return;
+        }
 
-        int successCount = 0;
-        int failureCount = 0;
+        List<Certification> standardCertificates = allCertificates.stream()
+                .filter(cert -> cert.getExpiryDate() != null)
+                .filter(cert -> cert.getEnrollment() != null && cert.getEnrollment().getCourse() != null)
+                .filter(cert -> {
+                    LocalDate expiryDate = cert.getExpiryDate().toLocalDate();
+                    long durationDays = cert.getEnrollment().getCourse().getDurationDays();
 
-        for (Certification cert : certificates) {
+                    LocalDate courseDurationMatchDate = expiryDate.minusDays(durationDays);
+                    LocalDate dayBeforeExpiry = expiryDate.minusDays(1);
+
+                    return today.isEqual(courseDurationMatchDate) || today.isEqual(dayBeforeExpiry);
+                })
+                .collect(Collectors.toList());
+
+        if (standardCertificates.isEmpty()) {
+            logger.info("No certificates matched the notification days today.");
+            return;
+        }
+
+        logger.info("Retrieved {} items requiring reminders. Grouping entries by employee profile...", standardCertificates.size());
+
+        Map<Employee, List<Certification>> certificatesByEmployee = standardCertificates.stream()
+                .collect(Collectors.groupingBy(Certification::getEmployee));
+
+        int successEmailCount = 0;
+        int failureEmailCount = 0;
+
+        for (Map.Entry<Employee, List<Certification>> entry : certificatesByEmployee.entrySet()) {
+            Employee employee = entry.getKey();
+            List<Certification> employeeCertificates = entry.getValue();
+
             try {
-                boolean isAlreadyMarkedExpired = cert.getStatus().getCertificationStatusId().equals(expiredStatus.getCertificationStatusId());
-                boolean dbStateChanged = false;
+                emailService.sendConsolidatedExpiryEmail(employee.getEmail(), employee.getFirstName(), employeeCertificates);
 
-                if (isAlreadyMarkedExpired) {
-                    logger.info("Certificate ID: {} is already marked expired. Sending follow-up email reminder.", cert.getCertificationId());
-                } else {
-                    cert.setStatus(expiredStatus);
-                    dbStateChanged = true;
-                    logger.warn("Certificate ID: {} has passed its expiry date ({}). Changing status to Expired.", cert.getCertificationId(), cert.getExpiryDate());
-                }
-
-                emailService.sendExpiryEmail(cert.getEmployee().getEmail(), cert.getEmployee().getFirstName(), cert.getCourse().getCourseName(), cert.getCertificateNumber());
-
-                if (dbStateChanged) {
-                    Certification savedCert = certificationRepository.save(cert);
-
-                    auditLogService.logAudit(savedCert.getCertificationId(), "UPDATE", "certifications", "Certificate validity passed expiry date. Automatically changed status to Expired. Certificate Number: " + savedCert.getCertificateNumber());
-                    logger.info("Database updated and audit log written for Certificate ID: {}", savedCert.getCertificationId());
-                }
-
-                successCount++;
+                logger.info("Successfully dispatched unified email to: {} (Contains {} certificates)", employee.getEmail(), employeeCertificates.size());
+                successEmailCount++;
 
             } catch (Exception e) {
-                failureCount++;
-                logger.error("Failed to process expiration routine for Certificate ID: {}. Error reason: {}", cert.getCertificationId(), e.getMessage(), e);
+                failureEmailCount++;
+                logger.error("Failed handling email dispatch processing context for Employee: {}. Details: {}", employee.getEmployeeId(), e.getMessage());
             }
         }
 
-        logger.info("Certificate expiry check job completed. Processing Summary: Total processed: {}, Successfully updated/notified: {}, Failures: {}", certificates.size(), successCount, failureCount);
+        logger.info("Job complete. Summary: Distinct Profiles Notified: {}, Failed Operations: {}", successEmailCount, failureEmailCount);
     }
 }

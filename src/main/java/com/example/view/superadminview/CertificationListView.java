@@ -50,7 +50,7 @@ public class CertificationListView extends VerticalLayout {
         setPadding(true);
         setSpacing(true);
 
-        H2 title = new H2("Certifications Management");
+        H2 title = new H2("Certifications");
         title.getStyle().set("margin-top", "0");
 
         configureFilters();
@@ -119,14 +119,11 @@ public class CertificationListView extends VerticalLayout {
         }
 
         List<CertificationDisplayDTO> filteredList = allCertifications.stream().filter(dto -> {
-            boolean matchesEmployee = empQuery.isEmpty() ||
-                    (dto.getEmployee() != null && dto.getEmployee().toLowerCase().contains(empQuery));
+            boolean matchesEmployee = empQuery.isEmpty() || (dto.getEmployee() != null && dto.getEmployee().toLowerCase().contains(empQuery));
 
-            boolean matchesCourse = courseQuery.isEmpty() ||
-                    (dto.getCourseName() != null && dto.getCourseName().toLowerCase().contains(courseQuery));
+            boolean matchesCourse = courseQuery.isEmpty() || (dto.getCourseName() != null && dto.getCourseName().toLowerCase().contains(courseQuery));
 
-            boolean matchesStatus = statusQuery == null ||
-                    (dto.getStatusName() != null && dto.getStatusName().equalsIgnoreCase(statusQuery));
+            boolean matchesStatus = statusQuery == null || (dto.getStatusName() != null && dto.getStatusName().equalsIgnoreCase(statusQuery));
 
             return matchesEmployee && matchesCourse && matchesStatus;
         }).collect(Collectors.toList());
@@ -159,6 +156,10 @@ public class CertificationListView extends VerticalLayout {
                 break;
             case "EXPIRED":
                 badge.getElement().getThemeList().add("error");
+                break;
+            case "RENEWED":
+                badge.getStyle().set("background-color", "#e0e7ff");
+                badge.getStyle().set("color", "#4338ca");
                 break;
             default:
                 badge.getElement().getThemeList().add("contrast");

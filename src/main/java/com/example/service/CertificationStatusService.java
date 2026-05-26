@@ -22,16 +22,12 @@ public class CertificationStatusService {
     }
 
     public List<CertificationStatus> getAllStatuses() {
-
         logger.info("Fetching all certification statuses");
-
         return certificationStatusRepo.findAll();
     }
 
     public CertificationStatus saveStatus(CertificationStatus status) {
-
         boolean isUpdate = status.getCertificationStatusId() != null;
-
         logger.info("{} operation started for certification status: {}", isUpdate ? "UPDATE" : "CREATE", status.getCertificationStatus());
 
         CertificationStatus savedStatus = certificationStatusRepo.save(status);
@@ -39,31 +35,23 @@ public class CertificationStatusService {
         String action = isUpdate ? "UPDATE" : "INSERT";
         String details = (isUpdate ? "Updated" : "Created") + " certification status: " + savedStatus.getCertificationStatus();
 
-        auditLogService.logAudit(savedStatus.getCertificationStatusId(), action, "CERTIFICATION_STATUS", details);
-
+        auditLogService.logAudit(savedStatus.getCertificationStatusId(), action, "certification_status", details);
         logger.info("Certification status saved successfully with id: {}", savedStatus.getCertificationStatusId());
 
         return savedStatus;
     }
 
     public void deleteStatus(Long id) {
-
         logger.info("Deleting certification status id: {}", id);
-
         certificationStatusRepo.findById(id).ifPresent(status -> {
-
             certificationStatusRepo.deleteById(id);
-
-            auditLogService.logAudit(id, "DELETE", "CERTIFICATION_STATUS", "Deleted certification status: " + status.getCertificationStatus());
-
+            auditLogService.logAudit(id, "DELETE", "certification_status", "Deleted certification status: " + status.getCertificationStatus());
             logger.info("Certification status deleted successfully: {}", status.getCertificationStatus());
         });
     }
 
     public CertificationStatus getStatusById(Long id) {
-
         logger.info("Fetching certification status by id: {}", id);
-
         return certificationStatusRepo.findById(id).orElse(null);
     }
 
@@ -75,7 +63,7 @@ public class CertificationStatusService {
         return switch (statusName) {
             case "Active" -> "background-color: #DCFCE7; color: #15803D;";
             case "Expired" -> "background-color: #FEE2E2; color: #B91C1C;";
-            case "Renewed" -> "background-color: #FFEDD5; color: #C2410C;";
+            case "Renewed" -> "background-color: #e0e7ff; color: #4338ca;";
             default -> "background-color: #FEF9C3; color: #854D0E;";
         };
     }

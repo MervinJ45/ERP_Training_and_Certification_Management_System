@@ -41,7 +41,7 @@ public class UserService {
     @Transactional
     public User saveUser(User user) {
         boolean isNew = (user.getUserId() == null);
-        String action = isNew ? "CREATE_USER" : "UPDATE_USER";
+        String action = isNew ? "INSERT" : "UPDATE";
 
         logger.info("{} operation started for user: {}", action, user.getUsername());
 
@@ -50,7 +50,7 @@ public class UserService {
         String roleName = savedUser.getRole() != null ? savedUser.getRole().getRoleName() : "N/A";
         String details = String.format("Username: %s, Role: %s", savedUser.getUsername(), roleName);
 
-        auditLogService.logAudit(savedUser.getUserId(), action, "USERS", details);
+        auditLogService.logAudit(savedUser.getUserId(), action, "users", details);
 
         logger.info("{} operation completed for user: {}", action, savedUser.getUsername());
 
@@ -62,7 +62,7 @@ public class UserService {
         logger.info("Delete operation started for user id: {}", id);
 
         userRepo.findById(id).ifPresent(user -> {
-            auditLogService.logAudit(id, "DELETE_USER", "USERS", "Deleted user: " + user.getUsername());
+            auditLogService.logAudit(id, "DELETE", "users", "Deleted user: " + user.getUsername());
 
             logger.info("User deleted: {}", user.getUsername());
         });
@@ -99,6 +99,26 @@ public class UserService {
         logger.info("Searching users with value: {}", value);
 
         return userRepo.findAll().stream().filter(user -> user.getUsername().toLowerCase().contains(value.toLowerCase())).map(this::convertToDTO).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public boolean updateLoggedInPassword(Long userId, String currentRawPassword, String newRawPassword) {
+        logger.info("Attempting password modification for logged-in user ID: {}", userId);
+
+        User user = userRepo.findById(userId).orElseThrow(() -> new IllegalArgumentException("User context not found for ID: " + userId));
+
+        if (!passwordEncoder.matches(currentRawPassword, user.getPassword())) {
+            logger.warn("Password change rejected: Incorrect current password provided for user ID: {}", userId);
+            return false;
+        }
+
+        String encryptedPassword = passwordEncoder.encode(newRawPassword);
+        user.setPassword(encryptedPassword);
+        userRepo.save(user);
+
+        auditLogService.logAudit(user.getUserId(), "UPDATE", "users", "User successfully modified account session password.");
+        logger.info("Password successfully updated for user ID: {}", userId);
+        return true;
     }
 
     public UserDTO convertToDTO(User user) {

@@ -45,7 +45,7 @@ public class SkillMatrixService {
         String action = isUpdate ? "UPDATE" : "INSERT";
         String details = (isUpdate ? "Updated" : "Created") + " skill matrix entry.";
 
-        auditLogService.logAudit(savedSkill.getSkillId(), action, "SKILL_MATRIX", details);
+        auditLogService.logAudit(savedSkill.getSkillId(), action, "skill_matrix", details);
 
         logger.info("Skill matrix saved successfully with id: {}", savedSkill.getSkillId());
 
@@ -60,7 +60,7 @@ public class SkillMatrixService {
 
             skillMatrixRepo.deleteById(id);
 
-            auditLogService.logAudit(id, "DELETE", "SKILL_MATRIX", "Deleted skill matrix record ID: " + id);
+            auditLogService.logAudit(id, "DELETE", "skill_matrix", "Deleted skill matrix record ID: " + id);
 
             logger.info("Skill matrix deleted successfully with id: {}", id);
         });
@@ -90,7 +90,7 @@ public class SkillMatrixService {
 
         SkillMatrix savedSkill = skillMatrixRepo.save(skillMatrix);
 
-        auditLogService.logAudit(savedSkill.getSkillId(), "INSERT", "SKILL_MATRIX", "Created skill entry for employee: " + student.getFirstName() + " " + student.getLastName() + ", Skill: " + savedSkill.getSkillName());
+        auditLogService.logAudit(savedSkill.getSkillId(), "INSERT", "skill_matrix", "Created skill entry for employee: " + student.getFirstName() + " " + student.getLastName() + ", Skill: " + savedSkill.getSkillName());
 
         logger.info("Skill entry created successfully with id: {}", savedSkill.getSkillId());
     }

@@ -41,7 +41,6 @@ public class TrainingCourse {
 
     private Boolean certificationProvided;
     private Integer certificationValidityMonths;
-    private Integer maxParticipants;
 
     @ManyToOne
     @JoinColumn(name = "created_by")

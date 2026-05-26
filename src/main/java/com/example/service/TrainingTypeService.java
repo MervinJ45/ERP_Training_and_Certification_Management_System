@@ -40,7 +40,7 @@ public class TrainingTypeService {
 
         TrainingType savedType = trainingTypeRepo.save(trainingType);
 
-        auditLogService.logAudit(savedType.getTrainingTypeId(), "CREATE_TRAINING_TYPE", "TRAINING_TYPES", "Created type: " + savedType.getTrainingType());
+        auditLogService.logAudit(savedType.getTrainingTypeId(), "CREATE", "training_types", "Created type: " + savedType.getTrainingType());
 
         logger.info("Training type created successfully: {}", savedType.getTrainingType());
     }
@@ -56,7 +56,7 @@ public class TrainingTypeService {
 
         TrainingType updatedType = trainingTypeRepo.save(trainingType);
 
-        auditLogService.logAudit(updatedType.getTrainingTypeId(), "UPDATE_TRAINING_TYPE", "TRAINING_TYPES", "Updated type to: " + updatedType.getTrainingType() + " (Active: " + updatedType.getIsActive() + ")");
+        auditLogService.logAudit(updatedType.getTrainingTypeId(), "UPDATE", "training_types", "Updated type to: " + updatedType.getTrainingType() + " (Active: " + updatedType.getIsActive() + ")");
 
         logger.info("Training type updated successfully: {}", updatedType.getTrainingType());
     }
@@ -66,7 +66,7 @@ public class TrainingTypeService {
         logger.info("Deleting training type id: {}", id);
 
         trainingTypeRepo.findById(id).ifPresent(type -> {
-            auditLogService.logAudit(id, "DELETE_TRAINING_TYPE", "TRAINING_TYPES", "Deleted type: " + type.getTrainingType());
+            auditLogService.logAudit(id, "DELETE_TRAINING_TYPE", "training_types", "Deleted type: " + type.getTrainingType());
 
             logger.info("Training type deleted: {}", type.getTrainingType());
         });

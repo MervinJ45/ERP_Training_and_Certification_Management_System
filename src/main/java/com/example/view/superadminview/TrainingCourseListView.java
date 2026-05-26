@@ -34,10 +34,10 @@ public class TrainingCourseListView extends VerticalLayout {
 
     private final Grid<TrainingCourseDTO> grid = new Grid<>(TrainingCourseDTO.class, false);
     private final TrainingCourseService trainingCourseService;
-    private final TrainingCategoryService trainingCategoryService; // Added service dependency
+    private final TrainingCategoryService trainingCategoryService;
 
     private final TextField courseSearchField = new TextField();
-    private final ComboBox<TrainingCategoryDTO> categoryFilterField = new ComboBox<>(); // Changed to accept DTO
+    private final ComboBox<TrainingCategoryDTO> categoryFilterField = new ComboBox<>();
 
     private List<TrainingCourseDTO> allCourses;
 

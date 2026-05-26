@@ -69,7 +69,7 @@ public class CertificationService {
 
         String details = String.format("Serial: %s, Student: %s, Course: %s", savedCert.getCertificateNumber(), employeeName, courseName);
 
-        auditLogService.logAudit(savedCert.getCertificationId(), action, "CERTIFICATIONS", details);
+        auditLogService.logAudit(savedCert.getCertificationId(), action, "certifications", details);
 
         logger.info("Certification saved successfully with id: {}", savedCert.getCertificationId());
 
@@ -83,7 +83,7 @@ public class CertificationService {
 
         certificationRepo.findById(id).ifPresent(cert -> {
 
-            auditLogService.logAudit(id, "DELETE_CERTIFICATE", "CERTIFICATIONS", "Deleted certificate serial: " + cert.getCertificateNumber());
+            auditLogService.logAudit(id, "DELETE_CERTIFICATE", "certifications", "Deleted certificate serial: " + cert.getCertificateNumber());
 
             logger.info("Certification deleted successfully with serial: {}", cert.getCertificateNumber());
         });
@@ -149,7 +149,7 @@ public class CertificationService {
 
         Certification savedCertificate = certificationRepo.save(certificate);
 
-        auditLogService.logAudit(savedCertificate.getCertificationId(), "INSERT", "CERTIFICATIONS", "Generated certification with serial number: " + savedCertificate.getCertificateNumber());
+        auditLogService.logAudit(savedCertificate.getCertificationId(), "INSERT", "certifications", "Generated certification with serial number: " + savedCertificate.getCertificateNumber());
 
         logger.info("Certification created successfully with id: {}", savedCertificate.getCertificationId());
 

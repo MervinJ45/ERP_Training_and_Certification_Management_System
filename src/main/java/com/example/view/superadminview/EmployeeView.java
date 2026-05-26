@@ -17,16 +17,21 @@ import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.validator.EmailValidator;
+import com.vaadin.flow.data.validator.StringLengthValidator;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -151,11 +156,8 @@ public class EmployeeView extends VerticalLayout {
 
         List<EmployeeDTO> filteredList = allEmployees.stream().filter(dto -> {
             boolean matchesName = nameQuery.isEmpty() || (dto.getFirstName() != null && dto.getFirstName().toLowerCase().contains(nameQuery));
-
             boolean matchesEmail = emailQuery.isEmpty() || (dto.getEmail() != null && dto.getEmail().toLowerCase().contains(emailQuery));
-
             boolean matchesDept = deptQuery == null || (dto.getDepartment() != null && deptQuery.getDepartmentId() != null && deptQuery.getDepartmentId().equals(dto.getDepartment().getDepartmentId()));
-
             return matchesName && matchesEmail && matchesDept;
         }).collect(Collectors.toList());
 
@@ -192,58 +194,67 @@ public class EmployeeView extends VerticalLayout {
         manager.setItems(employeeService.getAllManagerDTOs());
         manager.setItemLabelGenerator(dto -> dto != null ? dto.getFirstName() + " " + dto.getLastName() : "");
 
+        firstName.setWidthFull();
+        lastName.setWidthFull();
+        email.setWidthFull();
+        phone.setWidthFull();
+        designation.setWidthFull();
+        joiningDate.setWidthFull();
+        department.setWidthFull();
+        role.setWidthFull();
+        manager.setWidthFull();
+
+        Binder<EmployeeDTO> binder = new Binder<>(EmployeeDTO.class);
+
+
+        binder.forField(firstName).asRequired("First name is required.").withValidator(new StringLengthValidator("First name must be between 2 and 50 characters.", 2, 20)).bind(EmployeeDTO::getFirstName, EmployeeDTO::setFirstName);
+        binder.forField(lastName).asRequired("Last name is required.").withValidator(new StringLengthValidator("Last name must be between 1 and 50 characters.", 1, 20)).bind(EmployeeDTO::getLastName, EmployeeDTO::setLastName);
+        binder.forField(email).asRequired("Email address is required.").withValidator(new EmailValidator("Please enter a valid email layout format.")).bind(EmployeeDTO::getEmail, EmployeeDTO::setEmail);
+        binder.forField(phone).asRequired("Phone number is required.").withValidator(p -> p.matches("^\\+?[0-9]{10,13}$"), "Enter a valid phone number format (10-13 digits).").bind(EmployeeDTO::getPhone, EmployeeDTO::setPhone);
+        binder.forField(designation).asRequired("Designation is required.").bind(EmployeeDTO::getDesignation, EmployeeDTO::setDesignation);
+        binder.forField(joiningDate).asRequired("Date of Joining must be selected.").withValidator(date -> !date.isAfter(LocalDate.now().plusMonths(1)), "Date of joining cannot be set too far in the future.").bind(EmployeeDTO::getDateOfJoining, EmployeeDTO::setDateOfJoining);
+        binder.forField(department).asRequired("Please allocate a department.").bind(EmployeeDTO::getDepartment, EmployeeDTO::setDepartment);
+        binder.forField(role).asRequired("An access role assignment is required.").bind(EmployeeDTO::getRole, EmployeeDTO::setRole);
+        binder.forField(manager).bind(EmployeeDTO::getManager, EmployeeDTO::setManager);
+
         role.addValueChangeListener(e -> {
             boolean isManagerRole = e.getValue() != null && e.getValue().getRoleName().equalsIgnoreCase("MANAGER");
             manager.setVisible(!isManagerRole);
-            if (isManagerRole) manager.clear();
+            if (isManagerRole) {
+                manager.clear();
+            }
         });
 
-        if (employeeDTO != null) {
-            firstName.setValue(employeeDTO.getFirstName() != null ? employeeDTO.getFirstName() : "");
-            lastName.setValue(employeeDTO.getLastName() != null ? employeeDTO.getLastName() : "");
-            email.setValue(employeeDTO.getEmail() != null ? employeeDTO.getEmail() : "");
-            phone.setValue(employeeDTO.getPhone() != null ? employeeDTO.getPhone() : "");
-            designation.setValue(employeeDTO.getDesignation() != null ? employeeDTO.getDesignation() : "");
-            joiningDate.setValue(employeeDTO.getDateOfJoining());
-            department.setValue(employeeDTO.getDepartment());
-            role.setValue(employeeDTO.getRole());
-            manager.setValue(employeeDTO.getManager());
-        }
+        EmployeeDTO dtoToSave = (employeeDTO == null) ? new EmployeeDTO() : employeeDTO;
+        binder.readBean(dtoToSave);
 
         Button saveBtn = new Button(employeeDTO == null ? "SAVE" : "UPDATE");
         saveBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
         saveBtn.addClickListener(e -> {
-            EmployeeDTO dtoToSave = (employeeDTO == null) ? new EmployeeDTO() : employeeDTO;
+            if (binder.writeBeanIfValid(dtoToSave)) {
+                dtoToSave.setIsActive(true);
 
-            dtoToSave.setFirstName(firstName.getValue());
-            dtoToSave.setLastName(lastName.getValue());
-            dtoToSave.setEmail(email.getValue());
-            dtoToSave.setPhone(phone.getValue());
-            dtoToSave.setDesignation(designation.getValue());
-            dtoToSave.setDateOfJoining(joiningDate.getValue());
-            dtoToSave.setRole(role.getValue());
-            dtoToSave.setIsActive(true);
-            dtoToSave.setDepartment(department.getValue());
+                if (employeeDTO == null) {
+                    String cleanFirstName = dtoToSave.getFirstName().replaceAll("\\s+", "").toLowerCase();
+                    String cleanLastName = dtoToSave.getLastName().replaceAll("\\s+", "").toLowerCase();
+                    dtoToSave.setUsername(cleanFirstName + cleanLastName);
+                    dtoToSave.setPassword("password123");
+                }
 
-            if (manager.isVisible()) {
-                dtoToSave.setManager(manager.getValue());
-            }
+                if (employeeDTO == null) {
+                    employeeService.registerEmployee(dtoToSave);
+                    Notification.show("Employee successfully created!").addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                } else {
+                    employeeService.updateEmployee(dtoToSave);
+                    Notification.show("Employee records successfully updated.").addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                }
 
-            if (employeeDTO == null) {
-                dtoToSave.setUsername(firstName.getValue().toLowerCase() + lastName.getValue().toLowerCase());
-                dtoToSave.setPassword("password123");
-            }
-
-            if (employeeDTO == null) {
-                employeeService.registerEmployee(dtoToSave);
+                dialog.close();
+                updateGrid();
             } else {
-                employeeService.updateEmployee(dtoToSave);
+                Notification.show("Enter correct form inputs.").addThemeVariants(NotificationVariant.LUMO_ERROR);
             }
-
-            Notification.show(employeeDTO == null ? "Employee Registered!" : "Employee Updated!");
-            dialog.close();
-            updateGrid();
         });
 
         Button cancelBtn = new Button("Cancel", click -> dialog.close());

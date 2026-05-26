@@ -5,9 +5,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.page.AppShellConfigurator;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@StyleSheet("styles.css") // Your custom styles
+@EnableScheduling
+@StyleSheet("styles.css")
 public class Application implements AppShellConfigurator {
 
     public static void main(String[] args) {

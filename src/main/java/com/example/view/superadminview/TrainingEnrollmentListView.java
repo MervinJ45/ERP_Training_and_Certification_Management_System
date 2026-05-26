@@ -1,13 +1,16 @@
 package com.example.view.superadminview;
 
 import com.example.dto.TrainingEnrollmentDTO;
+import com.example.service.ApprovalWorkflowConfigService;
 import com.example.service.TrainingEnrollmentService;
+import com.example.view.component.WorkflowInfoDialog;
 import com.example.view.mainview.MainLayout;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -19,37 +22,38 @@ import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 
 import java.text.NumberFormat;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Route(value = "training-enrollments", layout = MainLayout.class)
 @PageTitle("Training Enrollments")
-@RolesAllowed("SUPER_ADMIN")
+@RolesAllowed({"SUPER_ADMIN", "AUDITOR"})
 public class TrainingEnrollmentListView extends VerticalLayout {
 
     private final TrainingEnrollmentService trainingEnrollmentService;
+    private final ApprovalWorkflowConfigService workflowConfigService; // Added service dependency
     private final Grid<TrainingEnrollmentDTO> grid = new Grid<>(TrainingEnrollmentDTO.class, false);
 
     private final TextField employeeFilter = new TextField();
     private final TextField courseFilter = new TextField();
     private final ComboBox<String> statusFilter = new ComboBox<>();
+    private NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("en", "IN"));
 
     private List<TrainingEnrollmentDTO> allEnrollments;
 
-    public TrainingEnrollmentListView(TrainingEnrollmentService trainingEnrollmentService) {
+    public TrainingEnrollmentListView(TrainingEnrollmentService trainingEnrollmentService, ApprovalWorkflowConfigService workflowConfigService) {
         this.trainingEnrollmentService = trainingEnrollmentService;
+        this.workflowConfigService = workflowConfigService;
 
         setSizeFull();
         setPadding(true);
         setSpacing(true);
 
-        H2 title = new H2("Training Enrollments Management");
+        H2 title = new H2("Training Enrollments");
         title.getStyle().set("margin-top", "0");
 
         configureFilters();
@@ -94,18 +98,44 @@ public class TrainingEnrollmentListView extends VerticalLayout {
         grid.addColumn(TrainingEnrollmentDTO::getEmployeeFullName).setHeader("Employee").setSortable(true).setAutoWidth(true);
         grid.addColumn(TrainingEnrollmentDTO::getCourseName).setHeader("Course").setSortable(true).setAutoWidth(true);
         grid.addColumn(new NumberRenderer<>(TrainingEnrollmentDTO::getRequestedCost, NumberFormat.getCurrencyInstance(new Locale("en", "IN")))).setHeader("Requested Cost").setSortable(true).setAutoWidth(true);
-        grid.addColumn(new NumberRenderer<>(TrainingEnrollmentDTO::getApprovedCost, NumberFormat.getCurrencyInstance(new Locale("en", "IN")))).setHeader("Approved Cost").setSortable(true).setAutoWidth(true);
-        grid.addColumn(TrainingEnrollmentDTO::getCurrentApprovalLevel).setHeader("Approval Level").setSortable(true).setAutoWidth(true);
+        grid.addColumn(dto -> dto.getApprovedCost() != null ? currencyFormat.format(dto.getApprovedCost()) : "-").setHeader("Approved Cost").setAutoWidth(true);
+
+        grid.addColumn(dto -> {
+            Integer currentLevel = dto.getCurrentApprovalLevel();
+            long totalLevels = workflowConfigService.calculateTotalLevelsForCost(dto.getRequestedCost());
+
+            if (currentLevel == null) {
+                return "0 / " + totalLevels;
+            }
+            return currentLevel + " / " + totalLevels;
+        }).setHeader(createApprovalLevelHeader()).setSortable(true).setAutoWidth(true);
+
         grid.addColumn(new LocalDateTimeRenderer<>(TrainingEnrollmentDTO::getEnrollmentDate, "yyyy-MM-dd HH:mm")).setHeader("Enrollment Date").setSortable(true).setAutoWidth(true);
         grid.addColumn(new ComponentRenderer<>(this::createStatusBadge)).setHeader("Status").setSortable(true).setAutoWidth(true);
         grid.addColumn(new ComponentRenderer<>(this::createCertificateBadge)).setHeader("Certificate").setAutoWidth(true);
+    }
+
+    private HorizontalLayout createApprovalLevelHeader() {
+        Span headerText = new Span("Approval Level");
+
+        Button infoBtn = new Button(VaadinIcon.INFO_CIRCLE.create());
+        infoBtn.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY_INLINE);
+        infoBtn.getStyle().set("cursor", "pointer");
+        infoBtn.setTooltipText("View Global Approval Matrix Rules");
+
+        infoBtn.addClickListener(e -> new WorkflowInfoDialog(workflowConfigService).open());
+
+        HorizontalLayout headerLayout = new HorizontalLayout(headerText, infoBtn);
+        headerLayout.setSpacing(true);
+        headerLayout.setVerticalComponentAlignment(Alignment.CENTER, headerText, infoBtn);
+
+        return headerLayout;
     }
 
     private void loadInitialData() {
         allEnrollments = trainingEnrollmentService.getAllEnrollmentDTOs();
         filterGrid();
     }
-
 
     private void filterGrid() {
         if (allEnrollments == null) return;

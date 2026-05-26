@@ -44,7 +44,7 @@ public class TrainingApprovalService {
         String action = isUpdate ? "UPDATE" : "INSERT";
         String details = (isUpdate ? "Updated" : "Created") + " training approval record.";
 
-        auditLogService.logAudit(savedApproval.getApprovalId(), action, "TRAINING_APPROVALS", details);
+        auditLogService.logAudit(savedApproval.getApprovalId(), action, "training_approvals", details);
 
         logger.info("Training approval saved successfully with id: {}", savedApproval.getApprovalId());
 
@@ -59,7 +59,7 @@ public class TrainingApprovalService {
 
             trainingApprovalRepo.deleteById(id);
 
-            auditLogService.logAudit(id, "DELETE", "TRAINING_APPROVALS", "Deleted training approval record ID: " + id);
+            auditLogService.logAudit(id, "DELETE", "training_approvals", "Deleted training approval record ID: " + id);
 
             logger.info("Training approval deleted successfully with id: {}", id);
         });
@@ -71,9 +71,7 @@ public class TrainingApprovalService {
 
         List<TrainingApproval> approvals = approvalRepo.findByApprover_EmployeeIdAndIsActiveTrue(employeeId);
 
-        return approvals.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+        return approvals.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     public TrainingApproval getApprovalById(Long id) {
@@ -83,16 +81,13 @@ public class TrainingApprovalService {
         return trainingApprovalRepo.findById(id).orElse(null);
     }
 
+    public List<TrainingApproval> getApprovalsByEnrollmentId(Long enrollmentId) {
+        logger.info("Fetching validation approval workflow records for enrollment ID: {}", enrollmentId);
+
+        return trainingApprovalRepo.findAll().stream().filter(approval -> approval.getEnrollment() != null && approval.getEnrollment().getEnrollmentId().equals(enrollmentId)).collect(Collectors.toList());
+    }
+
     private TrainingApprovalDTO convertToDTO(TrainingApproval approval) {
-        return TrainingApprovalDTO.builder()
-                .enrollmentId(approval.getEnrollment().getEnrollmentId())
-                .courseName(approval.getEnrollment().getCourse().getCourseName())
-                .employeeFullName(approval.getEnrollment().getEmployee().getFirstName() + " " +
-                        approval.getEnrollment().getEmployee().getLastName())
-                .approvalLevel(approval.getApprovalLevel())
-                .comments(approval.getComments())
-                .approvalStatusName(approval.getApprovalStatus().getApprovalStatus())
-                .actionDate(approval.getActionDate())
-                .build();
+        return TrainingApprovalDTO.builder().enrollmentId(approval.getEnrollment().getEnrollmentId()).courseName(approval.getEnrollment().getCourse().getCourseName()).employeeFullName(approval.getEnrollment().getEmployee().getFirstName() + " " + approval.getEnrollment().getEmployee().getLastName()).approvalLevel(approval.getApprovalLevel()).comments(approval.getComments()).approvalStatusName(approval.getApprovalStatus().getApprovalStatus()).actionDate(approval.getActionDate()).build();
     }
 }

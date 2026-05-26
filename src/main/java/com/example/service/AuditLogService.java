@@ -67,4 +67,21 @@ public class AuditLogService {
 
         logger.info("AUDIT LOG -> Action: {}, Table: {}, Record ID: {}, Details: {}", action, table, recordId, details);
     }
+
+    public void logSystemAudit(Long recordId, String action, String table, String details) {
+        AuditLog log = new AuditLog();
+
+        log.setUser(null);
+        log.setRole(null);
+
+        log.setRecordId(recordId);
+        log.setAction(action);
+        log.setTableAffected(table);
+        log.setChangeDetails(details + " [Executed automatically by SYSTEM]");
+        log.setActionTime(LocalDateTime.now());
+
+        auditLogRepo.save(log);
+
+        logger.info("SYSTEM AUDIT LOG -> Action: {}, Table: {}, Record ID: {}, Details: {}", action, table, recordId, details);
+    }
 }

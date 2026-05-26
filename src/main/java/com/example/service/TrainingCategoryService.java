@@ -41,7 +41,7 @@ public class TrainingCategoryService {
         String action = isUpdate ? "UPDATE" : "INSERT";
         String details = (isUpdate ? "Updated" : "Created") + " training category: " + savedCategory.getCategoryName();
 
-        auditLogService.logAudit(savedCategory.getCategoryId(), action, "TRAINING_CATEGORIES", details);
+        auditLogService.logAudit(savedCategory.getCategoryId(), action, "training_categories", details);
 
         logger.info("Training category saved successfully with id: {}", savedCategory.getCategoryId());
 
@@ -56,7 +56,7 @@ public class TrainingCategoryService {
 
             trainingCategoryRepo.deleteById(id);
 
-            auditLogService.logAudit(id, "DELETE", "TRAINING_CATEGORIES", "Deleted training category: " + category.getCategoryName());
+            auditLogService.logAudit(id, "DELETE", "training_categories", "Deleted training category: " + category.getCategoryName());
 
             logger.info("Training category deleted successfully: {}", category.getCategoryName());
         });

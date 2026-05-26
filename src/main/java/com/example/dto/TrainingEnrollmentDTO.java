@@ -3,9 +3,7 @@ package com.example.dto;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -18,6 +16,9 @@ public class TrainingEnrollmentDTO {
 
     private Long employeeId;
     private String employeeFullName;
+
+    private String departmentName;
+    private BigDecimal availableBalance;
 
     private Long courseId;
     private String courseName;

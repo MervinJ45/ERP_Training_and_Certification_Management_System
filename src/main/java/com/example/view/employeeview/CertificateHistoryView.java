@@ -157,9 +157,9 @@ public class CertificateHistoryView extends VerticalLayout {
         badge.getElement().getThemeList().add("badge");
 
         String style = switch (statusId.intValue()) {
-            case 1 -> "background-color: #DCFCE7; color: #15803D; font-weight: bold;"; // Active (Green)
-            case 2 -> "background-color: #FEE2E2; color: #B91C1C; font-weight: bold;"; // Expired (Red)
-            case 4 -> "background-color: #FFEDD5; color: #C2410C; font-weight: bold;"; // Renewed (Orange)
+            case 1 -> "background-color: #DCFCE7; color: #15803D; font-weight: bold;";
+            case 2 -> "background-color: #FEE2E2; color: #B91C1C; font-weight: bold;";
+            case 4 -> "background-color: #e0e7ff; color: #4338ca; font-weight: bold;";
             default -> "background-color: #F1F5F9; color: #475569;";
         };
         badge.getElement().setAttribute("style", style);
@@ -170,7 +170,7 @@ public class CertificateHistoryView extends VerticalLayout {
     private void loadUserEnrollments() {
         if (currentUserProvider.getCurrentUser() != null && currentUserProvider.getCurrentUser().getEmployee() != null) {
             Long employeeId = currentUserProvider.getCurrentUser().getEmployee().getEmployeeId();
-            List<TrainingEnrollmentDTO> userHistory = enrollmentService.getEnrollmentsByEmployee(employeeId);
+            List<TrainingEnrollmentDTO> userHistory = enrollmentService.getCertifiedEnrollmentsByEmployee(employeeId);
             grid.setItems(userHistory);
         }
     }

@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -16,5 +15,6 @@ public class DepartmentDTO {
     private Long departmentId;
     private String departmentName;
     private BigDecimal annualBudget;
+    private BigDecimal availableBalance;
     private Boolean isActive;
 }

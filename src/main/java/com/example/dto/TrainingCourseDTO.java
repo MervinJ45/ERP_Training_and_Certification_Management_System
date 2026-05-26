@@ -31,7 +31,6 @@ public class TrainingCourseDTO {
     private BigDecimal trainingCost;
     private Boolean certificationProvided;
     private Integer certificationValidityMonths;
-    private Integer maxParticipants;
     private boolean isActive;
     private LocalDateTime createdAt;
 }

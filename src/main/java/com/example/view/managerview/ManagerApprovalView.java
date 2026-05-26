@@ -31,7 +31,9 @@ import com.vaadin.flow.spring.security.AuthenticationContext;
 import jakarta.annotation.security.RolesAllowed;
 
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Route(value = "manager-approvals", layout = MainLayout.class)
@@ -46,6 +48,8 @@ public class ManagerApprovalView extends VerticalLayout {
     private final CurrentUserProvider currentUserProvider;
 
     private final Grid<TrainingEnrollmentDTO> grid = new Grid<>(TrainingEnrollmentDTO.class, false);
+    private final NumberFormat inrFormatter = NumberFormat.getCurrencyInstance(new Locale("en", "IN"));
+
 
     private final TextField employeeSearchField = new TextField();
     private final TextField courseSearchField = new TextField();
@@ -99,8 +103,11 @@ public class ManagerApprovalView extends VerticalLayout {
 
     private void configureGrid() {
         grid.addColumn(TrainingEnrollmentDTO::getEmployeeFullName).setHeader("Employee").setAutoWidth(true).setSortable(true);
+        grid.addColumn(TrainingEnrollmentDTO::getDepartmentName).setHeader("Department").setAutoWidth(true).setSortable(true);
+
         grid.addColumn(TrainingEnrollmentDTO::getCourseName).setHeader("Course").setAutoWidth(true).setSortable(true);
-        grid.addColumn(TrainingEnrollmentDTO::getRequestedCost).setHeader("Requested Cost").setAutoWidth(true).setSortable(true);
+        grid.addColumn(dto -> dto.getRequestedCost() != null ? inrFormatter.format(dto.getRequestedCost()) : "₹0.00").setHeader("Requested Cost").setAutoWidth(true).setSortable(true);
+        grid.addColumn(dto -> dto.getAvailableBalance() != null ? inrFormatter.format(dto.getAvailableBalance()) : "₹0.00").setHeader("Available Balance").setAutoWidth(true).setSortable(true);
         grid.addColumn(new ComponentRenderer<>(this::createActionButtons)).setHeader("Actions").setAutoWidth(true);
 
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);

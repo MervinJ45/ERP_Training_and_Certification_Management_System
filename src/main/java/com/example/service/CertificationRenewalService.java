@@ -113,7 +113,7 @@ public class CertificationRenewalService {
             renewal.setNewExpiryDate(newExpiry);
             renewal.setNewCertification(savedNewCert);
 
-            auditLogService.logAudit(renewal.getRenewalId(), "APPROVE", "certification_renewals", "Approved certification renewal for certificate: " + oldCert.getCertificateNumber());
+            auditLogService.logAudit(renewal.getRenewalId(), "UPDATE", "certification_renewals", "Approved certification renewal for certificate: " + oldCert.getCertificateNumber());
 
             logger.info("Approved certification renewal ID: {}", renewalId);
 

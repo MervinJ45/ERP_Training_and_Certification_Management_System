@@ -108,7 +108,7 @@ public class MyCertificatesView extends VerticalLayout {
         grid.addItemDoubleClickListener(event -> {
             CertificationDisplayDTO selectedCert = event.getItem();
 
-            if (selectedCert.getExpiryDate() != null && selectedCert.getDaysRemaining() <= 0) {
+            if (selectedCert.getStatusName().equalsIgnoreCase("expired")) {
                 openRenewalDialog(selectedCert);
             } else {
                 Notification.show("This certificate is still active or permanent. Renewal is not required.", 3000, Notification.Position.MIDDLE).addThemeVariants(NotificationVariant.LUMO_WARNING);

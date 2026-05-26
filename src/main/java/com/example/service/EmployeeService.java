@@ -109,7 +109,7 @@ public class EmployeeService {
 
         String fullName = savedEmployee.getFirstName() + " " + savedEmployee.getLastName();
 
-        auditLogService.logAudit(savedEmployee.getEmployeeId(), "INSERT", "EMPLOYEES", "Registered new employee: " + fullName + " with account username: " + user.getUsername());
+        auditLogService.logAudit(savedEmployee.getEmployeeId(), "INSERT", "employees", "Registered new employee: " + fullName + " with account username: " + user.getUsername());
 
         logger.info("Employee registered successfully with id: {}", savedEmployee.getEmployeeId());
     }
@@ -161,7 +161,7 @@ public class EmployeeService {
 
         String fullName = updatedEmployee.getFirstName() + " " + updatedEmployee.getLastName();
 
-        auditLogService.logAudit(updatedEmployee.getEmployeeId(), "UPDATE", "EMPLOYEES", "Updated employee details for: " + fullName);
+        auditLogService.logAudit(updatedEmployee.getEmployeeId(), "UPDATE", "employees", "Updated employee details for: " + fullName);
 
         logger.info("Employee updated successfully with id: {}", updatedEmployee.getEmployeeId());
     }
@@ -177,7 +177,7 @@ public class EmployeeService {
 
             String fullName = employee.getFirstName() + " " + employee.getLastName();
 
-            auditLogService.logAudit(id, "DELETE", "EMPLOYEES", "Deleted employee record for: " + fullName);
+            auditLogService.logAudit(id, "DELETE", "employees", "Deleted employee record for: " + fullName);
 
             logger.info("Employee deleted successfully: {}", fullName);
         });

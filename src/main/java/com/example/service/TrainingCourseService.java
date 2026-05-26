@@ -22,14 +22,14 @@ public class TrainingCourseService {
     private final TrainingTypeRepo trainingTypeRepo;
     private final EmployeeRepo employeeRepo;
     private final UserRepo userRepo;
+    private final TrainingEnrollmentRepo enrollmentRepo;
     private final AuditLogService auditLogService;
     private final UserService userService;
     private final TrainingCategoryService categoryService;
     private final TrainingTypeService trainingTypeService;
     private final EmployeeService employeeService;
 
-    public TrainingCourseService(TrainingCourseRepo trainingCourseRepo, TrainingCategoryRepo categoryRepo, TrainingTypeRepo trainingTypeRepo, EmployeeRepo employeeRepo, UserRepo userRepo, AuditLogService auditLogService,
-                                 UserService userService, TrainingCategoryService categoryService, TrainingTypeService trainingTypeService, EmployeeService employeeService) {
+    public TrainingCourseService(TrainingCourseRepo trainingCourseRepo, TrainingCategoryRepo categoryRepo, TrainingTypeRepo trainingTypeRepo, EmployeeRepo employeeRepo, UserRepo userRepo, AuditLogService auditLogService, UserService userService, TrainingCategoryService categoryService, TrainingTypeService trainingTypeService, EmployeeService employeeService, TrainingEnrollmentRepo enrollmentRepo) {
         this.trainingCourseRepo = trainingCourseRepo;
         this.categoryRepo = categoryRepo;
         this.trainingTypeRepo = trainingTypeRepo;
@@ -40,6 +40,7 @@ public class TrainingCourseService {
         this.categoryService = categoryService;
         this.trainingTypeService = trainingTypeService;
         this.employeeService = employeeService;
+        this.enrollmentRepo = enrollmentRepo;
     }
 
     public List<TrainingCourseDTO> getAllCourseDTOs() {
@@ -81,7 +82,6 @@ public class TrainingCourseService {
         course.setTrainingCost(dto.getTrainingCost());
         course.setCertificationProvided(dto.getCertificationProvided());
         course.setCertificationValidityMonths(dto.getCertificationValidityMonths());
-        course.setMaxParticipants(dto.getMaxParticipants());
         course.setIsActive(dto.isActive());
 
         if (dto.getCategory() != null) {
@@ -98,7 +98,7 @@ public class TrainingCourseService {
 
         TrainingCourse saved = trainingCourseRepo.save(course);
 
-        auditLogService.logAudit(saved.getCourseId(), isUpdate ? "UPDATE" : "INSERT", "TRAINING_COURSES", "Course: " + saved.getCourseName());
+        auditLogService.logAudit(saved.getCourseId(), isUpdate ? "UPDATE" : "INSERT", "training_courses", "Course: " + saved.getCourseName());
 
         logger.info("Training course saved successfully with id: {}", saved.getCourseId());
 
@@ -124,7 +124,6 @@ public class TrainingCourseService {
         course.setTrainingCost(dto.getTrainingCost());
         course.setCertificationProvided(dto.getCertificationProvided());
         course.setCertificationValidityMonths(dto.getCertificationValidityMonths());
-        course.setMaxParticipants(dto.getMaxParticipants());
         course.setIsActive(dto.isActive());
 
         if (dto.getCategory() != null) {
@@ -141,7 +140,7 @@ public class TrainingCourseService {
 
         TrainingCourse updatedCourse = trainingCourseRepo.save(course);
 
-        auditLogService.logAudit(updatedCourse.getCourseId(), "UPDATE", "TRAINING_COURSES", "Updated Course: " + updatedCourse.getCourseName());
+        auditLogService.logAudit(updatedCourse.getCourseId(), "UPDATE", "training_courses", "Updated Course: " + updatedCourse.getCourseName());
 
         logger.info("Training course updated successfully with id: {}", updatedCourse.getCourseId());
 
@@ -159,7 +158,7 @@ public class TrainingCourseService {
 
             trainingCourseRepo.save(course);
 
-            auditLogService.logAudit(id, "DEACTIVATE", "TRAINING_COURSES", "Marked course as inactive: " + course.getCourseName());
+            auditLogService.logAudit(id, "DEACTIVATE", "training_courses", "Marked course as inactive: " + course.getCourseName());
 
             logger.info("Training course marked inactive successfully: {}", course.getCourseName());
         });
@@ -177,7 +176,6 @@ public class TrainingCourseService {
         dto.setTrainingCost(course.getTrainingCost());
         dto.setCertificationProvided(course.getCertificationProvided());
         dto.setCertificationValidityMonths(course.getCertificationValidityMonths());
-        dto.setMaxParticipants(course.getMaxParticipants());
         dto.setActive(course.getIsActive() != null ? course.getIsActive() : false);
         dto.setCreatedAt(course.getCreatedAt());
 
@@ -204,10 +202,4 @@ public class TrainingCourseService {
         return dto;
     }
 
-    public List<TrainingCourseDTO> searchCourseDTOs(String value) {
-
-        logger.info("Searching training courses with value: {}", value);
-
-        return trainingCourseRepo.findAll().stream().filter(course -> course.getCourseName() != null && course.getCourseName().toLowerCase().contains(value.toLowerCase())).map(this::convertToDTO).collect(Collectors.toList());
-    }
 }

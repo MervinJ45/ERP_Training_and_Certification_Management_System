@@ -8,11 +8,7 @@ import java.util.List;
 public interface TrainingEnrollmentRepo extends JpaRepository<TrainingEnrollment, Long> {
 
     boolean existsByEmployeeEmployeeIdAndCourseCourseId(Long employeeId, Long courseId);
-
     List<TrainingEnrollment> findByEmployeeEmployeeId(Long employeeId);
-
     List<TrainingEnrollment> findByEmployeeManagerEmployeeId(Long managerId);
-
     List<TrainingEnrollment> findByEnrollmentStatusEnrollmentStatusAndIsActiveTrue(String pending);
-
 }

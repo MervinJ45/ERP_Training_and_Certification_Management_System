@@ -17,12 +17,14 @@ import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -34,6 +36,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static java.rmi.Naming.bind;
 
 @Route(value = "manage-courses", layout = MainLayout.class)
 @PageTitle("ERP | Course Management")
@@ -94,19 +98,13 @@ public class ManageCourseView extends VerticalLayout {
             }
         });
 
-        // Create an expanding spacer to push the buttons to the right edge
         HorizontalLayout spacer = new HorizontalLayout();
-
-        // Assemble the layout with filters on the left, spacer in middle, buttons on right
         HorizontalLayout toolbar = new HorizontalLayout(courseSearchField, typeSelectField, certSelectField, spacer, addBtn, editBtn, deleteBtn);
         toolbar.setWidthFull();
         toolbar.setSpacing(true);
-
-        // Tell the toolbar to expand the empty space, driving the action buttons rightward
         toolbar.expand(spacer);
 
         grid.setSizeFull();
-
         add(title, toolbar, grid);
         loadInitialData();
     }
@@ -147,7 +145,6 @@ public class ManageCourseView extends VerticalLayout {
         grid.addColumn(dto -> dto.getTrainer() != null ? dto.getTrainer().getFirstName() : "").setHeader("Trainer").setAutoWidth(true).setSortable(true);
         grid.addColumn(dto -> dto.getCertificationProvided() != null && dto.getCertificationProvided() ? "YES" : "NO").setHeader("Certificate Provided?").setAutoWidth(true).setSortable(true);
         grid.addColumn(TrainingCourseDTO::getCertificationValidityMonths).setHeader("Certificate Expire in (Months)").setAutoWidth(true).setSortable(true);
-
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
     }
 
@@ -170,11 +167,8 @@ public class ManageCourseView extends VerticalLayout {
 
         List<TrainingCourseDTO> filteredList = allData.stream().filter(dto -> {
             boolean matchesName = nameQuery.isEmpty() || (dto.getCourseName() != null && dto.getCourseName().toLowerCase().contains(nameQuery));
-
             boolean matchesType = typeQuery == null || (dto.getTrainingType() != null && typeQuery.equalsIgnoreCase(dto.getTrainingType().getTrainingType()));
-
             boolean matchesCert = certQuery == null || (dto.getCertificationProvided() != null && ((certQuery.equals("Yes") && dto.getCertificationProvided()) || (certQuery.equals("No") && !dto.getCertificationProvided())));
-
             return matchesName && matchesType && matchesCert;
         }).collect(Collectors.toList());
 
@@ -205,7 +199,6 @@ public class ManageCourseView extends VerticalLayout {
             loadInitialData();
         });
         confirm.addThemeVariants(ButtonVariant.LUMO_ERROR);
-
         dialog.getFooter().add(confirm, new Button("Cancel", e -> dialog.close()));
         dialog.open();
     }
@@ -221,94 +214,122 @@ public class ManageCourseView extends VerticalLayout {
 
         TextField courseName = new TextField("Course Name");
         TextField description = new TextField("Description");
-
         ComboBox<TrainingCategoryDTO> category = new ComboBox<>("Category");
+        NumberField durationDays = new NumberField("Duration (Days)");
+        NumberField trainingCost = new NumberField("Training Cost");
+        ComboBox<EmployeeDTO> trainer = new ComboBox<>("Trainer");
+        ComboBox<TrainingTypeDTO> trainingType = new ComboBox<>("Training Type");
+        Checkbox certificationProvided = new Checkbox("Certification Provided");
+        IntegerField certValidity = new IntegerField("Validity (Months)");
+
+        courseName.setWidthFull();
+        description.setWidthFull();
+        category.setWidthFull();
+        durationDays.setWidthFull();
+        trainingCost.setWidthFull();
+        trainer.setWidthFull();
+        trainingType.setWidthFull();
+        certValidity.setWidthFull();
+
         category.setItems(trainingCategoryService.getAllCategoryDTOs());
         category.setItemLabelGenerator(item -> item != null ? item.getCategoryName() : "");
 
-        NumberField durationDays = new NumberField("Duration (Days)");
-        NumberField trainingCost = new NumberField("Training Cost");
-
-        ComboBox<EmployeeDTO> trainer = new ComboBox<>("Trainer");
         trainer.setItems(employeeService.getAllTrainerDTOs());
         trainer.setItemLabelGenerator(emp -> emp != null ? emp.getFirstName() + " " + emp.getLastName() : "");
 
-        ComboBox<TrainingTypeDTO> trainingType = new ComboBox<>("Training Type");
         trainingType.setItems(trainingTypeService.getAllTrainingTypeDTOs());
         trainingType.setItemLabelGenerator(item -> item != null ? item.getTrainingType() : "");
 
-        IntegerField maxParticipants = new IntegerField("Max Participants");
-
-        Checkbox certificationProvided = new Checkbox("Certification Provided");
-        IntegerField certValidity = new IntegerField("Validity (Months)");
         certValidity.setVisible(false);
-
-        certificationProvided.addValueChangeListener(e -> certValidity.setVisible(e.getValue()));
-
-        TrainingCourseDTO dto;
-
-        if (isEditMode) {
-            dto = courseToEdit;
-            courseName.setValue(dto.getCourseName() != null ? dto.getCourseName() : "");
-            description.setValue(dto.getDescription() != null ? dto.getDescription() : "");
-            category.setValue(dto.getCategory());
-            durationDays.setValue(dto.getDurationDays() != null ? dto.getDurationDays().doubleValue() : 0.0);
-            trainingCost.setValue(dto.getTrainingCost() != null ? dto.getTrainingCost().doubleValue() : 0.0);
-            trainer.setValue(dto.getTrainer());
-            trainingType.setValue(dto.getTrainingType());
-            maxParticipants.setValue(dto.getMaxParticipants() != null ? dto.getMaxParticipants() : 0);
-            certificationProvided.setValue(dto.getCertificationProvided() != null && dto.getCertificationProvided());
-
-            if (dto.getCertificationProvided() != null && dto.getCertificationProvided()) {
-                certValidity.setVisible(true);
-                certValidity.setValue(dto.getCertificationValidityMonths());
+        certificationProvided.addValueChangeListener(e -> {
+            certValidity.setVisible(e.getValue());
+            if (!e.getValue()) {
+                certValidity.clear();
             }
-        } else {
-            dto = new TrainingCourseDTO();
-        }
+        });
+
+        Binder<TrainingCourseDTO> binder = new Binder<>(TrainingCourseDTO.class);
+
+        binder.forField(courseName)
+                .asRequired("Course name is required.")
+                .bind(TrainingCourseDTO::getCourseName, TrainingCourseDTO::setCourseName);
+
+        binder.forField(description)
+                .asRequired("Course description cannot be left blank.")
+                .bind(TrainingCourseDTO::getDescription, TrainingCourseDTO::setDescription);
+
+        binder.forField(category)
+                .asRequired("Please choose a training category.")
+                .bind(TrainingCourseDTO::getCategory, TrainingCourseDTO::setCategory);
+
+        binder.forField(durationDays)
+                .asRequired("Duration period is required.")
+                .withValidator(val -> val != null && val > 0, "Duration must be greater than 0.")
+                .bind(dtoInstance -> dtoInstance.getDurationDays() != null ? dtoInstance.getDurationDays().doubleValue() : null,
+                (dtoInstance, val) -> dtoInstance.setDurationDays(val != null ? val.intValue() : 0));
+
+        binder.forField(trainingCost)
+                .asRequired("Training cost allocation cannot be empty.")
+                .withValidator(val -> val != null && val >= 0, "Cost figure cannot execute as a negative integer.")
+                .bind(dtoInstance -> dtoInstance.getTrainingCost() != null ? dtoInstance.getTrainingCost().doubleValue() : null,
+                        (dtoInstance, val) -> dtoInstance.setTrainingCost(val != null ? BigDecimal.valueOf(val) : BigDecimal.ZERO));
+
+        binder.forField(trainer)
+                .asRequired("Assigning an active trainer profile is required.")
+                .bind(TrainingCourseDTO::getTrainer, TrainingCourseDTO::setTrainer);
+
+        binder.forField(trainingType)
+                .asRequired("Please select a training delivery type format.")
+                .bind(TrainingCourseDTO::getTrainingType, TrainingCourseDTO::setTrainingType);
+
+        binder.forField(certificationProvided)
+                .bind(TrainingCourseDTO::getCertificationProvided, TrainingCourseDTO::setCertificationProvided);
+
+        binder.forField(certValidity)
+                .withValidator(val -> !certificationProvided.getValue() || (val != null && val > 0), "Validity timeline is required when certification is enabled.")
+                .bind(TrainingCourseDTO::getCertificationValidityMonths, TrainingCourseDTO::setCertificationValidityMonths);
+
+        TrainingCourseDTO dto = (isEditMode) ? courseToEdit : new TrainingCourseDTO();
+        binder.readBean(dto);
 
         Button saveBtn = new Button(isEditMode ? "Update Course" : "Save Course");
         saveBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
         saveBtn.addClickListener(e -> {
-            dto.setCourseName(courseName.getValue());
-            dto.setCategory(category.getValue());
-            dto.setDescription(description.getValue());
+            if (binder.writeBeanIfValid(dto)) {
+                if (!certificationProvided.getValue()) {
+                    dto.setCertificationValidityMonths(null);
+                }
 
-            dto.setDurationDays(durationDays.getValue() != null ? durationDays.getValue().intValue() : 0);
-            dto.setTrainingCost(trainingCost.getValue() != null ? BigDecimal.valueOf(trainingCost.getValue()) : BigDecimal.ZERO);
+                if (!isEditMode) {
+                    dto.setActive(true);
+                    dto.setCreatedAt(LocalDateTime.now());
+                    authContext.getAuthenticatedUser(org.springframework.security.core.userdetails.UserDetails.class).ifPresent(userDetails -> {
+                        userService.findByUsername(userDetails.getUsername()).ifPresent(user -> dto.setCreatedBy(userService.convertToDTO(user)));
+                    });
+                    trainingCourseService.saveCourse(dto);
+                } else {
+                    trainingCourseService.updateCourse(dto);
+                }
 
-            dto.setTrainer(trainer.getValue());
-            dto.setTrainingType(trainingType.getValue());
-            dto.setCertificationProvided(certificationProvided.getValue());
-
-            if (certificationProvided.getValue()) {
-                dto.setCertificationValidityMonths(certValidity.getValue());
+                Notification.show(isEditMode ? "Course Updated Successfully" : "Course Created Successfully").addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                dialog.close();
+                loadInitialData();
             } else {
-                dto.setCertificationValidityMonths(null);
+                Notification.show("Enter correct form inputs.").addThemeVariants(NotificationVariant.LUMO_ERROR);
             }
-
-            dto.setMaxParticipants(maxParticipants.getValue());
-
-            if (!isEditMode) {
-                dto.setActive(true);
-                dto.setCreatedAt(LocalDateTime.now());
-                authContext.getAuthenticatedUser(org.springframework.security.core.userdetails.UserDetails.class).ifPresent(userDetails -> {
-                    userService.findByUsername(userDetails.getUsername()).ifPresent(user -> dto.setCreatedBy(userService.convertToDTO(user)));
-                });
-                trainingCourseService.saveCourse(dto);
-            } else {
-                trainingCourseService.updateCourse(dto);
-            }
-
-            Notification.show(isEditMode ? "Course Updated Successfully" : "Course Created Successfully");
-            dialog.close();
-            loadInitialData();
         });
 
-        layout.add(courseName, category, description, new HorizontalLayout(durationDays, trainingCost), new HorizontalLayout(trainer, trainingType), maxParticipants, certificationProvided, certValidity, saveBtn);
+        HorizontalLayout metricsRow = new HorizontalLayout(durationDays, trainingCost);
+        metricsRow.setWidthFull();
+        HorizontalLayout configurationsRow = new HorizontalLayout(trainer, trainingType);
+        configurationsRow.setWidthFull();
 
+        layout.add(courseName, category, description, metricsRow, configurationsRow, certificationProvided, certValidity);
         dialog.add(layout);
         dialog.open();
+
+        Button closeBtn = new Button("Close", e -> dialog.close());
+        dialog.getFooter().add(saveBtn, closeBtn);
     }
 }
