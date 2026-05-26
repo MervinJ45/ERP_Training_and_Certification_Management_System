@@ -73,7 +73,7 @@ public class EmployeeService {
 
         employee.setDepartment(departmentService.getDepartmentById(dto.getDepartment().getDepartmentId()));
 
-        employee.setIsActive(dto.getIsActive());
+        employee.setIsActive(true);
 
         Long nextEmployeeNumber = employeeRepo.count() + 1;
 
@@ -130,30 +130,25 @@ public class EmployeeService {
 
         employee.setDepartment(departmentService.getDepartmentById(dto.getDepartment().getDepartmentId()));
 
-        employee.setIsActive(dto.getIsActive());
+        employee.setIsActive(true);
 
         if (dto.getManager() != null) {
 
             Employee managerEmployee = employeeRepo.findById(dto.getManager().getEmployeeId()).orElse(null);
-
             employee.setManager(managerEmployee);
 
         } else {
-
             employee.setManager(null);
         }
 
         if (employee.getUser() != null) {
 
             employee.getUser().setEmail(dto.getEmail());
-
             if (dto.getRole() != null) {
-
                 employee.getUser().setRole(roleService.getRoleById(dto.getRole().getRoleId()));
             }
 
             employee.getUser().setEmployee(employee);
-
             userService.saveUser(employee.getUser());
         }
 
@@ -221,8 +216,6 @@ public class EmployeeService {
         dto.setDateOfJoining(employee.getDateOfJoining());
 
         dto.setDepartment(departmentService.convertToDTO(employee.getDepartment()));
-
-        dto.setIsActive(employee.getIsActive());
 
         if (employee.getManager() != null) {
 

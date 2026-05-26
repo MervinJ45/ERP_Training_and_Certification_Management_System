@@ -24,7 +24,6 @@ public class EmployeeDTO {
     private String phone;
     private String designation;
     private LocalDate dateOfJoining;
-    private Boolean isActive;
     private DepartmentDTO department;
     private EmployeeDTO manager;
     private RoleDTO role;

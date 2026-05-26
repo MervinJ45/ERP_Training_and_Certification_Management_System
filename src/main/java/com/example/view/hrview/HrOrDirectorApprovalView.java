@@ -40,7 +40,6 @@ import java.util.stream.Collectors;
 public class HrOrDirectorApprovalView extends VerticalLayout {
 
     private final TrainingEnrollmentService trainingEnrollmentService;
-    private final AuthenticationContext authContext;
     private final CurrentUserProvider currentUserProvider;
 
     private final Grid<TrainingEnrollmentDTO> grid = new Grid<>(TrainingEnrollmentDTO.class, false);
@@ -51,9 +50,8 @@ public class HrOrDirectorApprovalView extends VerticalLayout {
     private List<TrainingEnrollmentDTO> allData;
     private final NumberFormat inrFormatter = NumberFormat.getCurrencyInstance(new Locale("en", "IN"));
 
-    public HrOrDirectorApprovalView(TrainingEnrollmentService trainingEnrollmentService, AuthenticationContext authContext, CurrentUserProvider currentUserProvider) {
+    public HrOrDirectorApprovalView(TrainingEnrollmentService trainingEnrollmentService, CurrentUserProvider currentUserProvider) {
         this.trainingEnrollmentService = trainingEnrollmentService;
-        this.authContext = authContext;
         this.currentUserProvider = currentUserProvider;
 
         setSizeFull();

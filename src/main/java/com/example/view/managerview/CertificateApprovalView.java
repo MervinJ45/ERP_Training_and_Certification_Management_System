@@ -59,7 +59,7 @@ public class CertificateApprovalView extends VerticalLayout {
         grid.addColumn(renewal -> renewal.getOriginalCertification().getCertificateNumber()).setHeader("Certification Number");
         grid.addColumn(renewal -> renewal.getEmployee().getFirstName() + " " + renewal.getEmployee().getFirstName()).setHeader("Employee Name");
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         grid.addColumn(renewal -> renewal.getRenewalDate() != null ? renewal.getRenewalDate().format(formatter) : "N/A").setHeader("Submission Date");
 
         grid.addColumn(new ComponentRenderer<>(renewal -> {
@@ -133,6 +133,7 @@ public class CertificateApprovalView extends VerticalLayout {
         dialog.getFooter().add(confirmBtn, cancelBtn);
         dialog.open();
     }
+
 
     private void refreshGridData() {
         List<CertificationRenewal> pendingRequests = renewalService.getPendingRenewals();

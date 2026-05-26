@@ -57,21 +57,21 @@ public class DashboardView extends VerticalLayout {
 
         List<CertificationDisplayDTO> expiringOrExpired = allCertifications.stream().filter(c -> c.getStatusName() != null && !"Renewed".equalsIgnoreCase(c.getStatusName())).filter(c -> c.getDaysRemaining() != null && c.getDaysRemaining() <= 30).toList();
 
-        long totalActivePrograms = allCourses.stream().filter(TrainingCourseDTO::isActive).count();
+        long totalActivePrograms = allCourses.size();
         long activeEnrollments = allEnrollments.stream().filter(e -> "Approved".equalsIgnoreCase(e.getEnrollmentStatusName())).count();
         long pendingApprovals = allEnrollments.stream().filter(e -> "Pending Approval".equalsIgnoreCase(e.getEnrollmentStatusName())).count();
         long expiringCertifications = expiringOrExpired.size();
 
-        HorizontalLayout kpiRow = new HorizontalLayout();
-        kpiRow.setWidthFull();
+        HorizontalLayout cards = new HorizontalLayout();
+        cards.setWidthFull();
 
-        Component totalProgramsCard = createKpiCard("Total Programs", String.valueOf(totalActivePrograms), VaadinIcon.ACADEMY_CAP, "blue");
-        Component activeEnrollmentsCard = createKpiCard("Active Enrollments", String.valueOf(activeEnrollments), VaadinIcon.USER_CHECK, "green");
-        Component pendingApprovalsCard = createKpiCard("Pending Approvals", String.valueOf(pendingApprovals), VaadinIcon.CLOCK, "orange");
-        Component upcomingExpiryCard = createKpiCard("Expiring Certifications", String.valueOf(expiringCertifications), VaadinIcon.WARNING, "red");
+        Component totalProgramsCard = createCard("Total Programs", String.valueOf(totalActivePrograms), VaadinIcon.ACADEMY_CAP, "blue");
+        Component activeEnrollmentsCard = createCard("Active Enrollments", String.valueOf(activeEnrollments), VaadinIcon.USER_CHECK, "green");
+        Component pendingApprovalsCard = createCard("Pending Approvals", String.valueOf(pendingApprovals), VaadinIcon.CLOCK, "orange");
+        Component upcomingExpiryCard = createCard("Expiring Certifications", String.valueOf(expiringCertifications), VaadinIcon.WARNING, "red");
 
-        kpiRow.add(totalProgramsCard, activeEnrollmentsCard, pendingApprovalsCard, upcomingExpiryCard);
-        add(kpiRow);
+        cards.add(totalProgramsCard, activeEnrollmentsCard, pendingApprovalsCard, upcomingExpiryCard);
+        add(cards);
 
         HorizontalLayout middleRow = new HorizontalLayout();
         middleRow.setWidthFull();
@@ -87,7 +87,7 @@ public class DashboardView extends VerticalLayout {
         add(skillSummary);
     }
 
-    private Component createKpiCard(String title, String value, VaadinIcon iconType, String colorTheme) {
+    private Component createCard(String title, String value, VaadinIcon iconType, String colorTheme) {
         HorizontalLayout card = new HorizontalLayout();
         card.setWidthFull();
         card.setPadding(true);
@@ -129,9 +129,7 @@ public class DashboardView extends VerticalLayout {
         grid.addColumn(new NumberRenderer<>(DepartmentDTO::getAnnualBudget, currencyFormat)).setHeader("Annual Budget").setAutoWidth(true);
         grid.addColumn(new NumberRenderer<>(DepartmentDTO::getAvailableBalance, currencyFormat)).setHeader("Available Balance").setAutoWidth(true);
 
-        if (departmentService != null) {
-            grid.setItems(departmentService.getAllDepartmentDTOs());
-        }
+        grid.setItems(departmentService.getAllDepartmentDTOs());
 
         container.add(grid);
         return container;
@@ -180,9 +178,7 @@ public class DashboardView extends VerticalLayout {
 
         grid.addColumn(skill -> "★ ".repeat(Math.max(0, skill.getProficiencyRating())) + "☆ ".repeat(Math.max(0, 5 - skill.getProficiencyRating()))).setHeader("Proficiency Rating").setAutoWidth(true);
 
-        if (skillMatrixService != null) {
-            grid.setItems(skillMatrixService.getSkillMatrixSummary());
-        }
+        grid.setItems(skillMatrixService.getSkillMatrixSummary());
 
         container.add(grid);
         return container;

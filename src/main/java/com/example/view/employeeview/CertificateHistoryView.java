@@ -44,10 +44,7 @@ public class CertificateHistoryView extends VerticalLayout {
         setSizeFull();
         setPadding(true);
         setSpacing(true);
-    }
 
-    @PostConstruct
-    private void initView() {
         H2 heading = new H2("My Enrolled Trainings");
         heading.getStyle().set("margin-top", "0");
 
@@ -66,12 +63,12 @@ public class CertificateHistoryView extends VerticalLayout {
                 .setAutoWidth(true);
 
         grid.addColumn(dto -> dto.getEnrollmentDate() != null ?
-                        dto.getEnrollmentDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A")
+                        dto.getEnrollmentDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")) : "N/A")
                 .setHeader("Enrollment Date")
                 .setAutoWidth(true);
 
         grid.addColumn(dto -> dto.getCompletionDate() != null ?
-                        dto.getCompletionDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "In Progress")
+                        dto.getCompletionDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")) : "In Progress")
                 .setHeader("Completed On")
                 .setAutoWidth(true);
 

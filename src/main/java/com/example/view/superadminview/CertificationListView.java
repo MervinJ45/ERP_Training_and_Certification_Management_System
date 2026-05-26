@@ -95,9 +95,9 @@ public class CertificationListView extends VerticalLayout {
         grid.addColumn(CertificationDisplayDTO::getCertificateNumber).setHeader("Certificate Number").setSortable(true).setAutoWidth(true);
         grid.addColumn(CertificationDisplayDTO::getEmployee).setHeader("Employee Name").setSortable(true).setAutoWidth(true);
         grid.addColumn(CertificationDisplayDTO::getCourseName).setHeader("Course Name").setSortable(true).setAutoWidth(true);
-        grid.addColumn(new LocalDateRenderer<>(CertificationDisplayDTO::getIssueDate, "yyyy-MM-dd")).setHeader("Issue Date").setSortable(true).setAutoWidth(true);
+        grid.addColumn(new LocalDateRenderer<>(CertificationDisplayDTO::getIssueDate, "dd-MM-yyyy")).setHeader("Issue Date").setSortable(true).setAutoWidth(true);
         grid.addColumn(new ComponentRenderer<>(this::createExpiryDateLayout)).setHeader("Expiry Date").setSortable(true).setComparator(Comparator.comparing(CertificationDisplayDTO::getExpiryDate, Comparator.nullsLast(Comparator.naturalOrder()))).setAutoWidth(true);
-        grid.addColumn(new ComponentRenderer<>(this::createStatusBadge)).setHeader("Status").setSortable(true).setAutoWidth(true);
+        grid.addColumn(new ComponentRenderer<>(this::createStatusBadge)).setHeader("Status").setAutoWidth(true);
         grid.addColumn(new ComponentRenderer<>(this::createActionButtons)).setHeader("Actions").setAutoWidth(true);
     }
 
@@ -176,12 +176,12 @@ public class CertificationListView extends VerticalLayout {
             return noFile;
         }
 
-        Button downloadBtn = new Button("View", VaadinIcon.FILE_TEXT.create());
-        downloadBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
+        Button viewBtn = new Button("View", VaadinIcon.FILE_TEXT.create());
+        viewBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
 
         Anchor anchor = new Anchor(dto.getCertificateUrl(), "");
         anchor.setTarget("_blank");
-        anchor.add(downloadBtn);
+        anchor.add(viewBtn);
 
         return anchor;
     }

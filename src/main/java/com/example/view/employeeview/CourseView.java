@@ -111,7 +111,7 @@ public class CourseView extends VerticalLayout {
             return icon;
         })).setHeader("Certification Provided?");
 
-        grid.addItemClickListener(event -> openCourseDetails(event.getItem()));
+        grid.addItemDoubleClickListener(event -> openCourseDetails(event.getItem()));
         grid.getColumns().forEach(col -> col.setAutoWidth(true));
     }
 
@@ -140,10 +140,6 @@ public class CourseView extends VerticalLayout {
 
         Button enrollBtn = new Button("Enroll Now", VaadinIcon.PAPERPLANE.create(), e -> {
             User user = currentUserProvider.getCurrentUser();
-            if (user == null || user.getEmployee() == null) {
-                Notification.show("User profile metadata session missing.").addThemeVariants(NotificationVariant.LUMO_ERROR);
-                return;
-            }
 
             Employee employee = user.getEmployee();
 

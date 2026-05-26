@@ -11,4 +11,5 @@ public interface TrainingEnrollmentRepo extends JpaRepository<TrainingEnrollment
     List<TrainingEnrollment> findByEmployeeEmployeeId(Long employeeId);
     List<TrainingEnrollment> findByEmployeeManagerEmployeeId(Long managerId);
     List<TrainingEnrollment> findByEnrollmentStatusEnrollmentStatusAndIsActiveTrue(String pending);
+    List<TrainingEnrollment> findByIsActiveTrue();
 }

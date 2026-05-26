@@ -56,11 +56,8 @@ public class MyEnrollmentView extends VerticalLayout {
         NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("en", "IN"));
 
         grid.addColumn(TrainingEnrollmentDTO::getCourseName).setHeader("Course");
-
         grid.addColumn(dto -> dto.getEnrollmentDate() != null ? dto.getEnrollmentDate().toLocalDate() : "-").setHeader("Enrollment Date");
-
         grid.addColumn(new NumberRenderer<>(TrainingEnrollmentDTO::getRequestedCost, currencyFormat)).setHeader("Requested Cost");
-
         grid.addColumn(dto -> dto.getApprovedCost() != null ? currencyFormat.format(dto.getApprovedCost()) : "-").setHeader("Approved Cost");
 
         grid.addColumn(new ComponentRenderer<>(dto -> {

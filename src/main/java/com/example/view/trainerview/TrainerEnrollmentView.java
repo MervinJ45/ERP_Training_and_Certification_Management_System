@@ -97,10 +97,6 @@ public class TrainerEnrollmentView extends VerticalLayout {
         layout.add(confirmationText, proficiencyRating, remarks);
 
         Button confirmBtn = new Button("Submit Completion", e -> {
-            if (proficiencyRating.getValue() == null) {
-                Notification.show("Please assign a Proficiency Rating before completing.", 3000, Notification.Position.MIDDLE).addThemeVariants(NotificationVariant.LUMO_WARNING);
-                return;
-            }
 
             try {
                 Certification certificate = trainingEnrollmentService.finalizeAndGenerateCertificate(dto.getEnrollmentId(), remarks.getValue(), proficiencyRating.getValue());

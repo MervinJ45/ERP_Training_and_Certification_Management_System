@@ -20,6 +20,7 @@ import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -120,12 +121,9 @@ public class SkillMatrixSummaryView extends VerticalLayout {
                     return ratingLayout;
                 })).setHeader("Proficiency Rating")
                 .setSortable(true)
-                .setComparator((a, b) -> Integer.compare(
-                        a.getProficiencyRating() != null ? a.getProficiencyRating() : 0,
-                        b.getProficiencyRating() != null ? b.getProficiencyRating() : 0
-                ));
+                .setComparator(Comparator.comparingInt(a -> a.getProficiencyRating() != null ? a.getProficiencyRating() : 0));
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
         grid.addColumn(dto -> dto.getUpdatedAt() != null ? dto.getUpdatedAt().format(formatter) : "N/A")
                 .setHeader("Last Verified")
                 .setSortable(true);

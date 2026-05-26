@@ -137,12 +137,14 @@ public class ManageCourseView extends VerticalLayout {
     }
 
     private void configureGrid() {
+        grid.addItemDoubleClickListener(e -> openCourseForm(e.getItem()));
+
         grid.addColumn(TrainingCourseDTO::getCourseName).setHeader("Course Name").setAutoWidth(true).setSortable(true);
         grid.addColumn(dto -> dto.getCategory() != null ? dto.getCategory().getCategoryName() : "").setHeader("Category").setAutoWidth(true).setSortable(true);
         grid.addColumn(TrainingCourseDTO::getDurationDays).setHeader("Days").setAutoWidth(true).setSortable(true);
         grid.addColumn(TrainingCourseDTO::getTrainingCost).setHeader("Cost").setAutoWidth(true).setSortable(true);
-        grid.addColumn(dto -> dto.getTrainingType() != null ? dto.getTrainingType().getTrainingType() : "").setHeader("Type").setAutoWidth(true).setSortable(true);
-        grid.addColumn(dto -> dto.getTrainer() != null ? dto.getTrainer().getFirstName() : "").setHeader("Trainer").setAutoWidth(true).setSortable(true);
+        grid.addColumn(TrainingCourseDTO::getTrainingTypeName).setHeader("Type").setAutoWidth(true).setSortable(true);
+        grid.addColumn(TrainingCourseDTO::getTrainerName).setHeader("Trainer").setAutoWidth(true).setSortable(true);
         grid.addColumn(dto -> dto.getCertificationProvided() != null && dto.getCertificationProvided() ? "YES" : "NO").setHeader("Certificate Provided?").setAutoWidth(true).setSortable(true);
         grid.addColumn(TrainingCourseDTO::getCertificationValidityMonths).setHeader("Certificate Expire in (Months)").setAutoWidth(true).setSortable(true);
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);

@@ -68,7 +68,7 @@ public class MyCertificatesView extends VerticalLayout {
         grid.addColumn(CertificationDisplayDTO::getCertificateNumber).setHeader("Certificate No.").setSortable(true);
         grid.addColumn(CertificationDisplayDTO::getCourseName).setHeader("Certified Skill / Course").setSortable(true);
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
         grid.addColumn(dto -> dto.getIssueDate() != null ? dto.getIssueDate().format(formatter) : "N/A").setHeader("Issue Date");
         grid.addColumn(dto -> dto.getExpiryDate() != null ? dto.getExpiryDate().format(formatter) : "Permanent").setHeader("Expiry Date").setSortable(true);
@@ -85,21 +85,20 @@ public class MyCertificatesView extends VerticalLayout {
         }).setHeader("Validity Status");
 
         grid.addColumn(new ComponentRenderer<>(dto -> {
-            Button downloadBtn = new Button("Download");
-            downloadBtn.setIcon(VaadinIcon.DOWNLOAD.create());
-            downloadBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SMALL);
+            Button viewBtn = new Button("View");
+            viewBtn.setIcon(VaadinIcon.EYE.create());
+            viewBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SMALL);
 
             Anchor anchor = new Anchor();
-            anchor.add(downloadBtn);
+            anchor.add(viewBtn);
 
             if (dto.getCertificateUrl() != null && !dto.getCertificateUrl().trim().isEmpty()) {
                 anchor.setHref(dto.getCertificateUrl());
                 anchor.setTarget("_blank");
-                anchor.getElement().setAttribute("download", "Certificate_" + dto.getCertificateNumber() + ".pdf");
             } else {
-                downloadBtn.setEnabled(false);
-                downloadBtn.setText("No File Available");
-                downloadBtn.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+                viewBtn.setEnabled(false);
+                viewBtn.setText("No File Available");
+                viewBtn.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
             }
 
             return anchor;

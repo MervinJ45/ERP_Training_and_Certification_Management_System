@@ -42,7 +42,7 @@ public class CertificationService {
 
         logger.info("Fetching all certifications");
 
-        return certificationRepo.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
+        return certificationRepo.findByIsActiveTrue().stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     public List<CertificationDisplayDTO> getMyCertifications(Long employeeId) {

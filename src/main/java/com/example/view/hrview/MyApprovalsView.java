@@ -46,6 +46,7 @@ public class MyApprovalsView extends VerticalLayout {
         this.approvalService = approvalService;
         this.currentUserProvider = currentUserProvider;
 
+
         setSizeFull();
         setPadding(true);
         setSpacing(true);

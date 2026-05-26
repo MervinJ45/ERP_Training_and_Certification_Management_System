@@ -109,10 +109,10 @@ public class EmployeeView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.addColumn(EmployeeDTO::getFirstName).setHeader("First Name").setWidth("180px").setFrozen(true).setSortable(true);
-        grid.addColumn(EmployeeDTO::getLastName).setHeader("Last Name").setWidth("180px").setFlexGrow(0).setSortable(true);
-        grid.addColumn(EmployeeDTO::getEmail).setHeader("Email").setWidth("250px").setFlexGrow(0).setSortable(true);
-        grid.addColumn(EmployeeDTO::getPhone).setHeader("Phone").setWidth("180px").setFlexGrow(0);
+        grid.addColumn(EmployeeDTO::getFirstName).setHeader("First Name").setFrozen(true).setSortable(true).setAutoWidth(true);
+        grid.addColumn(EmployeeDTO::getLastName).setHeader("Last Name").setFlexGrow(0).setSortable(true).setAutoWidth(true);
+        grid.addColumn(EmployeeDTO::getEmail).setHeader("Email").setFlexGrow(0).setSortable(true).setAutoWidth(true);
+        grid.addColumn(EmployeeDTO::getPhone).setHeader("Phone").setAutoWidth(true);
 
         grid.addColumn(dto -> dto.getDepartment() != null ? dto.getDepartment().getDepartmentName() : "No Dept").setHeader("Department").setWidth("200px").setFlexGrow(0).setSortable(true);
 
@@ -121,12 +121,12 @@ public class EmployeeView extends VerticalLayout {
                 return dto.getManager().getFirstName() + " " + dto.getManager().getLastName();
             }
             return "No Manager";
-        }).setHeader("Manager").setWidth("220px").setFlexGrow(0);
+        }).setHeader("Manager").setAutoWidth(true);
 
-        grid.addColumn(EmployeeDTO::getDesignation).setHeader("Designation").setWidth("200px").setFlexGrow(0);
-        grid.addColumn(EmployeeDTO::getDateOfJoining).setHeader("Date Of Joining").setWidth("180px").setFlexGrow(0).setSortable(true);
+        grid.addColumn(EmployeeDTO::getDesignation).setHeader("Designation").setAutoWidth(true);
+        grid.addColumn(EmployeeDTO::getDateOfJoining).setHeader("Date Of Joining").setAutoWidth(true).setSortable(true);
 
-        grid.addColumn(dto -> dto.getRole() != null ? dto.getRole().getRoleName() : "No Role").setHeader("Role").setWidth("180px").setFlexGrow(0).setSortable(true);
+        grid.addColumn(dto -> dto.getRole() != null ? dto.getRole().getRoleName() : "No Role").setHeader("Role").setAutoWidth(true).setFlexGrow(0).setSortable(true);
 
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.setWidthFull();
@@ -207,10 +207,10 @@ public class EmployeeView extends VerticalLayout {
         Binder<EmployeeDTO> binder = new Binder<>(EmployeeDTO.class);
 
 
-        binder.forField(firstName).asRequired("First name is required.").withValidator(new StringLengthValidator("First name must be between 2 and 50 characters.", 2, 20)).bind(EmployeeDTO::getFirstName, EmployeeDTO::setFirstName);
-        binder.forField(lastName).asRequired("Last name is required.").withValidator(new StringLengthValidator("Last name must be between 1 and 50 characters.", 1, 20)).bind(EmployeeDTO::getLastName, EmployeeDTO::setLastName);
+        binder.forField(firstName).asRequired("First name is required.").withValidator(new StringLengthValidator("First name must be between 2 and 20 characters.", 2, 20)).bind(EmployeeDTO::getFirstName, EmployeeDTO::setFirstName);
+        binder.forField(lastName).asRequired("Last name is required.").withValidator(new StringLengthValidator("Last name must be between 1 and 20 characters.", 1, 20)).bind(EmployeeDTO::getLastName, EmployeeDTO::setLastName);
         binder.forField(email).asRequired("Email address is required.").withValidator(new EmailValidator("Please enter a valid email layout format.")).bind(EmployeeDTO::getEmail, EmployeeDTO::setEmail);
-        binder.forField(phone).asRequired("Phone number is required.").withValidator(p -> p.matches("^\\+?[0-9]{10,13}$"), "Enter a valid phone number format (10-13 digits).").bind(EmployeeDTO::getPhone, EmployeeDTO::setPhone);
+        binder.forField(phone).asRequired("Phone number is required.").withValidator(p -> p.matches("^[0-9]{10}$"), "Enter a valid phone number format (10-13 digits).").bind(EmployeeDTO::getPhone, EmployeeDTO::setPhone);
         binder.forField(designation).asRequired("Designation is required.").bind(EmployeeDTO::getDesignation, EmployeeDTO::setDesignation);
         binder.forField(joiningDate).asRequired("Date of Joining must be selected.").withValidator(date -> !date.isAfter(LocalDate.now().plusMonths(1)), "Date of joining cannot be set too far in the future.").bind(EmployeeDTO::getDateOfJoining, EmployeeDTO::setDateOfJoining);
         binder.forField(department).asRequired("Please allocate a department.").bind(EmployeeDTO::getDepartment, EmployeeDTO::setDepartment);
@@ -233,7 +233,6 @@ public class EmployeeView extends VerticalLayout {
 
         saveBtn.addClickListener(e -> {
             if (binder.writeBeanIfValid(dtoToSave)) {
-                dtoToSave.setIsActive(true);
 
                 if (employeeDTO == null) {
                     String cleanFirstName = dtoToSave.getFirstName().replaceAll("\\s+", "").toLowerCase();

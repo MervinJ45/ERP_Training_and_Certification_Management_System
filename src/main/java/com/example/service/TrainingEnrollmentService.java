@@ -53,7 +53,7 @@ public class TrainingEnrollmentService {
 
     public List<TrainingEnrollmentDTO> getAllEnrollmentDTOs() {
         logger.info("Fetching all training enrollments");
-        return trainingEnrollmentRepo.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
+        return trainingEnrollmentRepo.findByIsActiveTrue().stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     public TrainingEnrollmentDTO getEnrollmentDTOById(Long id) {

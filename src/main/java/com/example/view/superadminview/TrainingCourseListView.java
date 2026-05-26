@@ -87,20 +87,11 @@ public class TrainingCourseListView extends VerticalLayout {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
 
         grid.addColumn(TrainingCourseDTO::getCourseName).setHeader("Course Name").setSortable(true).setAutoWidth(true);
-        grid.addColumn(this::getCategoryNameSafe).setHeader("Category").setSortable(true).setAutoWidth(true);
-        grid.addColumn(dto -> dto.getTrainerName() != null ? dto.getTrainerName() : (dto.getTrainer() != null ? dto.getTrainer().getFirstName() : "Unassigned")).setHeader("Trainer").setAutoWidth(true);
+        grid.addColumn(TrainingCourseDTO::getCategoryName).setHeader("Category").setSortable(true).setAutoWidth(true);
+        grid.addColumn(TrainingCourseDTO::getTrainerName).setHeader("Trainer").setAutoWidth(true);
         grid.addColumn(TrainingCourseDTO::getDurationDays).setHeader("Duration (Days)").setSortable(true).setAutoWidth(true);
         grid.addColumn(new NumberRenderer<>(TrainingCourseDTO::getTrainingCost, NumberFormat.getCurrencyInstance(new Locale("en","IN")))).setHeader("Cost").setSortable(true).setAutoWidth(true);
         grid.addColumn(new ComponentRenderer<>(this::createCertificationBadge)).setHeader("Certification").setAutoWidth(true);
-    }
-
-    private String getCategoryNameSafe(TrainingCourseDTO dto) {
-        if (dto.getCategoryName() != null) {
-            return dto.getCategoryName();
-        } else if (dto.getCategory() != null) {
-            return dto.getCategory().getCategoryName();
-        }
-        return "N/A";
     }
 
     private Span createCertificationBadge(TrainingCourseDTO dto) {

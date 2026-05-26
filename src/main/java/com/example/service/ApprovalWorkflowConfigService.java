@@ -93,11 +93,6 @@ public class ApprovalWorkflowConfigService {
             return 0;
         }
 
-        return getAllConfigs().stream().filter(config -> Boolean.TRUE.equals(config.getIsActive())).filter(config -> {
-            java.math.BigDecimal min = config.getMinCost() != null ? config.getMinCost() : java.math.BigDecimal.ZERO;
-            java.math.BigDecimal max = config.getMaxCost() != null ? config.getMaxCost() : new java.math.BigDecimal("999999999.99");
-
-            return requestedCost.compareTo(min) >= 0 && requestedCost.compareTo(max) <= 0;
-        }).count();
+        return getAllConfigs().stream().filter(config -> Boolean.TRUE.equals(config.getIsActive())).filter(config -> requestedCost.compareTo(config.getMinCost()) >= 0 && requestedCost.compareTo(config.getMaxCost()) <= 0).count();
     }
 }

@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 public class TrainingEnrollmentListView extends VerticalLayout {
 
     private final TrainingEnrollmentService trainingEnrollmentService;
-    private final ApprovalWorkflowConfigService workflowConfigService; // Added service dependency
+    private final ApprovalWorkflowConfigService workflowConfigService;
     private final Grid<TrainingEnrollmentDTO> grid = new Grid<>(TrainingEnrollmentDTO.class, false);
 
     private final TextField employeeFilter = new TextField();
@@ -110,7 +110,7 @@ public class TrainingEnrollmentListView extends VerticalLayout {
             return currentLevel + " / " + totalLevels;
         }).setHeader(createApprovalLevelHeader()).setSortable(true).setAutoWidth(true);
 
-        grid.addColumn(new LocalDateTimeRenderer<>(TrainingEnrollmentDTO::getEnrollmentDate, "yyyy-MM-dd HH:mm")).setHeader("Enrollment Date").setSortable(true).setAutoWidth(true);
+        grid.addColumn(new LocalDateTimeRenderer<>(TrainingEnrollmentDTO::getEnrollmentDate, "dd-MM-yyyy")).setHeader("Enrollment Date").setSortable(true).setAutoWidth(true);
         grid.addColumn(new ComponentRenderer<>(this::createStatusBadge)).setHeader("Status").setSortable(true).setAutoWidth(true);
         grid.addColumn(new ComponentRenderer<>(this::createCertificateBadge)).setHeader("Certificate").setAutoWidth(true);
     }

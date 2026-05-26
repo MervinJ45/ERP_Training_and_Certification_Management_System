@@ -28,4 +28,6 @@ public interface CertificationRepo extends JpaRepository<Certification, Long> {
             @Param("now") LocalDateTime now,
             @Param("expiredStatus") CertificationStatus expiredStatus
     );
+
+    List<Certification> findByIsActiveTrue();
 }

@@ -47,7 +47,7 @@ public class TrainingCourseService {
 
         logger.info("Fetching all training courses");
 
-        return trainingCourseRepo.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
+        return trainingCourseRepo.findByIsActiveTrue().stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     public TrainingCourseDTO getCourseDTOById(Long id) {
