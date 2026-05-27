@@ -44,7 +44,7 @@ public class Employee {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(length = 20)
+    @Column(length = 30)
     private String designation;
     private LocalDate dateOfJoining;
     private Boolean isActive = true;

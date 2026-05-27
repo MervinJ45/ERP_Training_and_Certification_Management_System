@@ -96,33 +96,7 @@ public class SkillMatrixSummaryView extends VerticalLayout {
         grid.addColumn(SkillSummaryDTO::getCourseName).setHeader("Source Course").setSortable(true);
         grid.addColumn(SkillSummaryDTO::getSkillName).setHeader("Acquired Skill").setSortable(true);
 
-        grid.addColumn(new ComponentRenderer<>(dto -> {
-                    HorizontalLayout ratingLayout = new HorizontalLayout();
-                    ratingLayout.setSpacing(false);
-
-                    int rating = dto.getProficiencyRating() != null ? dto.getProficiencyRating() : 0;
-
-                    for (int i = 1; i <= 5; i++) {
-                        Icon star = VaadinIcon.STAR.create();
-                        star.setSize("16px");
-                        if (i <= rating) {
-                            star.getStyle().set("color", "var(--lumo-error-color)");
-                        } else {
-                            star.getStyle().set("color", "var(--lumo-contrast-20pct)");
-                        }
-                        ratingLayout.add(star);
-                    }
-
-                    Span numericLabel = new Span(" (" + rating + "/5)");
-                    numericLabel.getStyle().set("font-size", "var(--lumo-font-size-s)");
-                    numericLabel.getStyle().set("color", "var(--lumo-secondary-text-color)");
-                    ratingLayout.add(numericLabel);
-
-                    return ratingLayout;
-                })).setHeader("Proficiency Rating")
-                .setSortable(true)
-                .setComparator(Comparator.comparingInt(a -> a.getProficiencyRating() != null ? a.getProficiencyRating() : 0));
-
+        grid.addColumn(skill -> "★ ".repeat(Math.max(0, skill.getProficiencyRating())) + "☆ ".repeat(Math.max(0, 5 - skill.getProficiencyRating()))).setHeader("Proficiency Rating").setAutoWidth(true);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
         grid.addColumn(dto -> dto.getUpdatedAt() != null ? dto.getUpdatedAt().format(formatter) : "N/A")
                 .setHeader("Last Verified")

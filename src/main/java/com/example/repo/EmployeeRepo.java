@@ -15,5 +15,7 @@ public interface EmployeeRepo extends JpaRepository<Employee, Long> {
     @Query("SELECT e FROM Employee e JOIN User u ON u.employee = e WHERE u.role.roleName = 'MANAGER'")
     List<Employee> findAllManagers();
 
+    @Query("SELECT DISTINCT s.employee FROM SkillMatrix s WHERE s.employee.isActive = true")
+    List<Employee> findEmployeesWithSkills();
 
 }

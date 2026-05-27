@@ -114,4 +114,7 @@ public class SkillMatrixService {
         }).collect(Collectors.toList());
     }
 
+    public List<SkillMatrix> getSkillsByEmployeeId(Long employeeId) {
+        return skillMatrixRepo.findByEmployee_EmployeeId(employeeId);
+    }
 }

@@ -133,3 +133,322 @@ Vaadin is running in DEVELOPMENT mode - do not use for production deployments.
 2026-05-27 10:11:48 - Finding user by username: siddheshlad
 2026-05-27 10:11:48 - Finding user by username: siddheshlad
 2026-05-27 10:11:48 - Finding user by username: siddheshlad
+2026-05-27 10:30:25 - Starting Application using Java 21.0.10 with PID 12384 (C:\Users\mervin\Desktop\Assignment\ERP Training and Certification Management System\target\classes started by mervin in C:\Users\mervin\Desktop\Assignment\ERP Training and Certification Management System)
+2026-05-27 10:30:25 - Running with Spring Boot v3.4.5, Spring v6.2.6
+2026-05-27 10:30:25 - No active profile set, falling back to 1 default profile: "default"
+2026-05-27 10:30:27 - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-05-27 10:30:27 - Finished Spring Data repository scanning in 546 ms. Found 17 JPA repository interfaces.
+2026-05-27 10:30:29 - Tomcat initialized with port 8080 (http)
+2026-05-27 10:30:29 - Starting service [Tomcat]
+2026-05-27 10:30:29 - Starting Servlet engine: [Apache Tomcat/10.1.40]
+2026-05-27 10:30:29 - Initializing Spring embedded WebApplicationContext
+2026-05-27 10:30:29 - Root WebApplicationContext: initialization completed in 3601 ms
+2026-05-27 10:30:29 - Initializing AtmosphereFramework
+2026-05-27 10:30:32 - Search for subclasses and classes with annotations took 2376 ms
+2026-05-27 10:30:34 - Starting dev-mode updaters in C:\Users\mervin\Desktop\Assignment\ERP Training and Certification Management System folder.
+2026-05-27 10:30:34 - Visited 130 classes. Took 59 ms.
+2026-05-27 10:30:34 - Checking if a development mode bundle build is needed
+2026-05-27 10:30:34 - A development mode bundle build is not needed
+2026-05-27 10:30:35 - Copying frontend resources from jar files ...
+2026-05-27 10:30:35 - Visited 21 resources. Took 144 ms.
+2026-05-27 10:30:35 - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-05-27 10:30:35 - HHH000412: Hibernate ORM core version 6.6.13.Final
+2026-05-27 10:30:35 - HHH000026: Second-level cache disabled
+2026-05-27 10:30:36 - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-05-27 10:30:36 - HikariPool-1 - Starting...
+2026-05-27 10:30:36 - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@4e797a39
+2026-05-27 10:30:36 - HikariPool-1 - Start completed.
+2026-05-27 10:30:36 - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-05-27 10:30:36 - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 18.3
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-05-27 10:30:39 - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-05-27 10:30:39 - GenerationTarget encountered exception accepting command : Error executing DDL "alter table if exists employees alter column designation set data type varchar(20)" via JDBC [ERROR: value too long for type character varying(20)]
+org.hibernate.tool.schema.spi.CommandAcceptanceException: Error executing DDL "alter table if exists employees alter column designation set data type varchar(20)" via JDBC [ERROR: value too long for type character varying(20)]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:94)
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.applySqlString(AbstractSchemaMigrator.java:576)
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.applySqlStrings(AbstractSchemaMigrator.java:516)
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.migrateTable(AbstractSchemaMigrator.java:334)
+	at org.hibernate.tool.schema.internal.GroupedSchemaMigratorImpl.performTablesMigration(GroupedSchemaMigratorImpl.java:84)
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.performMigration(AbstractSchemaMigrator.java:233)
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.doMigration(AbstractSchemaMigrator.java:112)
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.performDatabaseAction(SchemaManagementToolCoordinator.java:280)
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.lambda$process$5(SchemaManagementToolCoordinator.java:144)
+	at java.base/java.util.HashMap.forEach(HashMap.java:1429)
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.process(SchemaManagementToolCoordinator.java:141)
+	at org.hibernate.boot.internal.SessionFactoryObserverForSchemaExport.sessionFactoryCreated(SessionFactoryObserverForSchemaExport.java:37)
+	at org.hibernate.internal.SessionFactoryObserverChain.sessionFactoryCreated(SessionFactoryObserverChain.java:35)
+	at org.hibernate.internal.SessionFactoryImpl.<init>(SessionFactoryImpl.java:324)
+	at org.hibernate.boot.internal.SessionFactoryBuilderImpl.build(SessionFactoryBuilderImpl.java:463)
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1517)
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:66)
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:390)
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:419)
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:400)
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:366)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1865)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1814)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:607)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:207)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:970)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:627)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:753)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:318)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1362)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1351)
+	at com.example.Application.main(Application.java:16)
+Caused by: org.postgresql.util.PSQLException: ERROR: value too long for type character varying(20)
+	at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2733)
+	at org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2420)
+	at org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:372)
+	at org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:517)
+	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:434)
+	at org.postgresql.jdbc.PgStatement.executeWithFlags(PgStatement.java:356)
+	at org.postgresql.jdbc.PgStatement.executeCachedSql(PgStatement.java:341)
+	at org.postgresql.jdbc.PgStatement.executeWithFlags(PgStatement.java:317)
+	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:312)
+	at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:94)
+	at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java)
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:80)
+	... 37 common frames omitted
+2026-05-27 10:30:41 - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-05-27 10:30:42 - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-05-27 10:30:45 - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-05-27 10:30:45 - Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-05-27 10:30:46 - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-27 10:30:46 - Initializing Servlet 'dispatcherServlet'
+2026-05-27 10:30:46 - Completed initialization in 2 ms
+2026-05-27 10:30:46 - 
+Vaadin is running in DEVELOPMENT mode - do not use for production deployments.
+2026-05-27 10:30:46 - The number of beans implementing 'I18NProvider' is 0. Cannot use Spring beans for I18N, falling back to the default behavior
+2026-05-27 10:30:50 - Tomcat started on port 8080 (http) with context path '/'
+2026-05-27 10:30:50 - Started Application in 25.363 seconds (process running for 26.262)
+2026-05-27 10:30:58 - Finding user by username: mithunns
+2026-05-27 10:30:58 - Fetching all training courses
+2026-05-27 10:30:59 - Fetching all training enrollments
+2026-05-27 10:30:59 - Fetching all certifications
+2026-05-27 10:30:59 - Fetching all departments
+2026-05-27 10:30:59 - Fetching skill matrix summary
+2026-05-27 10:31:02 - Fetching all employees
+2026-05-27 10:37:02 - Commencing graceful shutdown. Waiting for active requests to complete
+2026-05-27 10:37:02 - Graceful shutdown complete
+2026-05-27 10:37:02 - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-05-27 10:37:02 - HikariPool-1 - Shutdown initiated...
+2026-05-27 10:37:02 - HikariPool-1 - Shutdown completed.
+2026-05-27 10:37:09 - Starting Application using Java 21.0.10 with PID 9076 (C:\Users\mervin\Desktop\Assignment\ERP Training and Certification Management System\target\classes started by mervin in C:\Users\mervin\Desktop\Assignment\ERP Training and Certification Management System)
+2026-05-27 10:37:09 - Running with Spring Boot v3.4.5, Spring v6.2.6
+2026-05-27 10:37:09 - No active profile set, falling back to 1 default profile: "default"
+2026-05-27 10:37:10 - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-05-27 10:37:10 - Finished Spring Data repository scanning in 238 ms. Found 17 JPA repository interfaces.
+2026-05-27 10:37:11 - Tomcat initialized with port 8080 (http)
+2026-05-27 10:37:11 - Starting service [Tomcat]
+2026-05-27 10:37:11 - Starting Servlet engine: [Apache Tomcat/10.1.40]
+2026-05-27 10:37:11 - Initializing Spring embedded WebApplicationContext
+2026-05-27 10:37:11 - Root WebApplicationContext: initialization completed in 2290 ms
+2026-05-27 10:37:12 - Initializing AtmosphereFramework
+2026-05-27 10:37:13 - Search for subclasses and classes with annotations took 841 ms
+2026-05-27 10:37:13 - Starting dev-mode updaters in C:\Users\mervin\Desktop\Assignment\ERP Training and Certification Management System folder.
+2026-05-27 10:37:13 - Visited 130 classes. Took 36 ms.
+2026-05-27 10:37:13 - Checking if a development mode bundle build is needed
+2026-05-27 10:37:14 - A development mode bundle build is not needed
+2026-05-27 10:37:14 - Copying frontend resources from jar files ...
+2026-05-27 10:37:14 - Visited 21 resources. Took 127 ms.
+2026-05-27 10:37:14 - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-05-27 10:37:14 - HHH000412: Hibernate ORM core version 6.6.13.Final
+2026-05-27 10:37:14 - HHH000026: Second-level cache disabled
+2026-05-27 10:37:15 - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-05-27 10:37:15 - HikariPool-1 - Starting...
+2026-05-27 10:37:15 - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@411e567e
+2026-05-27 10:37:15 - HikariPool-1 - Start completed.
+2026-05-27 10:37:15 - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-05-27 10:37:15 - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 18.3
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-05-27 10:37:17 - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-05-27 10:37:18 - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-05-27 10:37:19 - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-05-27 10:37:20 - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-05-27 10:37:20 - Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-05-27 10:37:23 - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-27 10:37:23 - Initializing Servlet 'dispatcherServlet'
+2026-05-27 10:37:23 - Completed initialization in 1 ms
+2026-05-27 10:37:23 - AtmosphereHandler.onRequest called before PushHandler has been set. This should really not happen
+2026-05-27 10:37:24 - 
+Vaadin is running in DEVELOPMENT mode - do not use for production deployments.
+2026-05-27 10:37:24 - The number of beans implementing 'I18NProvider' is 0. Cannot use Spring beans for I18N, falling back to the default behavior
+2026-05-27 10:37:24 - Tomcat started on port 8080 (http) with context path '/'
+2026-05-27 10:37:24 - Started Application in 16.173 seconds (process running for 16.919)
+2026-05-27 10:37:33 - Finding user by username: mithunns
+2026-05-27 10:38:20 - Finding user by username: siddheshlad
+2026-05-27 10:38:20 - Fetching all training courses
+2026-05-27 10:38:21 - Fetching all training enrollments
+2026-05-27 10:38:21 - Fetching all certifications
+2026-05-27 10:38:21 - Fetching all departments
+2026-05-27 10:38:21 - Fetching skill matrix summary
+2026-05-27 10:38:33 - Finding user by username: madhanganesan
+2026-05-27 10:38:33 - Fetching all training courses
+2026-05-27 10:38:33 - Fetching all training enrollments
+2026-05-27 10:38:33 - Fetching all certifications
+2026-05-27 10:38:33 - Fetching all departments
+2026-05-27 10:38:33 - Fetching skill matrix summary
+2026-05-27 10:38:35 - Fetching skill matrix summary
+2026-05-27 10:39:26 - Finding user by username: mithunns
+2026-05-27 10:39:27 - Fetching all training courses
+2026-05-27 10:39:27 - Fetching all training enrollments
+2026-05-27 10:39:27 - Fetching all certifications
+2026-05-27 10:39:27 - Fetching all departments
+2026-05-27 10:39:27 - Fetching skill matrix summary
+2026-05-27 10:39:30 - Fetching all training enrollments
+2026-05-27 10:39:30 - Fetching all approval workflow configurations
+2026-05-27 10:39:30 - Fetching all approval workflow configurations
+2026-05-27 10:39:30 - Fetching all approval workflow configurations
+2026-05-27 10:39:30 - Fetching all approval workflow configurations
+2026-05-27 10:39:30 - Fetching all approval workflow configurations
+2026-05-27 10:39:30 - Fetching all approval workflow configurations
+2026-05-27 10:39:30 - Fetching all approval workflow configurations
+2026-05-27 10:39:30 - Fetching all approval workflow configurations
+2026-05-27 10:39:30 - Fetching all approval workflow configurations
+2026-05-27 10:39:30 - Fetching all approval workflow configurations
+2026-05-27 10:39:30 - Fetching all approval workflow configurations
+2026-05-27 10:39:30 - Fetching all approval workflow configurations
+2026-05-27 10:39:34 - Fetching all audit logs
+2026-05-27 10:47:54 - Commencing graceful shutdown. Waiting for active requests to complete
+2026-05-27 10:47:54 - Graceful shutdown complete
+2026-05-27 10:47:54 - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-05-27 10:47:54 - HikariPool-1 - Shutdown initiated...
+2026-05-27 10:47:54 - HikariPool-1 - Shutdown completed.
+2026-05-27 10:48:00 - Starting Application using Java 21.0.10 with PID 21924 (C:\Users\mervin\Desktop\Assignment\ERP Training and Certification Management System\target\classes started by mervin in C:\Users\mervin\Desktop\Assignment\ERP Training and Certification Management System)
+2026-05-27 10:48:00 - Running with Spring Boot v3.4.5, Spring v6.2.6
+2026-05-27 10:48:00 - No active profile set, falling back to 1 default profile: "default"
+2026-05-27 10:48:02 - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-05-27 10:48:02 - Finished Spring Data repository scanning in 219 ms. Found 17 JPA repository interfaces.
+2026-05-27 10:48:03 - Tomcat initialized with port 8080 (http)
+2026-05-27 10:48:03 - Starting service [Tomcat]
+2026-05-27 10:48:03 - Starting Servlet engine: [Apache Tomcat/10.1.40]
+2026-05-27 10:48:03 - Initializing Spring embedded WebApplicationContext
+2026-05-27 10:48:03 - Root WebApplicationContext: initialization completed in 2159 ms
+2026-05-27 10:48:03 - Initializing AtmosphereFramework
+2026-05-27 10:48:04 - Search for subclasses and classes with annotations took 759 ms
+2026-05-27 10:48:05 - Starting dev-mode updaters in C:\Users\mervin\Desktop\Assignment\ERP Training and Certification Management System folder.
+2026-05-27 10:48:05 - Visited 131 classes. Took 30 ms.
+2026-05-27 10:48:05 - Checking if a development mode bundle build is needed
+2026-05-27 10:48:05 - A development mode bundle build is not needed
+2026-05-27 10:48:05 - Copying frontend resources from jar files ...
+2026-05-27 10:48:05 - Visited 21 resources. Took 86 ms.
+2026-05-27 10:48:05 - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-05-27 10:48:05 - HHH000412: Hibernate ORM core version 6.6.13.Final
+2026-05-27 10:48:05 - HHH000026: Second-level cache disabled
+2026-05-27 10:48:06 - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-05-27 10:48:06 - HikariPool-1 - Starting...
+2026-05-27 10:48:06 - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@11df0bc7
+2026-05-27 10:48:06 - HikariPool-1 - Start completed.
+2026-05-27 10:48:06 - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-05-27 10:48:06 - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 18.3
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-05-27 10:48:08 - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-05-27 10:48:10 - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-05-27 10:48:10 - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-05-27 10:48:13 - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-05-27 10:48:13 - Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-05-27 10:48:15 - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-27 10:48:15 - Initializing Servlet 'dispatcherServlet'
+2026-05-27 10:48:15 - Completed initialization in 1 ms
+2026-05-27 10:48:15 - AtmosphereHandler.onRequest called before PushHandler has been set. This should really not happen
+2026-05-27 10:48:18 - 
+Vaadin is running in DEVELOPMENT mode - do not use for production deployments.
+2026-05-27 10:48:18 - The number of beans implementing 'I18NProvider' is 0. Cannot use Spring beans for I18N, falling back to the default behavior
+2026-05-27 10:48:18 - Tomcat started on port 8080 (http) with context path '/'
+2026-05-27 10:48:18 - Started Application in 17.881 seconds (process running for 18.563)
+2026-05-27 10:49:55 - Commencing graceful shutdown. Waiting for active requests to complete
+2026-05-27 10:49:55 - Graceful shutdown complete
+2026-05-27 10:49:55 - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-05-27 10:49:55 - HikariPool-1 - Shutdown initiated...
+2026-05-27 10:49:55 - HikariPool-1 - Shutdown completed.
+2026-05-27 10:50:01 - Starting Application using Java 21.0.10 with PID 18728 (C:\Users\mervin\Desktop\Assignment\ERP Training and Certification Management System\target\classes started by mervin in C:\Users\mervin\Desktop\Assignment\ERP Training and Certification Management System)
+2026-05-27 10:50:01 - Running with Spring Boot v3.4.5, Spring v6.2.6
+2026-05-27 10:50:01 - No active profile set, falling back to 1 default profile: "default"
+2026-05-27 10:50:02 - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-05-27 10:50:03 - Finished Spring Data repository scanning in 218 ms. Found 17 JPA repository interfaces.
+2026-05-27 10:50:03 - Tomcat initialized with port 8080 (http)
+2026-05-27 10:50:03 - Starting service [Tomcat]
+2026-05-27 10:50:03 - Starting Servlet engine: [Apache Tomcat/10.1.40]
+2026-05-27 10:50:04 - Initializing Spring embedded WebApplicationContext
+2026-05-27 10:50:04 - Root WebApplicationContext: initialization completed in 2263 ms
+2026-05-27 10:50:04 - Initializing AtmosphereFramework
+2026-05-27 10:50:05 - Search for subclasses and classes with annotations took 813 ms
+2026-05-27 10:50:05 - Starting dev-mode updaters in C:\Users\mervin\Desktop\Assignment\ERP Training and Certification Management System folder.
+2026-05-27 10:50:05 - Visited 131 classes. Took 30 ms.
+2026-05-27 10:50:05 - Checking if a development mode bundle build is needed
+2026-05-27 10:50:06 - A development mode bundle build is not needed
+2026-05-27 10:50:06 - Copying frontend resources from jar files ...
+2026-05-27 10:50:06 - Visited 21 resources. Took 86 ms.
+2026-05-27 10:50:06 - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-05-27 10:50:06 - HHH000412: Hibernate ORM core version 6.6.13.Final
+2026-05-27 10:50:06 - HHH000026: Second-level cache disabled
+2026-05-27 10:50:06 - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-05-27 10:50:06 - HikariPool-1 - Starting...
+2026-05-27 10:50:07 - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@11df0bc7
+2026-05-27 10:50:07 - HikariPool-1 - Start completed.
+2026-05-27 10:50:07 - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-05-27 10:50:07 - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 18.3
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-05-27 10:50:08 - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-05-27 10:50:09 - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-05-27 10:50:10 - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-05-27 10:50:11 - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-05-27 10:50:11 - Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-05-27 10:50:16 - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-27 10:50:16 - Initializing Servlet 'dispatcherServlet'
+2026-05-27 10:50:16 - Completed initialization in 16 ms
+2026-05-27 10:50:16 - 
+Vaadin is running in DEVELOPMENT mode - do not use for production deployments.
+2026-05-27 10:50:16 - AtmosphereHandler.onRequest called before PushHandler has been set. This should really not happen
+2026-05-27 10:50:16 - The number of beans implementing 'I18NProvider' is 0. Cannot use Spring beans for I18N, falling back to the default behavior
+2026-05-27 10:50:18 - Tomcat started on port 8080 (http) with context path '/'
+2026-05-27 10:50:18 - Started Application in 17.684 seconds (process running for 18.378)
+2026-05-27 10:50:21 - Finding user by username: mithunns
+2026-05-27 10:50:21 - Fetching all training courses
+2026-05-27 10:50:21 - Fetching all training enrollments
+2026-05-27 10:50:21 - Fetching all certifications
+2026-05-27 10:50:21 - Fetching all departments
+2026-05-27 10:50:22 - Fetching skill matrix summary
+2026-05-27 10:50:24 - Fetching all departments
+2026-05-27 10:50:24 - Fetching all skill matrix records
+2026-05-27 10:51:13 - Fetching all departments
+2026-05-27 10:51:13 - Fetching all skill matrix records
+2026-05-27 10:51:14 - Fetching all certifications
+2026-05-27 10:51:15 - Fetching all departments
+2026-05-27 10:51:15 - Fetching all skill matrix records
+2026-05-27 11:06:02 - Commencing graceful shutdown. Waiting for active requests to complete
+2026-05-27 11:06:02 - Graceful shutdown complete
+2026-05-27 11:06:02 - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-05-27 11:06:02 - HikariPool-1 - Shutdown initiated...
+2026-05-27 11:06:02 - HikariPool-1 - Shutdown completed.

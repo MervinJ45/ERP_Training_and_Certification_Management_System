@@ -240,4 +240,8 @@ public class EmployeeService {
 
         return dto;
     }
+
+    public List<EmployeeDTO> getEmployeesWithSkills() {
+        return employeeRepo.findEmployeesWithSkills().stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
 }

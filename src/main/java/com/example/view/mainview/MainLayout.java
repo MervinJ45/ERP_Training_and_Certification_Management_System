@@ -155,9 +155,11 @@ public class MainLayout extends AppLayout {
         if (role.equals(auditor)) {
             nav.addItem(new SideNavItem("Employee Training", "/training-enrollments", VaadinIcon.USER_CARD.create()));
             nav.addItem(new SideNavItem("Certification Expiry", "reports/certification-expiry", VaadinIcon.DIPLOMA_SCROLL.create()));
+            nav.addItem(new SideNavItem("Department Skill Matrix", "reports/department-skills-matrix", VaadinIcon.DIPLOMA_SCROLL.create()));
             nav.addItem(new SideNavItem("Training Cost Analysis", "reports/training-cost", VaadinIcon.MONEY.create()));
             nav.addItem(new SideNavItem("Enrollment Summaries", "reports/enrollment-summary", VaadinIcon.CLIPBOARD_CHECK.create()));
             nav.addItem(new SideNavItem("Pending Verification", "reports/pending-approvals", VaadinIcon.CLOCK.create()));
+            nav.addItem(new SideNavItem("Employee Skills Matrix", "reports/employee-skills-matrix", VaadinIcon.GRID_BIG_O.create()));
             nav.addItem(new SideNavItem("Audit Ledger Logs", "reports/audit-history", VaadinIcon.FILE_TEXT.create()));
         }
 
