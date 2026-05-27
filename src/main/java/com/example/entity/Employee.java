@@ -21,12 +21,15 @@ public class Employee {
     @Column(unique = true, length = 10)
     private String employeeCode;
 
+    @Column(length = 20)
     private String firstName;
+    @Column(length = 20)
     private String lastName;
 
-    @Column(unique = true)
+    @Column(unique = true, length = 40)
     private String email;
 
+    @Column(length = 10)
     private String phone;
 
     @ManyToOne
@@ -41,6 +44,7 @@ public class Employee {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Column(length = 20)
     private String designation;
     private LocalDate dateOfJoining;
     private Boolean isActive = true;

@@ -19,6 +19,7 @@ public class TrainingCourse {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long courseId;
 
+    @Column(length = 20)
     private String courseName;
 
     @ManyToOne
@@ -29,7 +30,7 @@ public class TrainingCourse {
     private String description;
 
     private Integer durationDays;
-    private java.math.BigDecimal trainingCost;
+    private BigDecimal trainingCost;
 
     @ManyToOne
     @JoinColumn(name = "trainer_id")

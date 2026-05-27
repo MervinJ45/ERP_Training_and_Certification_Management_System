@@ -42,7 +42,7 @@ public class CertificationExpiryScheduler {
             return;
         }
 
-        List<Certification> standardCertificates = allCertificates.stream()
+        List<Certification> certificatesToProcess = allCertificates.stream()
                 .filter(cert -> cert.getExpiryDate() != null)
                 .filter(cert -> cert.getEnrollment() != null && cert.getEnrollment().getCourse() != null)
                 .filter(cert -> {
@@ -56,14 +56,14 @@ public class CertificationExpiryScheduler {
                 })
                 .collect(Collectors.toList());
 
-        if (standardCertificates.isEmpty()) {
+        if (certificatesToProcess.isEmpty()) {
             logger.info("No certificates matched the notification days today.");
             return;
         }
 
-        logger.info("Retrieved {} items requiring reminders. Grouping entries by employee profile...", standardCertificates.size());
+        logger.info("Retrieved {} items requiring reminders. Grouping entries by employee profile...", certificatesToProcess.size());
 
-        Map<Employee, List<Certification>> certificatesByEmployee = standardCertificates.stream()
+        Map<Employee, List<Certification>> certificatesByEmployee = certificatesToProcess.stream()
                 .collect(Collectors.groupingBy(Certification::getEmployee));
 
         int successEmailCount = 0;

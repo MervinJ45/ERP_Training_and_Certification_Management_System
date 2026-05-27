@@ -16,7 +16,7 @@ public class ApprovalStatus {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long approvalStatusId;
 
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 15)
     private String approvalStatus;
 
     private Boolean isActive = true;
