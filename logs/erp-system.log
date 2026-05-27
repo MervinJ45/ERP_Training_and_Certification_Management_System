@@ -112,3 +112,24 @@ Vaadin is running in DEVELOPMENT mode - do not use for production deployments.
 2026-05-27 10:10:06 - Fetching pending manager approvals for manager id: 3
 2026-05-27 10:10:14 - Finding user by username: muraliprasath
 2026-05-27 10:10:14 - Fetching approvals for approver employee id: 3
+2026-05-27 10:10:41 - Finding user by username: madhanganesan
+2026-05-27 10:10:41 - Fetching all training courses
+2026-05-27 10:10:41 - Fetching all training enrollments
+2026-05-27 10:10:41 - Fetching all certifications
+2026-05-27 10:10:41 - Fetching all departments
+2026-05-27 10:10:41 - Fetching skill matrix summary
+2026-05-27 10:10:44 - Fetching all training courses
+2026-05-27 10:10:46 - Finding user by username: madhanganesan
+2026-05-27 10:10:46 - Fetching HR/Director approvals for role id: 2
+2026-05-27 10:10:47 - Finding user by username: madhanganesan
+2026-05-27 10:10:48 - Fetching approvals for approver employee id: 2
+2026-05-27 10:10:49 - Fetching skill matrix summary
+2026-05-27 10:11:46 - Finding user by username: siddheshlad
+2026-05-27 10:11:46 - Fetching all training courses
+2026-05-27 10:11:46 - Fetching all training enrollments
+2026-05-27 10:11:46 - Fetching all certifications
+2026-05-27 10:11:47 - Fetching all departments
+2026-05-27 10:11:47 - Fetching skill matrix summary
+2026-05-27 10:11:48 - Finding user by username: siddheshlad
+2026-05-27 10:11:48 - Finding user by username: siddheshlad
+2026-05-27 10:11:48 - Finding user by username: siddheshlad
